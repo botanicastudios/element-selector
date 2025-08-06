@@ -1,8 +1,16 @@
 {
   "name": "@botanicastudios/element-selector",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "license": "MIT",
   "type": "module",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/botanicastudios/element-selector.git"
+  },
+  "bugs": {
+    "url": "https://github.com/botanicastudios/element-selector/issues"
+  },
+  "homepage": "https://github.com/botanicastudios/element-selector#readme",
   "main": "./dist/element-selector.js",
   "module": "./dist/element-selector.js",
   "types": "./dist/index.d.ts",
