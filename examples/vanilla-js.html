@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Element Selector - Vanilla JS Example</title>
+</head>
+<body>
+  <h1>Element Selector Demo</h1>
+  <p>Click the button below to start selecting elements on this page.</p>
+  
+  <button id="select-btn">Select Element</button>
+  <button id="select-multiple-btn">Select Multiple Elements</button>
+  
+  <div id="result"></div>
+
+  <script type="module">
+    // Import from CDN (using unpkg as example)
+    import { launchSelector } from 'https://unpkg.com/@botanicastudios/element-selector/dist/element-selector.js';
+    
+    // Or if you've installed via npm and using a bundler:
+    // import { launchSelector } from '@botanicastudios/element-selector';
+    
+    document.getElementById('select-btn').addEventListener('click', async () => {
+      try {
+        const element = await launchSelector();
+        document.getElementById('result').innerHTML = `
+          <h3>Selected Element:</h3>
+          <pre>${JSON.stringify({
+            tag: element.tag,
+            id: element.id,
+            classes: element.classes,
+            selector: element.selector
+          }, null, 2)}</pre>
+        `;
+      } catch (error) {
+        console.log('Selection cancelled');
+      }
+    });
+    
+    document.getElementById('select-multiple-btn').addEventListener('click', async () => {
+      try {
+        const elements = await launchSelector({ 
+          multiSelect: true,
+          friendlySelectors: true 
+        });
+        document.getElementById('result').innerHTML = `
+          <h3>Selected ${elements.length} Elements:</h3>
+          <pre>${JSON.stringify(elements.map(el => ({
+            tag: el.tag,
+            id: el.id,
+            classes: el.classes,
+            selector: el.selector
+          })), null, 2)}</pre>
+        `;
+      } catch (error) {
+        console.log('Selection cancelled');
+      }
+    });
+  </script>
+</body>
+</html>
