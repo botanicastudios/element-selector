@@ -117,7 +117,11 @@ async function selectMultipleElements() {
     // - tag: lowercase tag name
     // - id: element ID (if any)
     // - classes: element class names
-    // - textPreview: first 100 characters of text content
+    // - textPreview: first 50 characters of text content
+    // - mode: 'select' | 'insert'
+    // - insertionPosition / insertionAxis (insert mode only)
+    // - beforeHtml / elementHtml / afterHtml: safe context snippets around the target
+    // - insertionBeforeHtml / insertionAfterHtml: context that brackets the insertion gap
   } catch (error) {
     console.log("Selection cancelled");
   }

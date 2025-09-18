@@ -6,7 +6,11 @@ import React, { useState, useEffect, useRef, useCallback } from "react";
 import { HoveredItem } from "./HoveredItem";
 import { SelectedItem } from "./SelectedItem";
 import { InsertionGuide } from "./InsertionGuide";
-import { findElementAtCoordinates, buildElementSelector } from "./utils";
+import {
+  findElementAtCoordinates,
+  buildElementSelector,
+  balancedContextHtml,
+} from "./utils";
 import type {
   ElementSelectorProps,
   ElementInfo,
@@ -21,6 +25,8 @@ const EDGE_BEHAVIOUR: Record<"top" | "bottom" | "left" | "right", Pick<Insertion
   left: { position: "before", axis: "vertical" },
   right: { position: "after", axis: "vertical" },
 };
+
+const CONTEXT_CHARS = 300;
 
 function deriveInsertionCandidate(
   element: HTMLElement | null,
@@ -82,15 +88,48 @@ export function ElementSelector({
     (
       element: HTMLElement,
       extra: Partial<ElementInfo> = {}
-    ): ElementInfo => ({
-      element,
-      selector: buildElementSelector(element),
-      tag: element.tagName.toLowerCase(),
-      id: element.id || null,
-      classes: element.className || "",
-      textPreview: element.textContent?.substring(0, 50) || "",
-      ...extra,
-    }),
+    ): ElementInfo => {
+      const baseContext = (() => {
+        try {
+          return balancedContextHtml(element, CONTEXT_CHARS);
+        } catch (error) {
+          return {
+            beforeHtml: "",
+            elementHtml: element.outerHTML || "",
+            afterHtml: "",
+          };
+        }
+      })();
+
+      const info: ElementInfo = {
+        element,
+        selector: buildElementSelector(element),
+        tag: element.tagName.toLowerCase(),
+        id: element.id || null,
+        classes: element.className || "",
+        textPreview: element.textContent?.substring(0, 50) || "",
+        beforeHtml: baseContext.beforeHtml,
+        elementHtml: baseContext.elementHtml,
+        afterHtml: baseContext.afterHtml,
+        ...extra,
+      };
+
+      if (info.mode === "insert") {
+        info.insertionBeforeHtml =
+          info.insertionPosition === "after"
+            ? info.beforeHtml + info.elementHtml
+            : info.beforeHtml;
+        info.insertionAfterHtml =
+          info.insertionPosition === "before"
+            ? info.elementHtml + info.afterHtml
+            : info.afterHtml;
+      } else {
+        info.insertionBeforeHtml = info.beforeHtml;
+        info.insertionAfterHtml = info.afterHtml;
+      }
+
+      return info;
+    },
     []
   );
 

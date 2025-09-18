@@ -209,6 +209,47 @@ function App() {
                     <small style={{ color: '#bbb' }}>Text: "{el.textPreview}"</small>
                   </>
                 )}
+                <details style={{ marginTop: '10px' }}>
+                  <summary style={{ cursor: 'pointer' }}>HTML context</summary>
+                  <div style={{
+                    marginTop: '8px',
+                    display: 'grid',
+                    gap: '8px',
+                    fontFamily: 'ui-monospace, SFMono-Regular, Menlo, monospace',
+                    fontSize: '12px',
+                    backgroundColor: 'rgba(17, 24, 39, 0.6)',
+                    padding: '10px',
+                    borderRadius: '6px'
+                  }}>
+                    <div>
+                      <strong style={{ color: '#60a5fa' }}>Before</strong>
+                      <pre style={{ whiteSpace: 'pre-wrap', margin: 0 }}>{el.beforeHtml || '(none)'}</pre>
+                    </div>
+                    <div>
+                      <strong style={{ color: '#34d399' }}>Element</strong>
+                      <pre style={{ whiteSpace: 'pre-wrap', margin: 0 }}>{el.elementHtml || '(none)'}</pre>
+                    </div>
+                    <div>
+                      <strong style={{ color: '#fbbf24' }}>After</strong>
+                      <pre style={{ whiteSpace: 'pre-wrap', margin: 0 }}>{el.afterHtml || '(none)'}</pre>
+                    </div>
+                    {el.mode === 'insert' && (
+                      <div>
+                        <strong style={{ color: '#f472b6' }}>Insertion Gap</strong>
+                        <div style={{ display: 'grid', gap: '4px', marginTop: '4px' }}>
+                          <div>
+                            <em style={{ color: '#c4b5fd' }}>Before gap</em>
+                            <pre style={{ whiteSpace: 'pre-wrap', margin: 0 }}>{el.insertionBeforeHtml || '(none)'}</pre>
+                          </div>
+                          <div>
+                            <em style={{ color: '#c4b5fd' }}>After gap</em>
+                            <pre style={{ whiteSpace: 'pre-wrap', margin: 0 }}>{el.insertionAfterHtml || '(none)'}</pre>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </details>
               </div>
             ))}
           </div>

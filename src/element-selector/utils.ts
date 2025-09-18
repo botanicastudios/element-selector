@@ -2,6 +2,8 @@
  * DOM utilities for element selection
  */
 
+import type { ContextHtmlOptions, ContextHtmlResult } from "./types";
+
 /**
  * Find the topmost element at given coordinates
  * Excludes overlay elements and SVG internals
@@ -213,4 +215,170 @@ export function getFriendlyTagName(tagName: string): string {
   };
 
   return friendlyNames[tagName.toLowerCase()] || tagName.toLowerCase();
+}
+
+/**
+ * Balanced, well-formed HTML context around `node`.
+ * Builds an ancestor container that reaches the desired context size,
+ * replaces the node with markers, then splits the container HTML so the
+ * before/after strings include all necessary wrapper tags. Selector UI
+ * artifacts are removed automatically.
+ */
+export function balancedContextHtml(
+  node: Node,
+  contextChars = 300,
+  { maxAncestors = 10 }: ContextHtmlOptions = {}
+): ContextHtmlResult {
+  if (!node || !node.parentNode) {
+    throw new Error("Node must be attached to the DOM (with a parent).");
+  }
+
+  const serializeSingleNode = (target: Node): string => {
+    if (target.nodeType === Node.ELEMENT_NODE) {
+      return (target as Element).outerHTML;
+    }
+    if (target.nodeType === Node.TEXT_NODE) {
+      return (target.textContent ?? "").toString();
+    }
+    return new XMLSerializer().serializeToString(target);
+  };
+
+  const getNodePath = (root: Node, target: Node): number[] => {
+    const path: number[] = [];
+    let current: Node | null = target;
+
+    while (current && current !== root) {
+      const parent = current.parentNode as (Node & ParentNode) | null;
+      if (!parent) {
+        throw new Error("Failed to resolve node path for context extraction.");
+      }
+
+      const index = Array.prototype.indexOf.call(parent.childNodes, current);
+      if (index === -1) {
+        throw new Error("Unable to map node into cloned context tree.");
+      }
+
+      path.unshift(index);
+      current = parent;
+    }
+
+    if (current !== root) {
+      throw new Error("Context root does not contain the requested node.");
+    }
+
+    return path;
+  };
+
+  const removeSelectorArtifacts = (container: HTMLElement) => {
+    const artifacts = container.querySelectorAll(
+      "#element-selector-root, #element-selector-overlay"
+    );
+    artifacts.forEach((element) => element.remove());
+  };
+
+  const markers = {
+    start: `__element_selector_start_${Math.random().toString(36).slice(2)}__`,
+    end: `__element_selector_end_${Math.random().toString(36).slice(2)}__`,
+  };
+
+  const serializeForRoot = (root: Node): ContextHtmlResult => {
+    const wrapper = document.createElement("div");
+    const clonedRoot = root.cloneNode(true);
+
+    wrapper.appendChild(clonedRoot);
+    removeSelectorArtifacts(wrapper);
+
+    if (!wrapper.firstChild) {
+      return {
+        beforeHtml: "",
+        elementHtml: serializeSingleNode(node),
+        afterHtml: "",
+      };
+    }
+
+    const path = getNodePath(root, node);
+    let cloneTarget: Node = wrapper.firstChild;
+    for (const index of path) {
+      const next = cloneTarget.childNodes.item(index);
+      if (!next) {
+        throw new Error("Failed to mirror node inside cloned context tree.");
+      }
+      cloneTarget = next;
+    }
+
+    const parentClone = cloneTarget.parentNode;
+    if (!parentClone) {
+      // The node itself is the root; no surrounding context exists.
+      return {
+        beforeHtml: "",
+        elementHtml: serializeSingleNode(node),
+        afterHtml: "",
+      };
+    }
+
+    const startMarkerNode = document.createTextNode(markers.start);
+    const endMarkerNode = document.createTextNode(markers.end);
+
+    parentClone.insertBefore(startMarkerNode, cloneTarget);
+    parentClone.insertBefore(endMarkerNode, cloneTarget.nextSibling);
+    parentClone.removeChild(cloneTarget);
+
+    const serialized = wrapper.innerHTML;
+    const startIndex = serialized.indexOf(markers.start);
+    const endIndex = serialized.indexOf(markers.end);
+
+    if (startIndex === -1 || endIndex === -1 || endIndex < startIndex) {
+      throw new Error("Failed to locate context markers during serialization.");
+    }
+
+    const beforeHtml = serialized.slice(0, startIndex);
+    const afterHtml = serialized.slice(endIndex + markers.end.length);
+
+    return {
+      beforeHtml,
+      elementHtml: serializeSingleNode(node),
+      afterHtml,
+    };
+  };
+
+  const nextRoot = (current: Node): Node | null => {
+    if (!current.parentNode) {
+      return null;
+    }
+    if (current.parentNode.nodeType === Node.DOCUMENT_NODE) {
+      const doc = current.parentNode as Document;
+      return doc.documentElement ?? null;
+    }
+    return current.parentNode;
+  };
+
+  let depth = 0;
+  let contextRoot: Node | null = node.parentNode ?? node;
+  let context = serializeForRoot(contextRoot);
+
+  while (
+    depth < maxAncestors &&
+    (context.beforeHtml.length < contextChars ||
+      context.afterHtml.length < contextChars)
+  ) {
+    const candidate = nextRoot(contextRoot!);
+    if (!candidate) {
+      break;
+    }
+
+    // Stop if we've reached the same root again (e.g., html element)
+    if (candidate === contextRoot) {
+      break;
+    }
+
+    depth += 1;
+    contextRoot = candidate;
+    context = serializeForRoot(contextRoot);
+
+    if (!contextRoot.parentNode || contextRoot.parentNode.nodeType === Node.DOCUMENT_NODE) {
+      break;
+    }
+  }
+
+  return context;
 }

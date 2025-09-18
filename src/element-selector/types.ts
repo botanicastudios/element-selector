@@ -14,6 +14,11 @@ export interface ElementInfo {
   mode?: ElementSelectorMode;
   insertionPosition?: "before" | "after";
   insertionAxis?: "horizontal" | "vertical";
+  beforeHtml: string;
+  elementHtml: string;
+  afterHtml: string;
+  insertionBeforeHtml?: string;
+  insertionAfterHtml?: string;
 }
 
 export interface ElementSelectorProps {
@@ -59,4 +64,14 @@ export interface LaunchSelectorOptions {
   friendlySelectors?: boolean;
   mode?: ElementSelectorMode;
   allowModeToggle?: boolean;
+}
+
+export interface ContextHtmlOptions {
+  maxAncestors?: number;
+}
+
+export interface ContextHtmlResult {
+  beforeHtml: string;
+  elementHtml: string;
+  afterHtml: string;
 }

@@ -83,4 +83,6 @@ export type {
   ElementSelectorProps,
   LaunchSelectorOptions,
   ElementSelectorMode,
+  ContextHtmlOptions,
+  ContextHtmlResult,
 } from "./types";
