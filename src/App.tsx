@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import './App.css';
 import { launchSelector } from './element-selector';
-import type { ElementInfo } from './element-selector';
+import type { ElementInfo, ElementSelectorMode } from './element-selector';
 
 function App() {
   const [selectedElements, setSelectedElements] = useState<ElementInfo[] | null>(null);
@@ -9,6 +9,13 @@ function App() {
   const [isSelecting, setIsSelecting] = useState(false);
   const [multiSelect, setMultiSelect] = useState(false);
   const [friendlySelectors, setFriendlySelectors] = useState(false);
+  const [mode, setMode] = useState<ElementSelectorMode>('select');
+
+  useEffect(() => {
+    if (mode === 'insert' && multiSelect) {
+      setMultiSelect(false);
+    }
+  }, [mode, multiSelect]);
 
   const handleLaunchSelector = async () => {
     setError(null);
@@ -16,8 +23,9 @@ function App() {
     
     try {
       const result = await launchSelector({
-        multiSelect,
-        friendlySelectors
+        multiSelect: mode === 'select' ? multiSelect : false,
+        friendlySelectors,
+        mode
       });
       // Normalize to array for consistent handling in UI
       setSelectedElements(Array.isArray(result) ? result : [result]);
@@ -51,10 +59,11 @@ function App() {
               type="checkbox"
               checked={multiSelect}
               onChange={(e) => setMultiSelect(e.target.checked)}
+              disabled={mode === 'insert'}
               style={{
                 width: '18px',
                 height: '18px',
-                cursor: 'pointer'
+                cursor: mode === 'insert' ? 'not-allowed' : 'pointer'
               }}
             />
             <span>Multi-select mode</span>
@@ -79,7 +88,57 @@ function App() {
             <span>Friendly names</span>
           </label>
         </div>
-        
+
+        <div style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: '12px',
+          marginTop: '12px',
+          justifyContent: 'center',
+          flexWrap: 'wrap'
+        }}>
+          <span style={{ fontWeight: 600 }}>Mode:</span>
+          <div style={{
+            display: 'flex',
+            backgroundColor: 'rgba(255, 255, 255, 0.1)',
+            borderRadius: '999px',
+            padding: '4px'
+          }}>
+            <button
+              type="button"
+              onClick={() => setMode('select')}
+              disabled={mode === 'select'}
+              style={{
+                border: 'none',
+                borderRadius: '999px',
+                padding: '6px 16px',
+                cursor: mode === 'select' ? 'default' : 'pointer',
+                backgroundColor: mode === 'select' ? '#61dafb' : 'transparent',
+                color: mode === 'select' ? '#1b2838' : '#f0f0f0',
+                fontWeight: mode === 'select' ? 700 : 500
+              }}
+            >
+              Select
+            </button>
+            <button
+              type="button"
+              onClick={() => setMode('insert')}
+              disabled={mode === 'insert'}
+              style={{
+                border: 'none',
+                borderRadius: '999px',
+                padding: '6px 16px',
+                cursor: mode === 'insert' ? 'default' : 'pointer',
+                backgroundColor: mode === 'insert' ? '#61dafb' : 'transparent',
+                color: mode === 'insert' ? '#1b2838' : '#f0f0f0',
+                fontWeight: mode === 'insert' ? 700 : 500
+              }}
+            >
+              Insert
+            </button>
+          </div>
+        </div>
+
         <button
           onClick={handleLaunchSelector}
           disabled={isSelecting}
@@ -135,6 +194,15 @@ function App() {
                 {el.classes && <span> .{el.classes.split(' ').join('.')}</span>}
                 <br />
                 <small style={{ color: '#999' }}>Selector: {el.selector}</small>
+                {el.mode === 'insert' && el.insertionPosition && (
+                  <>
+                    <br />
+                    <small style={{ color: '#ddd' }}>
+                      Insert {el.insertionPosition}
+                      {el.insertionAxis ? ` (${el.insertionAxis})` : ''}
+                    </small>
+                  </>
+                )}
                 {el.textPreview && (
                   <>
                     <br />

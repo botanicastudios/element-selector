@@ -15,7 +15,12 @@ import type { ElementInfo, LaunchSelectorOptions } from "./types";
 export function launchSelector(
   options: LaunchSelectorOptions = {}
 ): Promise<ElementInfo | ElementInfo[]> {
-  const { multiSelect = false, friendlySelectors = false } = options;
+  const {
+    multiSelect = false,
+    friendlySelectors = false,
+    mode = "select",
+    allowModeToggle = true,
+  } = options;
 
   return new Promise((resolve, reject) => {
     // Create root container
@@ -62,6 +67,8 @@ export function launchSelector(
           onCancel={handleCancel}
           multiSelect={multiSelect}
           friendlySelectors={friendlySelectors}
+          initialMode={mode}
+          allowModeToggle={allowModeToggle}
         />
       </React.StrictMode>
     );
@@ -75,4 +82,5 @@ export type {
   ElementInfo,
   ElementSelectorProps,
   LaunchSelectorOptions,
+  ElementSelectorMode,
 } from "./types";

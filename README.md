@@ -167,6 +167,17 @@ You can also use the library directly from a CDN without installing:
 
 When set to `true`, allows selecting multiple elements. Without this option, only one element can be selected at a time.
 
+### `mode` (default: `select`)
+
+Choose between two interaction modes:
+
+- `select`: highlight existing DOM nodes and return their details (the original behaviour)
+- `insert`: preview drop points with horizontal/vertical rules so you can decide where new content should be injected. The selector returns the reference element plus the edge (`before`/`after`) and axis.
+
+### `allowModeToggle` (default: `true`)
+
+Controls whether the floating toolbar inside the selector lets users switch between select and insert modes. Set to `false` if you want to lock the selector to the mode you launch with.
+
 ### `friendlySelectors` (default: `false`)
 
 When set to `true`, displays human-readable tag names instead of HTML tag names. For example:
@@ -180,12 +191,13 @@ When set to `true`, displays human-readable tag names instead of HTML tag names.
 ## How it works
 
 1. Call `launchSelector()` or render the `ElementSelector` component
-2. Move your mouse over elements to see them highlighted in blue with their tag name
-3. Click to select an element (it will be outlined in gray)
-4. In multi-select mode: Click different elements to select multiple
-5. Click a selected element again to deselect it
-6. Press Enter to confirm your selection and receive the element data
-7. Press Escape to cancel the selection
+2. Choose between **Select** (default) and **Insert** in the toolbar, if toggling is enabled
+3. Move your mouse over the page to preview the target
+   - Select mode highlights whole elements
+   - Insert mode draws a rule between siblings to illustrate the drop point
+4. Click to confirm the current highlight
+5. In select + multi-select mode: click multiple elements, then press Enter to confirm (click again to remove)
+6. Press Escape at any time to cancel without making a selection
 
 ## Available Scripts
 

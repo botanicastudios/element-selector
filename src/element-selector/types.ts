@@ -2,6 +2,8 @@
  * Type definitions for the element selector component
  */
 
+export type ElementSelectorMode = "select" | "insert";
+
 export interface ElementInfo {
   element: HTMLElement;
   selector: string;
@@ -9,6 +11,9 @@ export interface ElementInfo {
   id: string | null;
   classes: string;
   textPreview: string;
+  mode?: ElementSelectorMode;
+  insertionPosition?: "before" | "after";
+  insertionAxis?: "horizontal" | "vertical";
 }
 
 export interface ElementSelectorProps {
@@ -16,6 +21,8 @@ export interface ElementSelectorProps {
   onCancel: () => void;
   multiSelect?: boolean;
   friendlySelectors?: boolean;
+  initialMode?: ElementSelectorMode;
+  allowModeToggle?: boolean;
 }
 
 export interface HoveredItemProps {
@@ -26,6 +33,16 @@ export interface HoveredItemProps {
 export interface SelectedItemProps {
   targetElement: HTMLElement;
   onDeselect: () => void;
+}
+
+export interface InsertionCandidate {
+  element: HTMLElement;
+  position: "before" | "after";
+  axis: "horizontal" | "vertical";
+}
+
+export interface InsertionGuideProps extends InsertionCandidate {
+  friendlySelectors?: boolean;
 }
 
 export interface AnimationFrameHook {
@@ -40,4 +57,6 @@ export interface MousePosition {
 export interface LaunchSelectorOptions {
   multiSelect?: boolean;
   friendlySelectors?: boolean;
+  mode?: ElementSelectorMode;
+  allowModeToggle?: boolean;
 }
