@@ -33,40 +33,70 @@ export function getClassNames(element: Element | null): string[] {
 }
 
 /**
- * Find the topmost element at given coordinates
- * Excludes overlay elements and SVG internals
+ * Find the deepest (shadow-inclusive) element at given coordinates.
+ * Excludes selector UI artifacts and SVG internals.
  */
 export function findElementAtCoordinates(x: number, y: number): HTMLElement {
-  // Get all elements at the point
-  const elements = document.elementsFromPoint(x, y);
+  const isSelectorArtifact = (el: Element | null) =>
+    !!el && (
+      el.id === "element-selector-overlay" ||
+      el.closest("#element-selector-overlay") ||
+      el.id === "element-selector-root" ||
+      el.closest("#element-selector-root")
+    );
 
-  // Find first valid element
-  for (const element of elements) {
-    // Skip our own overlay and its children
-    if (
-      element.id === "element-selector-overlay" ||
-      element.closest("#element-selector-overlay") ||
-      element.id === "element-selector-root" ||
-      element.closest("#element-selector-root")
-    ) {
-      continue;
+  const deepFromPoint = (root: Document | ShadowRoot, cx: number, cy: number): HTMLElement | null => {
+    const hit = root.elementFromPoint(cx, cy) as HTMLElement | null;
+    if (!hit) return null;
+
+    // Follow assigned slot content
+    if (hit.tagName === "SLOT") {
+      const assigned = (hit as HTMLSlotElement).assignedElements({ flatten: true });
+      if (assigned.length > 0) {
+        const assignedEl = assigned[0] as HTMLElement;
+        // dive further if assigned node has its own shadow root
+        if (assignedEl.shadowRoot) {
+          const inner = deepFromPoint(assignedEl.shadowRoot, cx, cy);
+          if (inner) return inner;
+        }
+        return assignedEl;
+      }
     }
 
-    // Skip SVG internal elements (but allow top-level SVG)
-    if (
-      element.tagName !== "svg" &&
-      element.tagName !== "SVG" &&
-      element.closest("svg")
-    ) {
-      continue;
+    if (hit.shadowRoot) {
+      const inner = deepFromPoint(hit.shadowRoot, cx, cy);
+      if (inner) return inner;
     }
 
-    // Return the first valid element we find
-    return element as HTMLElement;
+    return hit;
+  };
+
+  // Start from the document root and walk into shadow roots; this avoids
+  // re-sampling the same overlay with elementsFromPoint loops.
+  let element = deepFromPoint(document, x, y);
+
+  if (isSelectorArtifact(element)) {
+    // If we landed on our own UI (should be rare because pointer-events: none),
+    // fall back to the next candidate from elementsFromPoint.
+    const fallback = document.elementsFromPoint(x, y).find((el) => !isSelectorArtifact(el));
+    element = (fallback as HTMLElement | undefined) ?? null;
   }
 
-  // Fallback to body
-  return document.body;
+  if (!element) {
+    return document.body;
+  }
+
+  // Skip SVG internal elements (but allow top-level SVG)
+  if (
+    element.tagName !== "svg" &&
+    element.tagName !== "SVG" &&
+    element.closest("svg")
+  ) {
+    const svgHost = element.closest("svg");
+    return (svgHost as unknown as HTMLElement) || document.body;
+  }
+
+  return element;
 }
 
 /**

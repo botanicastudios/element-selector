@@ -3,6 +3,89 @@ import './App.css';
 import { launchSelector, resetSelectionHighlights } from './element-selector';
 import type { ElementInfo, ElementSelectorMode, ElementSelectorTheme } from './element-selector';
 
+// Register a simple shadow-DOM custom element for debugging selection in shadow trees.
+const registerShadowCard = () => {
+  if (customElements.get('shadow-card')) return;
+
+  class ShadowCard extends HTMLElement {
+    constructor() {
+      super();
+      const root = this.attachShadow({ mode: 'open' });
+      root.innerHTML = `
+        <style>
+          :host {
+            display: block;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
+            background: linear-gradient(135deg, #0f172a, #1f2937);
+            color: #e5e7eb;
+            font-family: 'Inter', system-ui, sans-serif;
+          }
+          .header {
+            padding: 16px 18px;
+            border-bottom: 1px solid rgba(255,255,255,0.08);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+          }
+          .pill {
+            padding: 4px 10px;
+            border-radius: 999px;
+            background: rgba(59,130,246,0.12);
+            color: #93c5fd;
+            font-size: 12px;
+            letter-spacing: 0.02em;
+          }
+          .body {
+            padding: 18px;
+            display: grid;
+            gap: 12px;
+          }
+          button {
+            background: #3b82f6;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 10px 14px;
+            font-weight: 600;
+            cursor: pointer;
+            box-shadow: 0 6px 16px rgba(59,130,246,0.3);
+          }
+          button:active {
+            transform: translateY(1px);
+          }
+        </style>
+        <div class="header">
+          <div class="pill">Shadow DOM</div>
+          <div>
+            <div style="font-weight:700">Analytics Panel</div>
+            <div style="opacity:0.8;font-size:13px">Custom element w/ shadow root</div>
+          </div>
+        </div>
+        <div class="body">
+          <div class="metric" aria-label="metric">
+            <div style="font-size:13px; opacity:0.8">Conversion</div>
+            <div style="font-size:24px; font-weight:700">12.4%</div>
+          </div>
+          <button type="button">Shadow CTA</button>
+          <slot></slot>
+        </div>
+      `;
+    }
+  }
+
+  customElements.define('shadow-card', ShadowCard);
+};
+
+declare global {
+  namespace JSX {
+    interface IntrinsicElements {
+      'shadow-card': React.DetailedHTMLProps<React.HTMLAttributes<HTMLElement>, HTMLElement>;
+    }
+  }
+}
+
 function App() {
   const [selectedElements, setSelectedElements] = useState<ElementInfo[] | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -18,6 +101,10 @@ function App() {
     resetSelectionHighlights();
     setSelectedElements(null);
   };
+
+  useEffect(() => {
+    registerShadowCard();
+  }, []);
 
   useEffect(() => {
     if (mode === 'insert' && multiSelect) {
@@ -449,6 +536,30 @@ function App() {
             <p>This is the third card with more content.</p>
             <button>Action</button>
           </div>
+        </div>
+
+        <div style={{ marginTop: '32px', display: 'grid', gap: '12px' }}>
+          <h3>Shadow DOM custom element</h3>
+          <p style={{ maxWidth: 640 }}>
+            The element below is a custom element with its own shadow root. Use it to verify
+            hover/selection works inside shadow DOM hosts.
+          </p>
+          <shadow-card id="shadow-demo" data-test-shadow>
+            <div style={{ display: 'grid', gap: '6px' }}>
+              <label style={{ fontSize: 13, opacity: 0.85 }}>Shadow input</label>
+              <input
+                type="text"
+                placeholder="Type inside shadow root"
+                style={{
+                  padding: '10px 12px',
+                  borderRadius: '6px',
+                  border: '1px solid rgba(255,255,255,0.18)',
+                  background: 'rgba(255,255,255,0.06)',
+                  color: '#e5e7eb'
+                }}
+              />
+            </div>
+          </shadow-card>
         </div>
         
         <ul style={{ marginTop: '30px', textAlign: 'left' }}>

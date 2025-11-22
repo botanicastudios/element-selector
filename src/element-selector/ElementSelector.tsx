@@ -186,6 +186,26 @@ function getMeasurableTarget(element: HTMLElement | null): HTMLElement | null {
   return null;
 }
 
+function isSelectorArtifact(node: HTMLElement | null): boolean {
+  if (!node) return false;
+  return Boolean(
+    node.id === "element-selector-overlay" ||
+    node.closest("#element-selector-overlay") ||
+    node.id === "element-selector-root" ||
+    node.closest("#element-selector-root")
+  );
+}
+
+function targetFromComposedPath(event: MouseEvent): HTMLElement | null {
+  const path = event.composedPath?.() ?? [];
+  for (const node of path) {
+    if (!(node instanceof HTMLElement)) continue;
+    if (isSelectorArtifact(node)) continue;
+    return node;
+  }
+  return null;
+}
+
 export function ElementSelector({
   onElementSelected,
   onCancel,
@@ -397,8 +417,10 @@ export function ElementSelector({
   // Track mouse movement
   const handleMouseMove = useCallback(
     (event: MouseEvent) => {
-      const target = event.target as HTMLElement;
-      if (target.closest('[data-element-selector-ui="true"]')) {
+      const pathTarget = targetFromComposedPath(event);
+      const target = (pathTarget ?? (event.target as HTMLElement | null));
+
+      if (target?.closest('[data-element-selector-ui="true"]')) {
         if (updateTimerRef.current) {
           clearTimeout(updateTimerRef.current);
           updateTimerRef.current = null;
@@ -475,7 +497,9 @@ export function ElementSelector({
 
       if (mode === "insert") {
         const candidate = deriveInsertionCandidate(
-          getMeasurableTarget(findElementAtCoordinates(event.clientX, event.clientY)),
+          getMeasurableTarget(
+            targetFromComposedPath(event) ?? findElementAtCoordinates(event.clientX, event.clientY)
+          ),
           event.clientX,
           event.clientY
         );
@@ -507,10 +531,9 @@ export function ElementSelector({
         return;
       }
 
-      const targetElement = getMeasurableTarget(findElementAtCoordinates(
-        event.clientX,
-        event.clientY
-      ));
+      const targetElement = getMeasurableTarget(
+        targetFromComposedPath(event) ?? findElementAtCoordinates(event.clientX, event.clientY)
+      );
 
       if (!targetElement) {
         return;

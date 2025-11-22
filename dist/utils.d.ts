@@ -8,8 +8,8 @@ import type { ContextHtmlOptions, ContextHtmlResult } from "./types";
  */
 export declare function getClassNames(element: Element | null): string[];
 /**
- * Find the topmost element at given coordinates
- * Excludes overlay elements and SVG internals
+ * Find the deepest (shadow-inclusive) element at given coordinates.
+ * Excludes selector UI artifacts and SVG internals.
  */
 export declare function findElementAtCoordinates(x: number, y: number): HTMLElement;
 /**

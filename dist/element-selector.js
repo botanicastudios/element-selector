@@ -1,5 +1,5 @@
-import ge, { useRef as W, useEffect as Q, useState as U, useMemo as me, useCallback as V } from "react";
-import ye from "react-dom/client";
+import be, { useRef as W, useEffect as Q, useState as U, useMemo as he, useCallback as V } from "react";
+import Ee from "react-dom/client";
 var ce = { exports: {} }, le = {};
 /**
  * @license React
@@ -10,27 +10,27 @@ var ce = { exports: {} }, le = {};
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  */
-var be;
-function Ce() {
-  if (be) return le;
-  be = 1;
-  var r = Symbol.for("react.transitional.element"), d = Symbol.for("react.fragment");
-  function a(c, l, o) {
-    var s = null;
-    if (o !== void 0 && (s = "" + o), l.key !== void 0 && (s = "" + l.key), "key" in l) {
+var xe;
+function je() {
+  if (xe) return le;
+  xe = 1;
+  var t = Symbol.for("react.transitional.element"), s = Symbol.for("react.fragment");
+  function a(f, n, o) {
+    var c = null;
+    if (o !== void 0 && (c = "" + o), n.key !== void 0 && (c = "" + n.key), "key" in n) {
       o = {};
-      for (var b in l)
-        b !== "key" && (o[b] = l[b]);
-    } else o = l;
-    return l = o.ref, {
-      $$typeof: r,
-      type: c,
-      key: s,
-      ref: l !== void 0 ? l : null,
+      for (var g in n)
+        g !== "key" && (o[g] = n[g]);
+    } else o = n;
+    return n = o.ref, {
+      $$typeof: t,
+      type: f,
+      key: c,
+      ref: n !== void 0 ? n : null,
       props: o
     };
   }
-  return le.Fragment = d, le.jsx = a, le.jsxs = a, le;
+  return le.Fragment = s, le.jsx = a, le.jsxs = a, le;
 }
 var se = {};
 /**
@@ -42,20 +42,20 @@ var se = {};
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  */
-var xe;
-function _e() {
-  return xe || (xe = 1, process.env.NODE_ENV !== "production" && function() {
-    function r(e) {
+var ve;
+function He() {
+  return ve || (ve = 1, process.env.NODE_ENV !== "production" && function() {
+    function t(e) {
       if (e == null) return null;
       if (typeof e == "function")
         return e.$$typeof === q ? null : e.displayName || e.name || null;
       if (typeof e == "string") return e;
       switch (e) {
-        case R:
+        case k:
           return "Fragment";
-        case w:
+        case S:
           return "Profiler";
-        case g:
+        case h:
           return "StrictMode";
         case $:
           return "Suspense";
@@ -68,99 +68,99 @@ function _e() {
         switch (typeof e.tag == "number" && console.error(
           "Received an unexpected object in getComponentNameFromType(). This is likely a bug in React. Please file an issue."
         ), e.$$typeof) {
-          case m:
+          case x:
             return "Portal";
           case D:
             return (e.displayName || "Context") + ".Provider";
           case T:
             return (e._context.displayName || "Context") + ".Consumer";
           case X:
-            var f = e.render;
-            return e = e.displayName, e || (e = f.displayName || f.name || "", e = e !== "" ? "ForwardRef(" + e + ")" : "ForwardRef"), e;
+            var m = e.render;
+            return e = e.displayName, e || (e = m.displayName || m.name || "", e = e !== "" ? "ForwardRef(" + e + ")" : "ForwardRef"), e;
           case Z:
-            return f = e.displayName || null, f !== null ? f : r(e.type) || "Memo";
-          case p:
-            f = e._payload, e = e._init;
+            return m = e.displayName || null, m !== null ? m : t(e.type) || "Memo";
+          case b:
+            m = e._payload, e = e._init;
             try {
-              return r(e(f));
+              return t(e(m));
             } catch {
             }
         }
       return null;
     }
-    function d(e) {
+    function s(e) {
       return "" + e;
     }
     function a(e) {
       try {
-        d(e);
-        var f = !1;
+        s(e);
+        var m = !1;
       } catch {
-        f = !0;
+        m = !0;
       }
-      if (f) {
-        f = console;
-        var E = f.error, _ = typeof Symbol == "function" && Symbol.toStringTag && e[Symbol.toStringTag] || e.constructor.name || "Object";
-        return E.call(
-          f,
+      if (m) {
+        m = console;
+        var R = m.error, C = typeof Symbol == "function" && Symbol.toStringTag && e[Symbol.toStringTag] || e.constructor.name || "Object";
+        return R.call(
+          m,
           "The provided key is an unsupported type %s. This value must be coerced to a string before using it here.",
-          _
-        ), d(e);
+          C
+        ), s(e);
       }
     }
-    function c(e) {
-      if (e === R) return "<>";
-      if (typeof e == "object" && e !== null && e.$$typeof === p)
+    function f(e) {
+      if (e === k) return "<>";
+      if (typeof e == "object" && e !== null && e.$$typeof === b)
         return "<...>";
       try {
-        var f = r(e);
-        return f ? "<" + f + ">" : "<...>";
+        var m = t(e);
+        return m ? "<" + m + ">" : "<...>";
       } catch {
         return "<...>";
       }
     }
-    function l() {
+    function n() {
       var e = M.A;
       return e === null ? null : e.getOwner();
     }
     function o() {
       return Error("react-stack-top-frame");
     }
-    function s(e) {
+    function c(e) {
       if (H.call(e, "key")) {
-        var f = Object.getOwnPropertyDescriptor(e, "key").get;
-        if (f && f.isReactWarning) return !1;
+        var m = Object.getOwnPropertyDescriptor(e, "key").get;
+        if (m && m.isReactWarning) return !1;
       }
       return e.key !== void 0;
     }
-    function b(e, f) {
-      function E() {
+    function g(e, m) {
+      function R() {
         Y || (Y = !0, console.error(
           "%s: `key` is not a prop. Trying to access it will result in `undefined` being returned. If you need to access the same value within the child component, you should pass it as a different prop. (https://react.dev/link/special-props)",
-          f
+          m
         ));
       }
-      E.isReactWarning = !0, Object.defineProperty(e, "key", {
-        get: E,
+      R.isReactWarning = !0, Object.defineProperty(e, "key", {
+        get: R,
         configurable: !0
       });
     }
-    function h() {
-      var e = r(this.type);
-      return O[e] || (O[e] = !0, console.error(
+    function p() {
+      var e = t(this.type);
+      return A[e] || (A[e] = !0, console.error(
         "Accessing element.ref was removed in React 19. ref is now a regular prop. It will be removed from the JSX Element type in a future release."
       )), e = this.props.ref, e !== void 0 ? e : null;
     }
-    function y(e, f, E, _, j, F, ie, te) {
-      return E = F.ref, e = {
-        $$typeof: u,
+    function y(e, m, R, C, _, F, ie, te) {
+      return R = F.ref, e = {
+        $$typeof: d,
         type: e,
-        key: f,
+        key: m,
         props: F,
-        _owner: j
-      }, (E !== void 0 ? E : null) !== null ? Object.defineProperty(e, "ref", {
+        _owner: _
+      }, (R !== void 0 ? R : null) !== null ? Object.defineProperty(e, "ref", {
         enumerable: !1,
-        get: h
+        get: p
       }) : Object.defineProperty(e, "ref", { enumerable: !1, value: null }), e._store = {}, Object.defineProperty(e._store, "validated", {
         configurable: !1,
         enumerable: !1,
@@ -183,153 +183,170 @@ function _e() {
         value: te
       }), Object.freeze && (Object.freeze(e.props), Object.freeze(e)), e;
     }
-    function i(e, f, E, _, j, F, ie, te) {
-      var C = f.children;
-      if (C !== void 0)
-        if (_)
-          if (G(C)) {
-            for (_ = 0; _ < C.length; _++)
-              k(C[_]);
-            Object.freeze && Object.freeze(C);
+    function i(e, m, R, C, _, F, ie, te) {
+      var N = m.children;
+      if (N !== void 0)
+        if (C)
+          if (G(N)) {
+            for (C = 0; C < N.length; C++)
+              E(N[C]);
+            Object.freeze && Object.freeze(N);
           } else
             console.error(
               "React.jsx: Static children should always be an array. You are likely explicitly calling React.jsxs or React.jsxDEV. Use the Babel transform instead."
             );
-        else k(C);
-      if (H.call(f, "key")) {
-        C = r(e);
-        var J = Object.keys(f).filter(function(I) {
+        else E(N);
+      if (H.call(m, "key")) {
+        N = t(e);
+        var J = Object.keys(m).filter(function(I) {
           return I !== "key";
         });
-        _ = 0 < J.length ? "{key: someKey, " + J.join(": ..., ") + ": ...}" : "{key: someKey}", ee[C + _] || (J = 0 < J.length ? "{" + J.join(": ..., ") + ": ...}" : "{}", console.error(
+        C = 0 < J.length ? "{key: someKey, " + J.join(": ..., ") + ": ...}" : "{key: someKey}", ee[N + C] || (J = 0 < J.length ? "{" + J.join(": ..., ") + ": ...}" : "{}", console.error(
           `A props object containing a "key" prop is being spread into JSX:
   let props = %s;
   <%s {...props} />
 React keys must be passed directly to JSX without using spread:
   let props = %s;
   <%s key={someKey} {...props} />`,
-          _,
           C,
+          N,
           J,
-          C
-        ), ee[C + _] = !0);
+          N
+        ), ee[N + C] = !0);
       }
-      if (C = null, E !== void 0 && (a(E), C = "" + E), s(f) && (a(f.key), C = "" + f.key), "key" in f) {
-        E = {};
-        for (var re in f)
-          re !== "key" && (E[re] = f[re]);
-      } else E = f;
-      return C && b(
-        E,
+      if (N = null, R !== void 0 && (a(R), N = "" + R), c(m) && (a(m.key), N = "" + m.key), "key" in m) {
+        R = {};
+        for (var re in m)
+          re !== "key" && (R[re] = m[re]);
+      } else R = m;
+      return N && g(
+        R,
         typeof e == "function" ? e.displayName || e.name || "Unknown" : e
       ), y(
         e,
-        C,
+        N,
         F,
-        j,
-        l(),
-        E,
+        _,
+        n(),
+        R,
         ie,
         te
       );
     }
-    function k(e) {
-      typeof e == "object" && e !== null && e.$$typeof === u && e._store && (e._store.validated = 1);
+    function E(e) {
+      typeof e == "object" && e !== null && e.$$typeof === d && e._store && (e._store.validated = 1);
     }
-    var n = ge, u = Symbol.for("react.transitional.element"), m = Symbol.for("react.portal"), R = Symbol.for("react.fragment"), g = Symbol.for("react.strict_mode"), w = Symbol.for("react.profiler"), T = Symbol.for("react.consumer"), D = Symbol.for("react.context"), X = Symbol.for("react.forward_ref"), $ = Symbol.for("react.suspense"), B = Symbol.for("react.suspense_list"), Z = Symbol.for("react.memo"), p = Symbol.for("react.lazy"), oe = Symbol.for("react.activity"), q = Symbol.for("react.client.reference"), M = n.__CLIENT_INTERNALS_DO_NOT_USE_OR_WARN_USERS_THEY_CANNOT_UPGRADE, H = Object.prototype.hasOwnProperty, G = Array.isArray, A = console.createTask ? console.createTask : function() {
+    var l = be, d = Symbol.for("react.transitional.element"), x = Symbol.for("react.portal"), k = Symbol.for("react.fragment"), h = Symbol.for("react.strict_mode"), S = Symbol.for("react.profiler"), T = Symbol.for("react.consumer"), D = Symbol.for("react.context"), X = Symbol.for("react.forward_ref"), $ = Symbol.for("react.suspense"), B = Symbol.for("react.suspense_list"), Z = Symbol.for("react.memo"), b = Symbol.for("react.lazy"), oe = Symbol.for("react.activity"), q = Symbol.for("react.client.reference"), M = l.__CLIENT_INTERNALS_DO_NOT_USE_OR_WARN_USERS_THEY_CANNOT_UPGRADE, H = Object.prototype.hasOwnProperty, G = Array.isArray, P = console.createTask ? console.createTask : function() {
       return null;
     };
-    n = {
+    l = {
       react_stack_bottom_frame: function(e) {
         return e();
       }
     };
-    var Y, O = {}, L = n.react_stack_bottom_frame.bind(
-      n,
+    var Y, A = {}, L = l.react_stack_bottom_frame.bind(
+      l,
       o
-    )(), ne = A(c(o)), ee = {};
-    se.Fragment = R, se.jsx = function(e, f, E, _, j) {
+    )(), ne = P(f(o)), ee = {};
+    se.Fragment = k, se.jsx = function(e, m, R, C, _) {
       var F = 1e4 > M.recentlyCreatedOwnerStacks++;
       return i(
         e,
-        f,
-        E,
+        m,
+        R,
         !1,
+        C,
         _,
-        j,
         F ? Error("react-stack-top-frame") : L,
-        F ? A(c(e)) : ne
+        F ? P(f(e)) : ne
       );
-    }, se.jsxs = function(e, f, E, _, j) {
+    }, se.jsxs = function(e, m, R, C, _) {
       var F = 1e4 > M.recentlyCreatedOwnerStacks++;
       return i(
         e,
-        f,
-        E,
+        m,
+        R,
         !0,
+        C,
         _,
-        j,
         F ? Error("react-stack-top-frame") : L,
-        F ? A(c(e)) : ne
+        F ? P(f(e)) : ne
       );
     };
   }()), se;
 }
-var he;
-function je() {
-  return he || (he = 1, process.env.NODE_ENV === "production" ? ce.exports = Ce() : ce.exports = _e()), ce.exports;
+var ye;
+function Ie() {
+  return ye || (ye = 1, process.env.NODE_ENV === "production" ? ce.exports = je() : ce.exports = He()), ce.exports;
 }
-var v = je();
-function we(r) {
-  if (!r) return [];
-  const d = r.className;
-  if (typeof d == "string")
-    return d.split(/\s+/).filter(Boolean);
-  const a = d?.baseVal;
-  return typeof a == "string" ? a.split(/\s+/).filter(Boolean) : r.classList ? Array.from(r.classList).filter(Boolean) : [];
+var v = Ie();
+function Se(t) {
+  if (!t) return [];
+  const s = t.className;
+  if (typeof s == "string")
+    return s.split(/\s+/).filter(Boolean);
+  const a = s?.baseVal;
+  return typeof a == "string" ? a.split(/\s+/).filter(Boolean) : t.classList ? Array.from(t.classList).filter(Boolean) : [];
 }
-function fe(r, d) {
-  const a = document.elementsFromPoint(r, d);
-  for (const c of a)
-    if (!(c.id === "element-selector-overlay" || c.closest("#element-selector-overlay") || c.id === "element-selector-root" || c.closest("#element-selector-root")) && !(c.tagName !== "svg" && c.tagName !== "SVG" && c.closest("svg")))
-      return c;
-  return document.body;
-}
-function He(r) {
-  if (!r || r === document.body)
-    return "body";
-  if (r.id)
-    return `#${CSS.escape(r.id)}`;
-  const d = [];
-  let a = r;
-  for (; a && a !== document.body; ) {
-    let c = a.tagName.toLowerCase();
-    const l = we(a).filter((o) => !o.includes(":")).slice(0, 2);
-    if (l.length > 0) {
-      const o = l.map((s) => `.${CSS.escape(s)}`).join("");
-      c += o;
-    }
-    if (a.parentElement) {
-      const o = a.tagName, b = Array.from(a.parentElement.children).filter(
-        (h) => h.tagName === o
-      );
-      if (b.length > 1) {
-        const h = b.indexOf(a) + 1;
-        c += `:nth-of-type(${h})`;
+function fe(t, s) {
+  const a = (o) => !!o && (o.id === "element-selector-overlay" || o.closest("#element-selector-overlay") || o.id === "element-selector-root" || o.closest("#element-selector-root")), f = (o, c, g) => {
+    const p = o.elementFromPoint(c, g);
+    if (!p) return null;
+    if (p.tagName === "SLOT") {
+      const y = p.assignedElements({ flatten: !0 });
+      if (y.length > 0) {
+        const i = y[0];
+        if (i.shadowRoot) {
+          const E = f(i.shadowRoot, c, g);
+          if (E) return E;
+        }
+        return i;
       }
     }
-    d.unshift(c);
+    if (p.shadowRoot) {
+      const y = f(p.shadowRoot, c, g);
+      if (y) return y;
+    }
+    return p;
+  };
+  let n = f(document, t, s);
+  return a(n) && (n = document.elementsFromPoint(t, s).find((c) => !a(c)) ?? null), n ? n.tagName !== "svg" && n.tagName !== "SVG" && n.closest("svg") ? n.closest("svg") || document.body : n : document.body;
+}
+function Pe(t) {
+  if (!t || t === document.body)
+    return "body";
+  if (t.id)
+    return `#${CSS.escape(t.id)}`;
+  const s = [];
+  let a = t;
+  for (; a && a !== document.body; ) {
+    let f = a.tagName.toLowerCase();
+    const n = Se(a).filter((o) => !o.includes(":")).slice(0, 2);
+    if (n.length > 0) {
+      const o = n.map((c) => `.${CSS.escape(c)}`).join("");
+      f += o;
+    }
+    if (a.parentElement) {
+      const o = a.tagName, g = Array.from(a.parentElement.children).filter(
+        (p) => p.tagName === o
+      );
+      if (g.length > 1) {
+        const p = g.indexOf(a) + 1;
+        f += `:nth-of-type(${p})`;
+      }
+    }
+    s.unshift(f);
     try {
-      const o = d.join(" > "), s = document.querySelectorAll(o);
-      if (s.length === 1 && s[0] === r)
+      const o = s.join(" > "), c = document.querySelectorAll(o);
+      if (c.length === 1 && c[0] === t)
         return o;
     } catch {
     }
     a = a.parentElement;
   }
-  return d.join(" > ");
+  return s.join(" > ");
 }
-function Ee(r) {
+function Re(t) {
   return {
     // Links
     a: "link",
@@ -398,102 +415,102 @@ function Ee(r) {
     iframe: "embedded frame",
     canvas: "canvas",
     svg: "graphic"
-  }[r.toLowerCase()] || r.toLowerCase();
+  }[t.toLowerCase()] || t.toLowerCase();
 }
-function Ie(r, d = 300, { maxAncestors: a = 10 } = {}) {
-  if (!r || !r.parentNode)
+function Ae(t, s = 300, { maxAncestors: a = 10 } = {}) {
+  if (!t || !t.parentNode)
     throw new Error("Node must be attached to the DOM (with a parent).");
-  const c = (n) => n.nodeType === Node.ELEMENT_NODE ? n.outerHTML : n.nodeType === Node.TEXT_NODE ? (n.textContent ?? "").toString() : new XMLSerializer().serializeToString(n), l = (n, u) => {
-    const m = [];
-    let R = u;
-    for (; R && R !== n; ) {
-      const g = R.parentNode;
-      if (!g)
+  const f = (l) => l.nodeType === Node.ELEMENT_NODE ? l.outerHTML : l.nodeType === Node.TEXT_NODE ? (l.textContent ?? "").toString() : new XMLSerializer().serializeToString(l), n = (l, d) => {
+    const x = [];
+    let k = d;
+    for (; k && k !== l; ) {
+      const h = k.parentNode;
+      if (!h)
         throw new Error("Failed to resolve node path for context extraction.");
-      const w = Array.prototype.indexOf.call(g.childNodes, R);
-      if (w === -1)
+      const S = Array.prototype.indexOf.call(h.childNodes, k);
+      if (S === -1)
         throw new Error("Unable to map node into cloned context tree.");
-      m.unshift(w), R = g;
+      x.unshift(S), k = h;
     }
-    if (R !== n)
+    if (k !== l)
       throw new Error("Context root does not contain the requested node.");
-    return m;
-  }, o = (n) => {
-    n.querySelectorAll(
+    return x;
+  }, o = (l) => {
+    l.querySelectorAll(
       "#element-selector-root, #element-selector-overlay"
-    ).forEach((m) => m.remove());
-  }, s = {
+    ).forEach((x) => x.remove());
+  }, c = {
     start: `__element_selector_start_${Math.random().toString(36).slice(2)}__`,
     end: `__element_selector_end_${Math.random().toString(36).slice(2)}__`
-  }, b = (n) => {
-    const u = document.createElement("div"), m = n.cloneNode(!0);
-    if (u.appendChild(m), o(u), !u.firstChild)
+  }, g = (l) => {
+    const d = document.createElement("div"), x = l.cloneNode(!0);
+    if (d.appendChild(x), o(d), !d.firstChild)
       return {
         beforeHtml: "",
-        elementHtml: c(r),
+        elementHtml: f(t),
         afterHtml: ""
       };
-    const R = l(n, r);
-    let g = u.firstChild;
-    for (const oe of R) {
-      const q = g.childNodes.item(oe);
+    const k = n(l, t);
+    let h = d.firstChild;
+    for (const oe of k) {
+      const q = h.childNodes.item(oe);
       if (!q)
         throw new Error("Failed to mirror node inside cloned context tree.");
-      g = q;
+      h = q;
     }
-    const w = g.parentNode;
-    if (!w)
+    const S = h.parentNode;
+    if (!S)
       return {
         beforeHtml: "",
-        elementHtml: c(r),
+        elementHtml: f(t),
         afterHtml: ""
       };
-    const T = document.createTextNode(s.start), D = document.createTextNode(s.end);
-    w.insertBefore(T, g), w.insertBefore(D, g.nextSibling), w.removeChild(g);
-    const X = u.innerHTML, $ = X.indexOf(s.start), B = X.indexOf(s.end);
+    const T = document.createTextNode(c.start), D = document.createTextNode(c.end);
+    S.insertBefore(T, h), S.insertBefore(D, h.nextSibling), S.removeChild(h);
+    const X = d.innerHTML, $ = X.indexOf(c.start), B = X.indexOf(c.end);
     if ($ === -1 || B === -1 || B < $)
       throw new Error("Failed to locate context markers during serialization.");
-    const Z = X.slice(0, $), p = X.slice(B + s.end.length);
+    const Z = X.slice(0, $), b = X.slice(B + c.end.length);
     return {
       beforeHtml: Z,
-      elementHtml: c(r),
-      afterHtml: p
+      elementHtml: f(t),
+      afterHtml: b
     };
-  }, h = (n) => n.parentNode ? n.parentNode.nodeType === Node.DOCUMENT_NODE ? n.parentNode.documentElement ?? null : n.parentNode : null;
-  let y = 0, i = r.parentNode ?? r, k = b(i);
-  for (; y < a && (k.beforeHtml.length < d || k.afterHtml.length < d); ) {
-    const n = h(i);
-    if (!n || n === i || (y += 1, i = n, k = b(i), !i.parentNode || i.parentNode.nodeType === Node.DOCUMENT_NODE))
+  }, p = (l) => l.parentNode ? l.parentNode.nodeType === Node.DOCUMENT_NODE ? l.parentNode.documentElement ?? null : l.parentNode : null;
+  let y = 0, i = t.parentNode ?? t, E = g(i);
+  for (; y < a && (E.beforeHtml.length < s || E.afterHtml.length < s); ) {
+    const l = p(i);
+    if (!l || l === i || (y += 1, i = l, E = g(i), !i.parentNode || i.parentNode.nodeType === Node.DOCUMENT_NODE))
       break;
   }
-  return k;
+  return E;
 }
-function Pe({
-  targetElement: r,
-  friendlySelectors: d = !1,
+function Oe({
+  targetElement: t,
+  friendlySelectors: s = !1,
   rect: a = null
 }) {
-  const c = W(null);
+  const f = W(null);
   Q(() => {
-    const o = c.current;
+    const o = f.current;
     if (!o) return;
     if (!a) {
       o.style.opacity = "0";
       return;
     }
-    const s = 1;
-    o.style.top = `${a.top - s}px`, o.style.left = `${a.left - s}px`, o.style.width = `${a.width + s * 2}px`, o.style.height = `${a.height + s * 2}px`, o.style.opacity = "1";
+    const c = 1;
+    o.style.top = `${a.top - c}px`, o.style.left = `${a.left - c}px`, o.style.width = `${a.width + c * 2}px`, o.style.height = `${a.height + c * 2}px`, o.style.opacity = "1";
   }, [a]);
-  const l = r ? {
-    tag: r.tagName.toLowerCase(),
-    friendlyTag: d ? Ee(r.tagName) : r.tagName.toLowerCase(),
-    id: r.id,
-    classes: we(r).slice(0, 2)
+  const n = t ? {
+    tag: t.tagName.toLowerCase(),
+    friendlyTag: s ? Re(t.tagName) : t.tagName.toLowerCase(),
+    id: t.id,
+    classes: Se(t).slice(0, 2)
   } : null;
   return /* @__PURE__ */ v.jsxs(
     "div",
     {
-      ref: c,
+      ref: f,
       style: {
         position: "fixed",
         pointerEvents: "none",
@@ -509,7 +526,7 @@ function Pe({
         boxSizing: "border-box"
       },
       children: [
-        l && /* @__PURE__ */ v.jsxs(
+        n && /* @__PURE__ */ v.jsxs(
           "div",
           {
             style: {
@@ -529,14 +546,14 @@ function Pe({
               whiteSpace: "nowrap"
             },
             children: [
-              /* @__PURE__ */ v.jsx("strong", { children: l.friendlyTag }),
-              l.id && /* @__PURE__ */ v.jsxs("span", { style: { opacity: 0.9 }, children: [
+              /* @__PURE__ */ v.jsx("strong", { children: n.friendlyTag }),
+              n.id && /* @__PURE__ */ v.jsxs("span", { style: { opacity: 0.9 }, children: [
                 "#",
-                l.id
+                n.id
               ] }),
-              l.classes?.length > 0 && /* @__PURE__ */ v.jsxs("span", { style: { opacity: 0.8 }, children: [
+              n.classes?.length > 0 && /* @__PURE__ */ v.jsxs("span", { style: { opacity: 0.8 }, children: [
                 ".",
-                l.classes.join(".")
+                n.classes.join(".")
               ] })
             ]
           }
@@ -555,27 +572,27 @@ function Pe({
     }
   );
 }
-function Se({ targetElement: r, onDeselect: d, variant: a = "interactive", rect: c = null }) {
-  const l = W(null), [o, s] = U(!1), b = a === "interactive";
+function ke({ targetElement: t, onDeselect: s, variant: a = "interactive", rect: f = null }) {
+  const n = W(null), [o, c] = U(!1), g = a === "interactive";
   return Q(() => {
-    const h = l.current;
-    if (!h) return;
-    if (!c) {
-      h.style.opacity = "0";
+    const p = n.current;
+    if (!p) return;
+    if (!f) {
+      p.style.opacity = "0";
       return;
     }
     const y = 1;
-    h.style.top = `${c.top - y}px`, h.style.left = `${c.left - y}px`, h.style.width = `${c.width + y * 2}px`, h.style.height = `${c.height + y * 2}px`, h.style.opacity = "1";
-  }, [c]), /* @__PURE__ */ v.jsxs(
+    p.style.top = `${f.top - y}px`, p.style.left = `${f.left - y}px`, p.style.width = `${f.width + y * 2}px`, p.style.height = `${f.height + y * 2}px`, p.style.opacity = "1";
+  }, [f]), /* @__PURE__ */ v.jsxs(
     "button",
     {
-      ref: l,
+      ref: n,
       "data-selected-element": "true",
-      onClick: (h) => {
-        b && (h.stopPropagation(), h.preventDefault(), d());
+      onClick: (p) => {
+        g && (p.stopPropagation(), p.preventDefault(), s());
       },
-      onMouseEnter: () => b && s(!0),
-      onMouseLeave: () => b && s(!1),
+      onMouseEnter: () => g && c(!0),
+      onMouseLeave: () => g && c(!1),
       style: {
         position: "fixed",
         zIndex: 1e5,
@@ -588,10 +605,10 @@ function Se({ targetElement: r, onDeselect: d, variant: a = "interactive", rect:
         borderRadius: "8px",
         cursor: o ? "pointer" : "default",
         boxShadow: o ? "0 0 18px rgba(220, 38, 38, 0.45), inset 0 0 16px rgba(220, 38, 38, 0.18)" : "0 0 18px rgba(245, 158, 11, 0.45), inset 0 0 16px rgba(245, 158, 11, 0.18)",
-        pointerEvents: b ? "auto" : "none"
+        pointerEvents: g ? "auto" : "none"
       },
       children: [
-        b && o && /* @__PURE__ */ v.jsx(
+        g && o && /* @__PURE__ */ v.jsx(
           "div",
           {
             style: {
@@ -640,34 +657,34 @@ function Se({ targetElement: r, onDeselect: d, variant: a = "interactive", rect:
   );
 }
 const ae = 4;
-function ke({
-  element: r,
-  position: d,
+function Te({
+  element: t,
+  position: s,
   axis: a,
-  friendlySelectors: c = !1,
-  rect: l = null
+  friendlySelectors: f = !1,
+  rect: n = null
 }) {
-  const o = W(null), s = W(null);
+  const o = W(null), c = W(null);
   Q(() => {
-    if (!(!o.current || !s.current)) {
-      if (!l) {
-        o.current.style.opacity = "0", s.current.style.opacity = "0";
+    if (!(!o.current || !c.current)) {
+      if (!n) {
+        o.current.style.opacity = "0", c.current.style.opacity = "0";
         return;
       }
-      if (o.current.style.opacity = "1", s.current.style.opacity = "1", a === "horizontal") {
-        const i = d === "before" ? l.top : l.bottom;
-        o.current.style.top = `${i - ae / 2}px`, o.current.style.left = `${l.left}px`, o.current.style.width = `${Math.max(l.width, 1)}px`, o.current.style.height = `${ae}px`;
-        const k = d === "before" ? i - 32 : i + 8;
-        s.current.style.top = `${k}px`, s.current.style.left = `${l.left}px`;
+      if (o.current.style.opacity = "1", c.current.style.opacity = "1", a === "horizontal") {
+        const i = s === "before" ? n.top : n.bottom;
+        o.current.style.top = `${i - ae / 2}px`, o.current.style.left = `${n.left}px`, o.current.style.width = `${Math.max(n.width, 1)}px`, o.current.style.height = `${ae}px`;
+        const E = s === "before" ? i - 32 : i + 8;
+        c.current.style.top = `${E}px`, c.current.style.left = `${n.left}px`;
       } else {
-        const i = d === "before" ? l.left : l.right;
-        o.current.style.left = `${i - ae / 2}px`, o.current.style.top = `${l.top}px`, o.current.style.height = `${Math.max(l.height, 1)}px`, o.current.style.width = `${ae}px`;
-        const k = d === "before" ? i - 140 : i + 12;
-        s.current.style.left = `${k}px`, s.current.style.top = `${l.top}px`;
+        const i = s === "before" ? n.left : n.right;
+        o.current.style.left = `${i - ae / 2}px`, o.current.style.top = `${n.top}px`, o.current.style.height = `${Math.max(n.height, 1)}px`, o.current.style.width = `${ae}px`;
+        const E = s === "before" ? i - 140 : i + 12;
+        c.current.style.left = `${E}px`, c.current.style.top = `${n.top}px`;
       }
     }
-  }, [l, a, d]);
-  const b = r.tagName.toLowerCase(), h = c ? Ee(r.tagName) : b, y = `${d === "before" ? "Insert before" : "Insert after"} ${h}`;
+  }, [n, a, s]);
+  const g = t.tagName.toLowerCase(), p = f ? Re(t.tagName) : g, y = `${s === "before" ? "Insert before" : "Insert after"} ${p}`;
   return /* @__PURE__ */ v.jsxs(v.Fragment, { children: [
     /* @__PURE__ */ v.jsx(
       "div",
@@ -687,7 +704,7 @@ function ke({
     /* @__PURE__ */ v.jsx(
       "div",
       {
-        ref: s,
+        ref: c,
         style: {
           position: "fixed",
           pointerEvents: "none",
@@ -707,76 +724,76 @@ function ke({
     )
   ] });
 }
-function Re(r, { skipOffscreen: d = !0, debug: a = !1 } = {}) {
-  const [c, l] = U(
+function Ne(t, { skipOffscreen: s = !0, debug: a = !1 } = {}) {
+  const [f, n] = U(
     () => /* @__PURE__ */ new Map()
-  ), o = W(/* @__PURE__ */ new Map()), s = W(null), b = me(() => {
-    const h = /* @__PURE__ */ new Set(), y = [];
-    for (const i of r)
-      i && !h.has(i) && (h.add(i), y.push(i));
+  ), o = W(/* @__PURE__ */ new Map()), c = W(null), g = he(() => {
+    const p = /* @__PURE__ */ new Set(), y = [];
+    for (const i of t)
+      i && !p.has(i) && (p.add(i), y.push(i));
     return y;
-  }, [r]);
+  }, [t]);
   return Q(() => {
-    if (!b.length) {
-      l(/* @__PURE__ */ new Map());
+    if (!g.length) {
+      n(/* @__PURE__ */ new Map());
       return;
     }
-    let h = null, y = null;
+    let p = null, y = null;
     const i = () => {
-      s.current === null && (s.current = requestAnimationFrame(() => {
-        s.current = null, l((k) => {
-          const n = /* @__PURE__ */ new Map();
-          let u = !1;
-          for (const m of b) {
-            const R = !d || o.current.get(m) || o.current.size === 0;
-            if (!R) {
+      c.current === null && (c.current = requestAnimationFrame(() => {
+        c.current = null, n((E) => {
+          const l = /* @__PURE__ */ new Map();
+          let d = !1;
+          for (const x of g) {
+            const k = !s || o.current.get(x) || o.current.size === 0;
+            if (!k) {
               a && console.debug("[element-selector] skip measure (offscreen)", {
-                tag: m.tagName,
-                id: m.id,
-                className: m.className
+                tag: x.tagName,
+                id: x.id,
+                className: x.className
               });
-              const D = k.get(m);
-              D && n.set(m, D);
+              const D = E.get(x);
+              D && l.set(x, D);
               continue;
             }
-            const g = m.getBoundingClientRect(), w = k.get(m);
-            (!w || g.top !== w.top || g.left !== w.left || g.width !== w.width || g.height !== w.height) && (u = !0, a && console.debug("[element-selector] measure", {
-              tag: m.tagName,
-              id: m.id,
-              className: m.className,
+            const h = x.getBoundingClientRect(), S = E.get(x);
+            (!S || h.top !== S.top || h.left !== S.left || h.width !== S.width || h.height !== S.height) && (d = !0, a && console.debug("[element-selector] measure", {
+              tag: x.tagName,
+              id: x.id,
+              className: x.className,
               rect: {
-                top: g.top,
-                left: g.left,
-                width: g.width,
-                height: g.height
+                top: h.top,
+                left: h.left,
+                width: h.width,
+                height: h.height
               },
-              visible: R
-            })), n.set(m, g);
+              visible: k
+            })), l.set(x, h);
           }
-          return !u && k.size === n.size ? k : n;
+          return !d && E.size === l.size ? E : l;
         });
       }));
     };
-    return h = new ResizeObserver(i), b.forEach((k) => h?.observe(k)), "IntersectionObserver" in window && (y = new IntersectionObserver(
-      (k) => {
-        k.forEach((n) => {
-          o.current.set(n.target, n.isIntersecting);
+    return p = new ResizeObserver(i), g.forEach((E) => p?.observe(E)), "IntersectionObserver" in window && (y = new IntersectionObserver(
+      (E) => {
+        E.forEach((l) => {
+          o.current.set(l.target, l.isIntersecting);
         }), i();
       },
       { root: null, threshold: 0 }
-    ), b.forEach((k) => y?.observe(k))), window.addEventListener("scroll", i, !0), window.addEventListener("resize", i), i(), () => {
-      h && h.disconnect(), y && y.disconnect(), window.removeEventListener("scroll", i, !0), window.removeEventListener("resize", i), s.current !== null && (cancelAnimationFrame(s.current), s.current = null);
+    ), g.forEach((E) => y?.observe(E))), window.addEventListener("scroll", i, !0), window.addEventListener("resize", i), i(), () => {
+      p && p.disconnect(), y && y.disconnect(), window.removeEventListener("scroll", i, !0), window.removeEventListener("resize", i), c.current !== null && (cancelAnimationFrame(c.current), c.current = null);
     };
-  }, [b, d]), c;
+  }, [g, s]), f;
 }
-const Ae = {
+const Me = {
   top: { position: "before", axis: "horizontal" },
   bottom: { position: "after", axis: "horizontal" },
   left: { position: "before", axis: "vertical" },
   right: { position: "after", axis: "vertical" }
-}, Oe = 300;
-function Me(r) {
-  return r === "light" ? {
+}, Le = 300;
+function ze(t) {
+  return t === "light" ? {
     panelBg: "#f7f7f7",
     textColor: "#111111",
     subTextColor: "#1f1f1f",
@@ -822,285 +839,307 @@ function Me(r) {
     border: "1px solid rgba(255, 255, 255, 0.12)"
   };
 }
-function pe(r) {
-  if (!r)
+function pe(t) {
+  if (!t)
     return {};
-  const d = (a) => r.getAttribute(a) || void 0;
+  const s = (a) => t.getAttribute(a) || void 0;
   return {
-    src: d("data-ai-src"),
-    routeId: d("data-ai-route-id"),
-    routeFile: d("data-ai-route-file")
+    src: s("data-ai-src"),
+    routeId: s("data-ai-route-id"),
+    routeFile: s("data-ai-route-file")
   };
 }
-function ve(r, d, a) {
-  if (!r || r === document.documentElement)
+function we(t, s, a) {
+  if (!t || t === document.documentElement)
     return null;
-  const c = r.getBoundingClientRect();
-  if (c.width === 0 && c.height === 0)
+  const f = t.getBoundingClientRect();
+  if (f.width === 0 && f.height === 0)
     return null;
-  const l = [
-    { edge: "top", value: Math.abs(a - c.top) },
-    { edge: "bottom", value: Math.abs(a - c.bottom) },
-    { edge: "left", value: Math.abs(d - c.left) },
-    { edge: "right", value: Math.abs(d - c.right) }
+  const n = [
+    { edge: "top", value: Math.abs(a - f.top) },
+    { edge: "bottom", value: Math.abs(a - f.bottom) },
+    { edge: "left", value: Math.abs(s - f.left) },
+    { edge: "right", value: Math.abs(s - f.right) }
   ];
-  l.sort((b, h) => b.value - h.value);
-  const o = l[0];
+  n.sort((g, p) => g.value - p.value);
+  const o = n[0];
   if (!o)
     return null;
-  const s = Ae[o.edge];
+  const c = Me[o.edge];
   return {
-    element: r,
-    position: s.position,
-    axis: s.axis
+    element: t,
+    position: c.position,
+    axis: c.axis
   };
 }
-function Le({
-  onElementSelected: r,
-  onCancel: d,
+function ge(t) {
+  let s = t;
+  for (; s; ) {
+    const a = s.getBoundingClientRect();
+    if (a.width !== 0 || a.height !== 0 || !s.parentElement || s === document.body)
+      return s;
+    s = s.parentElement;
+  }
+  return null;
+}
+function De(t) {
+  return t ? !!(t.id === "element-selector-overlay" || t.closest("#element-selector-overlay") || t.id === "element-selector-root" || t.closest("#element-selector-root")) : !1;
+}
+function me(t) {
+  const s = t.composedPath?.() ?? [];
+  for (const a of s)
+    if (a instanceof HTMLElement && !De(a))
+      return a;
+  return null;
+}
+function $e({
+  onElementSelected: t,
+  onCancel: s,
   multiSelect: a = !1,
-  friendlySelectors: c = !1,
-  initialMode: l = "select",
+  friendlySelectors: f = !1,
+  initialMode: n = "select",
   allowModeToggle: o = !0,
-  optionsPanelPosition: s,
-  selectionBarText: b,
-  theme: h = "dark",
+  optionsPanelPosition: c,
+  selectionBarText: g,
+  theme: p = "dark",
   debug: y = !1
 }) {
-  const [i, k] = U(l), n = i === "select" && a, u = Me(h), [m, R] = U(null), [g, w] = U(null), [T, D] = U([]), [X, $] = U(!1), [B, Z] = U(null), [p, oe] = U(() => typeof window > "u" ? !1 : window.matchMedia("(max-width: 640px)").matches), q = me(() => {
-    const t = [];
-    return m && t.push(m), g?.element && !t.includes(g.element) && t.push(g.element), T.forEach((N) => {
-      t.includes(N) || t.push(N);
-    }), t;
-  }, [m, g, T]), M = Re(q, { skipOffscreen: !0, debug: y }), H = V(
-    (...t) => {
-      y && console.debug("[element-selector]", ...t);
+  const [i, E] = U(n), l = i === "select" && a, d = ze(p), [x, k] = U(null), [h, S] = U(null), [T, D] = U([]), [X, $] = U(!1), [B, Z] = U(null), [b, oe] = U(() => typeof window > "u" ? !1 : window.matchMedia("(max-width: 640px)").matches), q = he(() => {
+    const r = [];
+    return x && r.push(x), h?.element && !r.includes(h.element) && r.push(h.element), T.forEach((w) => {
+      r.includes(w) || r.push(w);
+    }), r;
+  }, [x, h, T]), M = Ne(q, { skipOffscreen: !1, debug: y }), H = V(
+    (...r) => {
+      y && console.debug("[element-selector]", ...r);
     },
     [y]
   );
   Q(() => {
-    !y || !m || H("current hover rect", {
-      tag: m.tagName,
-      id: m.id,
-      className: m.className,
-      rect: M.get(m) ?? null
+    !y || !x || H("current hover rect", {
+      tag: x.tagName,
+      id: x.id,
+      className: x.className,
+      rect: M.get(x) ?? null
     });
-  }, [m, M, y, H]);
-  const G = W({ x: 0, y: 0 }), A = W(null), Y = W(null), O = W(null), L = V(
-    (t, N = {}) => {
-      const S = (() => {
+  }, [x, M, y, H]);
+  const G = W({ x: 0, y: 0 }), P = W(null), Y = W(null), A = W(null), L = V(
+    (r, w = {}) => {
+      const O = (() => {
         try {
-          return Ie(t, Oe);
+          return Ae(r, Le);
         } catch {
           return {
             beforeHtml: "",
-            elementHtml: t.outerHTML || "",
+            elementHtml: r.outerHTML || "",
             afterHtml: ""
           };
         }
-      })(), x = {
-        element: t,
-        selector: He(t),
-        tag: t.tagName.toLowerCase(),
-        id: t.id || null,
-        classes: t.className || "",
-        textPreview: t.textContent?.substring(0, 50) || "",
-        beforeHtml: S.beforeHtml,
-        elementHtml: S.elementHtml,
-        afterHtml: S.afterHtml,
-        ...pe(t),
-        ...N
+      })(), u = {
+        element: r,
+        selector: Pe(r),
+        tag: r.tagName.toLowerCase(),
+        id: r.id || null,
+        classes: r.className || "",
+        textPreview: r.textContent?.substring(0, 50) || "",
+        beforeHtml: O.beforeHtml,
+        elementHtml: O.elementHtml,
+        afterHtml: O.afterHtml,
+        ...pe(r),
+        ...w
       };
-      if (x.mode === "insert") {
-        x.insertionBeforeHtml = x.insertionPosition === "after" ? x.beforeHtml + x.elementHtml : x.beforeHtml, x.insertionAfterHtml = x.insertionPosition === "before" ? x.elementHtml + x.afterHtml : x.afterHtml;
-        const P = x.insertionPosition === "before" ? "before" : "after", Te = P === "before" ? t.previousElementSibling : t, Ne = P === "before" ? t : t.nextElementSibling, de = pe(Te), ue = pe(Ne);
-        x.beforeSrc = de.src, x.beforeRouteId = de.routeId, x.beforeRouteFile = de.routeFile, x.afterSrc = ue.src, x.afterRouteId = ue.routeId, x.afterRouteFile = ue.routeFile;
+      if (u.mode === "insert") {
+        u.insertionBeforeHtml = u.insertionPosition === "after" ? u.beforeHtml + u.elementHtml : u.beforeHtml, u.insertionAfterHtml = u.insertionPosition === "before" ? u.elementHtml + u.afterHtml : u.afterHtml;
+        const j = u.insertionPosition === "before" ? "before" : "after", Ce = j === "before" ? r.previousElementSibling : r, _e = j === "before" ? r : r.nextElementSibling, ue = pe(Ce), de = pe(_e);
+        u.beforeSrc = ue.src, u.beforeRouteId = ue.routeId, u.beforeRouteFile = ue.routeFile, u.afterSrc = de.src, u.afterRouteId = de.routeId, u.afterRouteFile = de.routeFile;
       } else
-        x.insertionBeforeHtml = x.beforeHtml, x.insertionAfterHtml = x.afterHtml;
-      return x;
+        u.insertionBeforeHtml = u.beforeHtml, u.insertionAfterHtml = u.afterHtml;
+      return u;
     },
     []
   ), ne = V(() => {
-    const t = fe(
+    const r = fe(
       G.current.x,
       G.current.y
-    );
+    ), w = ge(r);
     if (H("hover update", {
       point: { ...G.current },
-      target: t?.tagName,
-      id: t?.id,
-      className: t?.className
+      target: r?.tagName,
+      measurableTarget: w?.tagName,
+      id: r?.id,
+      className: r?.className
     }), i === "insert") {
-      const S = ve(
-        t,
+      const u = we(
+        w,
         G.current.x,
         G.current.y
       );
-      (S && (!O.current || O.current.element !== S.element || O.current.position !== S.position || O.current.axis !== S.axis) || !S && O.current) && (O.current = S, w(S ?? null)), $(!!S), R(S ? S.element : null), Y.current = S ? S.element : null;
+      (u && (!A.current || A.current.element !== u.element || A.current.position !== u.position || A.current.axis !== u.axis) || !u && A.current) && (A.current = u, S(u ?? null)), $(!!u), k(u ? u.element : null), Y.current = u ? u.element : null;
       return;
     }
-    if (O.current && (O.current = null, w(null)), n && T.some((S) => S.contains(t))) {
-      $(!1), R(null), Y.current = null;
+    if (A.current && (A.current = null, S(null)), l && T.some((u) => u.contains(r))) {
+      $(!1), k(null), Y.current = null;
       return;
     }
-    Y.current !== t && (Y.current = t, R(t), $(!0), H("setCurrentHover", {
-      tag: t.tagName,
-      id: t.id,
-      className: t.className,
-      rect: M.get(t) ?? null
+    Y.current !== r && (Y.current = w, k(w), $(!0), H("setCurrentHover", {
+      tag: w?.tagName,
+      id: w?.id,
+      className: w?.className,
+      rect: w ? M.get(w) ?? null : null
     }));
-  }, [n, i, T, M, H]), ee = V(
-    (t) => {
-      if (t.target.closest('[data-element-selector-ui="true"]')) {
-        A.current && (clearTimeout(A.current), A.current = null), R(null), w(null), Y.current = null, O.current = null, $(!1);
+  }, [l, i, T, M, H]), ee = V(
+    (r) => {
+      if ((me(r) ?? r.target)?.closest('[data-element-selector-ui="true"]')) {
+        P.current && (clearTimeout(P.current), P.current = null), k(null), S(null), Y.current = null, A.current = null, $(!1);
         return;
       }
       G.current = {
-        x: t.clientX,
-        y: t.clientY
-      }, A.current && clearTimeout(A.current), A.current = setTimeout(() => {
+        x: r.clientX,
+        y: r.clientY
+      }, P.current && clearTimeout(P.current), P.current = setTimeout(() => {
         ne();
       }, 50);
     },
     [ne]
   ), e = V(() => {
-    A.current && (clearTimeout(A.current), A.current = null), R(null), w(null), Y.current = null, O.current = null, $(!1);
-  }, []), f = V(
-    (t) => {
-      t !== i && (H("mode toggle", { from: i, to: t }), k(t), D([]), w(null), Z(null), R(null), Y.current = null, O.current = null, $(!1));
+    P.current && (clearTimeout(P.current), P.current = null), k(null), S(null), Y.current = null, A.current = null, $(!1);
+  }, []), m = V(
+    (r) => {
+      r !== i && (H("mode toggle", { from: i, to: r }), E(r), D([]), S(null), Z(null), k(null), Y.current = null, A.current = null, $(!1));
     },
     [i, H]
-  ), E = V(
-    (t) => {
-      const N = p && !n, S = t.target;
-      if (S.closest('[data-selected-element="true"]') || S.closest('[data-element-selector-ui="true"]'))
+  ), R = V(
+    (r) => {
+      const w = b && !l, O = r.target;
+      if (O.closest('[data-selected-element="true"]') || O.closest('[data-element-selector-ui="true"]'))
         return;
-      if (t.preventDefault(), t.stopPropagation(), i === "insert") {
-        const P = ve(
-          fe(t.clientX, t.clientY),
-          t.clientX,
-          t.clientY
+      if (r.preventDefault(), r.stopPropagation(), i === "insert") {
+        const j = we(
+          ge(
+            me(r) ?? fe(r.clientX, r.clientY)
+          ),
+          r.clientX,
+          r.clientY
         );
-        if (!P) {
+        if (!j) {
           H("insert click with no candidate", {
-            point: { x: t.clientX, y: t.clientY }
+            point: { x: r.clientX, y: r.clientY }
           });
           return;
         }
-        if (N) {
-          Z(P), w(P), D([]);
+        if (w) {
+          Z(j), S(j), D([]);
           return;
         }
-        r([
-          L(P.element, {
+        t([
+          L(j.element, {
             mode: "insert",
-            insertionPosition: P.position,
-            insertionAxis: P.axis
+            insertionPosition: j.position,
+            insertionAxis: j.axis
           })
         ]);
         return;
       }
-      const x = fe(
-        t.clientX,
-        t.clientY
+      const u = ge(
+        me(r) ?? fe(r.clientX, r.clientY)
       );
-      if (x && !(n && T.some((P) => P.contains(x)))) {
-        if (n) {
-          D((P) => P.includes(x) ? P : [...P, x]);
+      if (u && !(l && T.some((j) => j.contains(u)))) {
+        if (l) {
+          D((j) => j.includes(u) ? j : [...j, u]);
           return;
         }
-        if (N) {
-          D([x]), Z(null);
+        if (w) {
+          D([u]), Z(null);
           return;
         }
-        r([
-          L(x, { mode: "select" })
+        t([
+          L(u, { mode: "select" })
         ]), H("select click", {
-          tag: x.tagName,
-          id: x.id,
-          className: x.className,
-          rect: M.get(x) ?? null
+          tag: u.tagName,
+          id: u.id,
+          className: u.className,
+          rect: M.get(u) ?? null
         });
       }
     },
-    [n, p, i, r, T, L, M, H]
-  ), _ = V((t) => {
+    [l, b, i, t, T, L, M, H]
+  ), C = V((r) => {
     D(
-      (N) => N.filter((S) => S !== t)
+      (w) => w.filter((O) => O !== r)
     );
   }, []);
-  Q(() => (document.addEventListener("mousemove", ee, !0), document.addEventListener("mouseleave", e, !0), document.addEventListener("click", E, !0), H("selector mounted", {
+  Q(() => (document.addEventListener("mousemove", ee, !0), document.addEventListener("mouseleave", e, !0), document.addEventListener("click", R, !0), H("selector mounted", {
     viewport: {
       width: window.innerWidth,
       height: window.innerHeight
     },
     tracked: q.length
   }), () => {
-    document.removeEventListener("mousemove", ee, !0), document.removeEventListener("mouseleave", e, !0), document.removeEventListener("click", E, !0), A.current && clearTimeout(A.current), H("selector unmounted");
-  }), [ee, e, E, q.length, H]), Q(() => {
-    const t = (N) => {
-      switch (N.key) {
+    document.removeEventListener("mousemove", ee, !0), document.removeEventListener("mouseleave", e, !0), document.removeEventListener("click", R, !0), P.current && clearTimeout(P.current), H("selector unmounted");
+  }), [ee, e, R, q.length, H]), Q(() => {
+    const r = (w) => {
+      switch (w.key) {
         case "Escape":
-          d();
+          s();
           break;
         case "Enter":
-          if (i === "insert" && g) {
-            r([
-              L(g.element, {
+          if (i === "insert" && h) {
+            t([
+              L(h.element, {
                 mode: "insert",
-                insertionPosition: g.position,
-                insertionAxis: g.axis
+                insertionPosition: h.position,
+                insertionAxis: h.axis
               })
             ]);
             break;
           }
-          if (n && T.length > 0) {
-            const S = T.map(
-              (x) => L(x, { mode: "select" })
+          if (l && T.length > 0) {
+            const O = T.map(
+              (u) => L(u, { mode: "select" })
             );
-            r(S);
+            t(O);
           }
           break;
       }
     };
-    return window.addEventListener("keydown", t), () => window.removeEventListener("keydown", t);
+    return window.addEventListener("keydown", r), () => window.removeEventListener("keydown", r);
   }, [
-    n,
-    g,
+    l,
+    h,
     i,
-    d,
-    r,
+    s,
+    t,
     T,
     L
   ]), Q(() => {
-    const t = window.matchMedia("(max-width: 640px)"), N = () => oe(t.matches);
-    return N(), t.addEventListener("change", N), () => t.removeEventListener("change", N);
+    const r = window.matchMedia("(max-width: 640px)"), w = () => oe(r.matches);
+    return w(), r.addEventListener("change", w), () => r.removeEventListener("change", w);
   }, []);
-  const j = {
-    selectLabel: b?.selectLabel ?? "Select",
-    insertLabel: b?.insertLabel ?? "Insert",
-    instructionSelectSingle: b?.instructionSelectSingle ?? "Click an element to select",
-    instructionSelectMulti: b?.instructionSelectMulti ?? "Click elements to select",
-    instructionInsert: b?.instructionInsert ?? "Click to choose where to insert new content",
-    confirmLabel: b?.confirmLabel ?? "✓",
-    cancelLabel: b?.cancelLabel ?? "✕"
-  }, F = i === "insert" ? j.instructionInsert : n ? j.instructionSelectMulti : j.instructionSelectSingle, ie = V(() => {
-    const t = p && !n;
-    if (n && T.length > 0) {
-      const N = T.map(
-        (S) => L(S, { mode: "select" })
+  const _ = {
+    selectLabel: g?.selectLabel ?? "Select",
+    insertLabel: g?.insertLabel ?? "Insert",
+    instructionSelectSingle: g?.instructionSelectSingle ?? "Click an element to select",
+    instructionSelectMulti: g?.instructionSelectMulti ?? "Click elements to select",
+    instructionInsert: g?.instructionInsert ?? "Click to choose where to insert new content",
+    confirmLabel: g?.confirmLabel ?? "✓",
+    cancelLabel: g?.cancelLabel ?? "✕"
+  }, F = i === "insert" ? _.instructionInsert : l ? _.instructionSelectMulti : _.instructionSelectSingle, ie = V(() => {
+    const r = b && !l;
+    if (l && T.length > 0) {
+      const w = T.map(
+        (O) => L(O, { mode: "select" })
       );
-      r(N);
+      t(w);
       return;
     }
-    if (t) {
+    if (r) {
       if (i === "select" && T[0]) {
-        r([
+        t([
           L(T[0], { mode: "select" })
         ]);
         return;
       }
-      i === "insert" && B && r([
+      i === "insert" && B && t([
         L(B.element, {
           mode: "insert",
           insertionPosition: B.position,
@@ -1109,40 +1148,40 @@ function Le({
       ]);
     }
   }, [
-    n,
-    p,
+    l,
+    b,
     i,
-    r,
+    t,
     B,
     T,
     L
-  ]), te = p && !n, C = n ? T.length > 0 : te ? i === "select" ? T.length > 0 : !!B : !1, J = n || te, re = {
-    vertical: s?.vertical ?? "top",
-    horizontal: s?.horizontal ?? "center"
+  ]), te = b && !l, N = l ? T.length > 0 : te ? i === "select" ? T.length > 0 : !!B : !1, J = l || te, re = {
+    vertical: c?.vertical ?? "top",
+    horizontal: c?.horizontal ?? "center"
   }, I = {
     position: "fixed",
-    background: u.panelBg,
-    color: u.textColor,
-    padding: p ? "14px 16px" : "16px 24px",
-    borderRadius: p ? "16px" : "12px",
+    background: d.panelBg,
+    color: d.textColor,
+    padding: b ? "14px 16px" : "16px 24px",
+    borderRadius: b ? "16px" : "12px",
     fontSize: "15px",
     fontFamily: "system-ui, -apple-system, sans-serif",
-    boxShadow: u.shadow,
-    border: u.border,
+    boxShadow: d.shadow,
+    border: d.border,
     zIndex: 100001,
     display: "flex",
     alignItems: "center",
     flexDirection: "row",
-    gap: p ? "10px" : "16px",
+    gap: b ? "10px" : "16px",
     pointerEvents: "auto",
-    width: p ? "calc(100% - 24px)" : void 0,
-    maxWidth: p ? "min(720px, calc(100% - 24px))" : "min(960px, calc(100% - 48px))",
+    width: b ? "calc(100% - 24px)" : void 0,
+    maxWidth: b ? "min(720px, calc(100% - 24px))" : "min(960px, calc(100% - 48px))",
     boxSizing: "border-box",
     flexWrap: "nowrap",
     overflowX: "auto",
     justifyContent: "space-between"
   };
-  if (p)
+  if (b)
     I.left = "12px", I.right = "12px", I.bottom = "16px", I.top = void 0, I.transform = "none";
   else
     switch (re.vertical === "top" ? I.top = "24px" : I.bottom = "24px", re.horizontal) {
@@ -1192,15 +1231,15 @@ function Le({
                     width: void 0,
                     justifyContent: "flex-start",
                     flexShrink: 1,
-                    flexGrow: p ? 1 : void 0
+                    flexGrow: b ? 1 : void 0
                   },
                   children: /* @__PURE__ */ v.jsxs(
                     "div",
                     {
                       style: {
                         display: "flex",
-                        gap: p ? "6px" : "4px",
-                        flex: p ? "1 1 auto" : void 0,
+                        gap: b ? "6px" : "4px",
+                        flex: b ? "1 1 auto" : void 0,
                         flexShrink: 1
                       },
                       children: [
@@ -1209,28 +1248,28 @@ function Le({
                           {
                             type: "button",
                             className: "element-selector-toggle",
-                            onClick: (t) => {
-                              t.preventDefault(), t.stopPropagation(), f("select");
+                            onClick: (r) => {
+                              r.preventDefault(), r.stopPropagation(), m("select");
                             },
                             style: {
-                              border: i === "select" ? "1px solid " + u.toggleSelectedBg : h === "light" ? "1px solid rgba(0, 0, 0, 0.24)" : "1px solid rgba(255, 255, 255, 0.32)",
+                              border: i === "select" ? "1px solid " + d.toggleSelectedBg : p === "light" ? "1px solid rgba(0, 0, 0, 0.24)" : "1px solid rgba(255, 255, 255, 0.32)",
                               borderRadius: "999px 0 0 999px",
-                              padding: p ? "10px 12px" : "6px 14px",
-                              minHeight: p ? "44px" : void 0,
+                              padding: b ? "10px 12px" : "6px 14px",
+                              minHeight: b ? "44px" : void 0,
                               cursor: "pointer",
                               fontWeight: i === "select" ? 600 : 500,
                               transition: "background-color 120ms ease, color 120ms ease",
                               boxShadow: "none",
                               transform: "none",
-                              flex: p ? 1 : void 0,
-                              background: i === "select" ? u.toggleSelectedBg : "transparent",
-                              color: i === "select" ? u.toggleSelectedText : u.toggleIdleText,
+                              flex: b ? 1 : void 0,
+                              background: i === "select" ? d.toggleSelectedBg : "transparent",
+                              color: i === "select" ? d.toggleSelectedText : d.toggleIdleText,
                               "--es-toggle-bg": "transparent",
                               "--es-toggle-bg-hover": "transparent",
                               "--es-toggle-color": "inherit",
-                              "--es-toggle-color-hover": i === "select" ? u.toggleSelectedText : u.toggleIdleTextHover
+                              "--es-toggle-color-hover": i === "select" ? d.toggleSelectedText : d.toggleIdleTextHover
                             },
-                            children: j.selectLabel
+                            children: _.selectLabel
                           }
                         ),
                         /* @__PURE__ */ v.jsx(
@@ -1238,28 +1277,28 @@ function Le({
                           {
                             type: "button",
                             className: "element-selector-toggle",
-                            onClick: (t) => {
-                              t.preventDefault(), t.stopPropagation(), f("insert");
+                            onClick: (r) => {
+                              r.preventDefault(), r.stopPropagation(), m("insert");
                             },
                             style: {
-                              border: i === "insert" ? "1px solid " + u.toggleSelectedBg : h === "light" ? "1px solid rgba(0, 0, 0, 0.24)" : "1px solid rgba(255, 255, 255, 0.32)",
+                              border: i === "insert" ? "1px solid " + d.toggleSelectedBg : p === "light" ? "1px solid rgba(0, 0, 0, 0.24)" : "1px solid rgba(255, 255, 255, 0.32)",
                               borderRadius: "0 999px 999px 0",
-                              padding: p ? "10px 12px" : "6px 14px",
-                              minHeight: p ? "44px" : void 0,
+                              padding: b ? "10px 12px" : "6px 14px",
+                              minHeight: b ? "44px" : void 0,
                               cursor: "pointer",
                               fontWeight: i === "insert" ? 600 : 500,
                               transition: "background-color 120ms ease, color 120ms ease",
                               boxShadow: "none",
                               transform: "none",
-                              flex: p ? 1 : void 0,
-                              background: i === "insert" ? u.toggleSelectedBg : "transparent",
-                              color: i === "insert" ? u.toggleSelectedText : u.toggleIdleText,
+                              flex: b ? 1 : void 0,
+                              background: i === "insert" ? d.toggleSelectedBg : "transparent",
+                              color: i === "insert" ? d.toggleSelectedText : d.toggleIdleText,
                               "--es-toggle-bg": "transparent",
                               "--es-toggle-bg-hover": "transparent",
                               "--es-toggle-color": "inherit",
-                              "--es-toggle-color-hover": i === "insert" ? u.toggleSelectedText : u.toggleIdleTextHover
+                              "--es-toggle-color-hover": i === "insert" ? d.toggleSelectedText : d.toggleIdleTextHover
                             },
-                            children: j.insertLabel
+                            children: _.insertLabel
                           }
                         )
                       ]
@@ -1267,12 +1306,12 @@ function Le({
                   )
                 }
               ),
-              !p && /* @__PURE__ */ v.jsx(
+              !b && /* @__PURE__ */ v.jsx(
                 "span",
                 {
                   className: "element-selector-instruction",
                   style: {
-                    color: u.instructionTextColor,
+                    color: d.instructionTextColor,
                     fontWeight: 600,
                     flex: 1,
                     textAlign: "center",
@@ -1288,10 +1327,10 @@ function Le({
                   style: {
                     display: "flex",
                     alignItems: "center",
-                    gap: p ? "10px" : "8px",
+                    gap: b ? "10px" : "8px",
                     width: void 0,
                     justifyContent: "flex-end",
-                    flex: p ? "1 1 auto" : void 0,
+                    flex: b ? "1 1 auto" : void 0,
                     flexWrap: "nowrap"
                   },
                   children: [
@@ -1299,32 +1338,32 @@ function Le({
                       "button",
                       {
                         type: "button",
-                        disabled: !C,
+                        disabled: !N,
                         className: "element-selector-action element-selector-confirm",
-                        onClick: (t) => {
-                          t.preventDefault(), t.stopPropagation(), C && ie();
+                        onClick: (r) => {
+                          r.preventDefault(), r.stopPropagation(), N && ie();
                         },
                         style: {
                           border: "none",
-                          borderRadius: p ? "10px" : "8px",
-                          padding: p ? "12px 14px" : "8px 12px",
-                          minHeight: p ? "44px" : void 0,
-                          flex: p ? "0 1 auto" : void 0,
-                          cursor: C ? "pointer" : "not-allowed",
-                          fontSize: p ? "15px" : "14px",
+                          borderRadius: b ? "10px" : "8px",
+                          padding: b ? "12px 14px" : "8px 12px",
+                          minHeight: b ? "44px" : void 0,
+                          flex: b ? "0 1 auto" : void 0,
+                          cursor: N ? "pointer" : "not-allowed",
+                          fontSize: b ? "15px" : "14px",
                           fontWeight: 700,
                           transition: "background-color 120ms ease, color 120ms ease",
                           boxShadow: "none",
                           transform: "none",
-                          "--es-action-bg": u.actionBg,
-                          "--es-action-bg-hover": u.actionBgHover,
-                          "--es-action-bg-disabled": u.actionBgDisabled,
-                          "--es-action-color": u.actionColor,
-                          "--es-action-color-hover": u.actionColorHover,
-                          "--es-action-color-disabled": u.actionColorDisabled
+                          "--es-action-bg": d.actionBg,
+                          "--es-action-bg-hover": d.actionBgHover,
+                          "--es-action-bg-disabled": d.actionBgDisabled,
+                          "--es-action-color": d.actionColor,
+                          "--es-action-color-hover": d.actionColorHover,
+                          "--es-action-color-disabled": d.actionColorDisabled
                         },
-                        "aria-label": j.confirmLabel,
-                        children: j.confirmLabel
+                        "aria-label": _.confirmLabel,
+                        children: _.confirmLabel
                       }
                     ),
                     /* @__PURE__ */ v.jsx(
@@ -1332,30 +1371,30 @@ function Le({
                       {
                         type: "button",
                         className: "element-selector-action element-selector-cancel",
-                        onClick: (t) => {
-                          t.preventDefault(), t.stopPropagation(), d();
+                        onClick: (r) => {
+                          r.preventDefault(), r.stopPropagation(), s();
                         },
                         style: {
                           border: "none",
-                          borderRadius: p ? "10px" : "8px",
-                          padding: p ? "12px 14px" : "8px 12px",
+                          borderRadius: b ? "10px" : "8px",
+                          padding: b ? "12px 14px" : "8px 12px",
                           cursor: "pointer",
-                          fontSize: p ? "15px" : "14px",
+                          fontSize: b ? "15px" : "14px",
                           fontWeight: 700,
                           transition: "background-color 120ms ease, color 120ms ease",
                           boxShadow: "none",
                           transform: "none",
-                          "--es-action-bg": u.actionBg,
-                          "--es-action-bg-hover": u.actionBgHover,
-                          "--es-action-bg-disabled": u.actionBgDisabled,
-                          "--es-action-color": u.actionColor,
-                          "--es-action-color-hover": u.actionColorHover,
-                          "--es-action-color-disabled": u.actionColorDisabled,
-                          flex: p ? "0 1 auto" : void 0,
-                          marginLeft: p ? "6px" : void 0
+                          "--es-action-bg": d.actionBg,
+                          "--es-action-bg-hover": d.actionBgHover,
+                          "--es-action-bg-disabled": d.actionBgDisabled,
+                          "--es-action-color": d.actionColor,
+                          "--es-action-color-hover": d.actionColorHover,
+                          "--es-action-color-disabled": d.actionColorDisabled,
+                          flex: b ? "0 1 auto" : void 0,
+                          marginLeft: b ? "6px" : void 0
                         },
-                        "aria-label": j.cancelLabel,
-                        children: j.cancelLabel
+                        "aria-label": _.cancelLabel,
+                        children: _.cancelLabel
                       }
                     )
                   ]
@@ -1364,32 +1403,32 @@ function Le({
             ]
           }
         ),
-        i === "select" && m && (!n || !T.includes(m)) && !p && /* @__PURE__ */ v.jsx(
-          Pe,
+        i === "select" && x && (!l || !T.includes(x)) && !b && /* @__PURE__ */ v.jsx(
+          Oe,
           {
-            targetElement: m,
-            friendlySelectors: c,
-            rect: M.get(m) ?? null
+            targetElement: x,
+            friendlySelectors: f,
+            rect: M.get(x) ?? null
           }
         ),
-        i === "insert" && g && /* @__PURE__ */ v.jsx(
+        i === "insert" && h && /* @__PURE__ */ v.jsx(
+          Te,
+          {
+            element: h.element,
+            position: h.position,
+            axis: h.axis,
+            friendlySelectors: f,
+            rect: M.get(h.element) ?? null
+          }
+        ),
+        (l || b && T.length > 0) && T.map((r, w) => /* @__PURE__ */ v.jsx(
           ke,
           {
-            element: g.element,
-            position: g.position,
-            axis: g.axis,
-            friendlySelectors: c,
-            rect: M.get(g.element) ?? null
-          }
-        ),
-        (n || p && T.length > 0) && T.map((t, N) => /* @__PURE__ */ v.jsx(
-          Se,
-          {
-            targetElement: t,
-            onDeselect: () => _(t),
-            rect: M.get(t) ?? null
+            targetElement: r,
+            onDeselect: () => C(r),
+            rect: M.get(r) ?? null
           },
-          `selected-${N}`
+          `selected-${w}`
         )),
         /* @__PURE__ */ v.jsx("style", { children: `
         body {
@@ -1441,86 +1480,86 @@ function Le({
   );
 }
 let z = null, K = null;
-function ze() {
-  return z && K || (z = document.createElement("div"), z.id = "element-selector-persistent-highlights", z.style.position = "fixed", z.style.inset = "0", z.style.pointerEvents = "none", z.style.zIndex = "99998", document.body.appendChild(z), K = ye.createRoot(z)), K;
+function Be() {
+  return z && K || (z = document.createElement("div"), z.id = "element-selector-persistent-highlights", z.style.position = "fixed", z.style.inset = "0", z.style.pointerEvents = "none", z.style.zIndex = "99998", document.body.appendChild(z), K = Ee.createRoot(z)), K;
 }
-function De({
-  elements: r,
-  friendlySelectors: d
+function Fe({
+  elements: t,
+  friendlySelectors: s
 }) {
-  const a = me(
-    () => r.map((l) => l.element),
-    [r]
-  ), c = Re(a);
-  return r.length ? /* @__PURE__ */ v.jsx(v.Fragment, { children: r.map((l, o) => {
-    const s = c.get(l.element) ?? null;
-    return l.mode === "insert" && l.insertionPosition && l.insertionAxis ? /* @__PURE__ */ v.jsx(
-      ke,
+  const a = he(
+    () => t.map((n) => n.element),
+    [t]
+  ), f = Ne(a);
+  return t.length ? /* @__PURE__ */ v.jsx(v.Fragment, { children: t.map((n, o) => {
+    const c = f.get(n.element) ?? null;
+    return n.mode === "insert" && n.insertionPosition && n.insertionAxis ? /* @__PURE__ */ v.jsx(
+      Te,
       {
-        element: l.element,
-        position: l.insertionPosition,
-        axis: l.insertionAxis,
-        friendlySelectors: d,
-        rect: s
+        element: n.element,
+        position: n.insertionPosition,
+        axis: n.insertionAxis,
+        friendlySelectors: s,
+        rect: c
       },
       `persistent-insert-${o}`
     ) : /* @__PURE__ */ v.jsx(
-      Se,
+      ke,
       {
-        targetElement: l.element,
+        targetElement: n.element,
         onDeselect: () => {
         },
         variant: "passive",
-        rect: s
+        rect: c
       },
       `persistent-select-${o}`
     );
   }) }) : null;
 }
-function $e(r, d) {
-  if (!r.length) return;
-  ze().render(
-    /* @__PURE__ */ v.jsx(ge.StrictMode, { children: /* @__PURE__ */ v.jsx(De, { elements: r, friendlySelectors: d }) })
+function Ye(t, s) {
+  if (!t.length) return;
+  Be().render(
+    /* @__PURE__ */ v.jsx(be.StrictMode, { children: /* @__PURE__ */ v.jsx(Fe, { elements: t, friendlySelectors: s }) })
   );
 }
-function Be() {
+function We() {
   K && (K.unmount(), K = null), z?.parentNode && z.parentNode.removeChild(z), z = null;
 }
-function We(r = {}) {
+function Ue(t = {}) {
   const {
-    multiSelect: d = !1,
+    multiSelect: s = !1,
     friendlySelectors: a = !1,
-    mode: c = "select",
-    allowModeToggle: l = !0,
+    mode: f = "select",
+    allowModeToggle: n = !0,
     retainSelectionHighlights: o = !1,
-    optionsPanelPosition: s,
-    selectionBarText: b,
-    theme: h = "dark",
+    optionsPanelPosition: c,
+    selectionBarText: g,
+    theme: p = "dark",
     debug: y = !1
-  } = r;
-  return Be(), new Promise((i, k) => {
-    const n = document.createElement("div");
-    n.id = "element-selector-root", n.style.position = "fixed", n.style.zIndex = "999999", n.style.inset = "0", document.body.appendChild(n);
-    const u = ye.createRoot(n), m = () => {
-      u.unmount(), n.parentNode && n.parentNode.removeChild(n);
-    }, R = (w) => {
-      o && $e(w, a), m(), !d && w.length > 0 ? i(w[0]) : i(w);
-    }, g = () => {
-      m(), k(new Error("Element selection cancelled by user"));
+  } = t;
+  return We(), new Promise((i, E) => {
+    const l = document.createElement("div");
+    l.id = "element-selector-root", l.style.position = "fixed", l.style.zIndex = "999999", l.style.inset = "0", document.body.appendChild(l);
+    const d = Ee.createRoot(l), x = () => {
+      d.unmount(), l.parentNode && l.parentNode.removeChild(l);
+    }, k = (S) => {
+      o && Ye(S, a), x(), !s && S.length > 0 ? i(S[0]) : i(S);
+    }, h = () => {
+      x(), E(new Error("Element selection cancelled by user"));
     };
-    u.render(
-      /* @__PURE__ */ v.jsx(ge.StrictMode, { children: /* @__PURE__ */ v.jsx(
-        Le,
+    d.render(
+      /* @__PURE__ */ v.jsx(be.StrictMode, { children: /* @__PURE__ */ v.jsx(
+        $e,
         {
-          onElementSelected: R,
-          onCancel: g,
-          multiSelect: d,
+          onElementSelected: k,
+          onCancel: h,
+          multiSelect: s,
           friendlySelectors: a,
-          initialMode: c,
-          allowModeToggle: l,
-          optionsPanelPosition: s,
-          selectionBarText: b,
-          theme: h,
+          initialMode: f,
+          allowModeToggle: n,
+          optionsPanelPosition: c,
+          selectionBarText: g,
+          theme: p,
           debug: y
         }
       ) })
@@ -1528,9 +1567,9 @@ function We(r = {}) {
   });
 }
 export {
-  Le as ElementSelector,
-  He as buildElementSelector,
+  $e as ElementSelector,
+  Pe as buildElementSelector,
   fe as findElementAtCoordinates,
-  We as launchSelector,
-  Be as resetSelectionHighlights
+  Ue as launchSelector,
+  We as resetSelectionHighlights
 };
