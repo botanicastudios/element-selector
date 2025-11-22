@@ -71,6 +71,11 @@ export interface ElementSelectorProps {
      * Visual theme for the floating options panel
      */
     theme?: ElementSelectorTheme;
+    /**
+     * When true, emit verbose console diagnostics for hover / measurement
+     * lifecycle. Useful for debugging iframe or layout issues.
+     */
+    debug?: boolean;
 }
 export interface HoveredItemProps {
     targetElement: HTMLElement | null;
@@ -120,6 +125,8 @@ export interface LaunchSelectorOptions {
      * is started again in select mode.
      */
     retainSelectionHighlights?: boolean;
+    /** Enable verbose console diagnostics. */
+    debug?: boolean;
 }
 export interface ContextHtmlOptions {
     maxAncestors?: number;

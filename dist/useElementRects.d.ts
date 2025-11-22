@@ -9,6 +9,8 @@ type UseElementRectMapOptions = {
      * until they enter the viewport again.
      */
     skipOffscreen?: boolean;
+    /** When true, log every measurement for debugging. */
+    debug?: boolean;
 };
-export declare function useElementRectMap(elements: Array<HTMLElement | null>, { skipOffscreen }?: UseElementRectMapOptions): Map<HTMLElement, DOMRectReadOnly>;
+export declare function useElementRectMap(elements: Array<HTMLElement | null>, { skipOffscreen, debug }?: UseElementRectMapOptions): Map<HTMLElement, DOMRectReadOnly>;
 export {};

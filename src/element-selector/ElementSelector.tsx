@@ -171,6 +171,21 @@ function deriveInsertionCandidate(
   };
 }
 
+function getMeasurableTarget(element: HTMLElement | null): HTMLElement | null {
+  let current: HTMLElement | null = element;
+  while (current) {
+    const rect = current.getBoundingClientRect();
+    if (rect.width !== 0 || rect.height !== 0) {
+      return current;
+    }
+    if (!current.parentElement || current === document.body) {
+      return current;
+    }
+    current = current.parentElement as HTMLElement | null;
+  }
+  return null;
+}
+
 export function ElementSelector({
   onElementSelected,
   onCancel,
@@ -209,7 +224,7 @@ export function ElementSelector({
     return list;
   }, [currentHover, insertionCandidate, pickedElements]);
 
-  const rectMap = useElementRectMap(trackedElements, { skipOffscreen: true, debug });
+  const rectMap = useElementRectMap(trackedElements, { skipOffscreen: false, debug });
 
   const logDebug = useCallback(
     (...messages: unknown[]) => {
@@ -314,16 +329,19 @@ export function ElementSelector({
       mousePositionRef.current.y
     );
 
+    const measurableTarget = getMeasurableTarget(targetElement);
+
     logDebug("hover update", {
       point: { ...mousePositionRef.current },
       target: targetElement?.tagName,
+      measurableTarget: measurableTarget?.tagName,
       id: targetElement?.id,
       className: targetElement?.className,
     });
 
     if (mode === "insert") {
       const candidate = deriveInsertionCandidate(
-        targetElement,
+        measurableTarget,
         mousePositionRef.current.x,
         mousePositionRef.current.y
       );
@@ -363,18 +381,18 @@ export function ElementSelector({
       return;
     }
 
-    if (previousHoverRef.current !== targetElement) {
-      previousHoverRef.current = targetElement;
-      setCurrentHover(targetElement);
-      setCanAddElement(true);
-      logDebug("setCurrentHover", {
-        tag: targetElement.tagName,
-        id: targetElement.id,
-        className: targetElement.className,
-        rect: rectMap.get(targetElement) ?? null,
-      });
-    }
-  }, [effectiveMultiSelect, mode, pickedElements, rectMap, logDebug]);
+      if (previousHoverRef.current !== targetElement) {
+        previousHoverRef.current = measurableTarget;
+        setCurrentHover(measurableTarget);
+        setCanAddElement(true);
+        logDebug("setCurrentHover", {
+          tag: measurableTarget?.tagName,
+          id: measurableTarget?.id,
+          className: measurableTarget?.className,
+          rect: measurableTarget ? rectMap.get(measurableTarget) ?? null : null,
+        });
+      }
+    }, [effectiveMultiSelect, mode, pickedElements, rectMap, logDebug]);
 
   // Track mouse movement
   const handleMouseMove = useCallback(
@@ -457,7 +475,7 @@ export function ElementSelector({
 
       if (mode === "insert") {
         const candidate = deriveInsertionCandidate(
-          findElementAtCoordinates(event.clientX, event.clientY),
+          getMeasurableTarget(findElementAtCoordinates(event.clientX, event.clientY)),
           event.clientX,
           event.clientY
         );
@@ -489,10 +507,10 @@ export function ElementSelector({
         return;
       }
 
-      const targetElement = findElementAtCoordinates(
+      const targetElement = getMeasurableTarget(findElementAtCoordinates(
         event.clientX,
         event.clientY
-      );
+      ));
 
       if (!targetElement) {
         return;
