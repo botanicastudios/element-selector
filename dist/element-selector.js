@@ -53,9 +53,9 @@ function Te() {
       switch (e) {
         case m:
           return "Fragment";
-        case E:
-          return "Profiler";
         case S:
+          return "Profiler";
+        case E:
           return "StrictMode";
         case z:
           return "Suspense";
@@ -236,7 +236,7 @@ React keys must be passed directly to JSX without using spread:
     function d(e) {
       typeof e == "object" && e !== null && e.$$typeof === w && e._store && (e._store.validated = 1);
     }
-    var i = fe, w = Symbol.for("react.transitional.element"), N = Symbol.for("react.portal"), m = Symbol.for("react.fragment"), S = Symbol.for("react.strict_mode"), E = Symbol.for("react.profiler"), L = Symbol.for("react.consumer"), J = Symbol.for("react.context"), P = Symbol.for("react.forward_ref"), z = Symbol.for("react.suspense"), B = Symbol.for("react.suspense_list"), g = Symbol.for("react.memo"), Q = Symbol.for("react.lazy"), ee = Symbol.for("react.activity"), X = Symbol.for("react.client.reference"), F = i.__CLIENT_INTERNALS_DO_NOT_USE_OR_WARN_USERS_THEY_CANNOT_UPGRADE, H = Object.prototype.hasOwnProperty, Y = Array.isArray, I = console.createTask ? console.createTask : function() {
+    var i = fe, w = Symbol.for("react.transitional.element"), N = Symbol.for("react.portal"), m = Symbol.for("react.fragment"), E = Symbol.for("react.strict_mode"), S = Symbol.for("react.profiler"), L = Symbol.for("react.consumer"), J = Symbol.for("react.context"), P = Symbol.for("react.forward_ref"), z = Symbol.for("react.suspense"), B = Symbol.for("react.suspense_list"), g = Symbol.for("react.memo"), Q = Symbol.for("react.lazy"), ee = Symbol.for("react.activity"), X = Symbol.for("react.client.reference"), F = i.__CLIENT_INTERNALS_DO_NOT_USE_OR_WARN_USERS_THEY_CANNOT_UPGRADE, H = Object.prototype.hasOwnProperty, Y = Array.isArray, I = console.createTask ? console.createTask : function() {
       return null;
     };
     i = {
@@ -398,13 +398,13 @@ function _e(r, u = 300, { maxAncestors: a = 10 } = {}) {
     const N = [];
     let m = w;
     for (; m && m !== i; ) {
-      const S = m.parentNode;
-      if (!S)
+      const E = m.parentNode;
+      if (!E)
         throw new Error("Failed to resolve node path for context extraction.");
-      const E = Array.prototype.indexOf.call(S.childNodes, m);
-      if (E === -1)
+      const S = Array.prototype.indexOf.call(E.childNodes, m);
+      if (S === -1)
         throw new Error("Unable to map node into cloned context tree.");
-      N.unshift(E), m = S;
+      N.unshift(S), m = E;
     }
     if (m !== i)
       throw new Error("Context root does not contain the requested node.");
@@ -425,22 +425,22 @@ function _e(r, u = 300, { maxAncestors: a = 10 } = {}) {
         afterHtml: ""
       };
     const m = n(i, r);
-    let S = w.firstChild;
+    let E = w.firstChild;
     for (const ee of m) {
-      const X = S.childNodes.item(ee);
+      const X = E.childNodes.item(ee);
       if (!X)
         throw new Error("Failed to mirror node inside cloned context tree.");
-      S = X;
+      E = X;
     }
-    const E = S.parentNode;
-    if (!E)
+    const S = E.parentNode;
+    if (!S)
       return {
         beforeHtml: "",
         elementHtml: s(r),
         afterHtml: ""
       };
     const L = document.createTextNode(c.start), J = document.createTextNode(c.end);
-    E.insertBefore(L, S), E.insertBefore(J, S.nextSibling), E.removeChild(S);
+    S.insertBefore(L, E), S.insertBefore(J, E.nextSibling), S.removeChild(E);
     const P = w.innerHTML, z = P.indexOf(c.start), B = P.indexOf(c.end);
     if (z === -1 || B === -1 || B < z)
       throw new Error("Failed to locate context markers during serialization.");
@@ -724,8 +724,8 @@ function Ee(r, { skipOffscreen: u = !0 } = {}) {
               L && d.set(w, L);
               continue;
             }
-            const m = w.getBoundingClientRect(), S = x.get(w);
-            (!S || m.top !== S.top || m.left !== S.left || m.width !== S.width || m.height !== S.height) && (i = !0), d.set(w, m);
+            const m = w.getBoundingClientRect(), E = x.get(w);
+            (!E || m.top !== E.top || m.left !== E.left || m.width !== E.width || m.height !== E.height) && (i = !0), d.set(w, m);
           }
           return !i && x.size === d.size ? x : d;
         });
@@ -840,12 +840,12 @@ function Ae({
   selectionBarText: f,
   theme: y = "dark"
 }) {
-  const [l, x] = W(n), d = l === "select" && a, i = Pe(y), [w, N] = W(null), [m, S] = W(null), [E, L] = W([]), [J, P] = W(!1), [z, B] = W(null), [g, Q] = W(() => typeof window > "u" ? !1 : window.matchMedia("(max-width: 640px)").matches), ee = pe(() => {
+  const [l, x] = W(n), d = l === "select" && a, i = Pe(y), [w, N] = W(null), [m, E] = W(null), [S, L] = W([]), [J, P] = W(!1), [z, B] = W(null), [g, Q] = W(() => typeof window > "u" ? !1 : window.matchMedia("(max-width: 640px)").matches), ee = pe(() => {
     const t = [];
-    return w && t.push(w), m?.element && !t.includes(m.element) && t.push(m.element), E.forEach((k) => {
+    return w && t.push(w), m?.element && !t.includes(m.element) && t.push(m.element), S.forEach((k) => {
       t.includes(k) || t.push(k);
     }), t;
-  }, [w, m, E]), X = Ee(ee), F = D({ x: 0, y: 0 }), H = D(null), Y = D(null), I = D(null), A = U(
+  }, [w, m, S]), X = Ee(ee), F = D({ x: 0, y: 0 }), H = D(null), Y = D(null), I = D(null), A = U(
     (t, k = {}) => {
       const R = (() => {
         try {
@@ -890,18 +890,18 @@ function Ae({
         F.current.x,
         F.current.y
       );
-      (R && (!I.current || I.current.element !== R.element || I.current.position !== R.position || I.current.axis !== R.axis) || !R && I.current) && (I.current = R, S(R ?? null)), P(!!R), N(R ? R.element : null), Y.current = R ? R.element : null;
+      (R && (!I.current || I.current.element !== R.element || I.current.position !== R.position || I.current.axis !== R.axis) || !R && I.current) && (I.current = R, E(R ?? null)), P(!!R), N(R ? R.element : null), Y.current = R ? R.element : null;
       return;
     }
-    if (I.current && (I.current = null, S(null)), d && E.some((R) => R.contains(t))) {
+    if (I.current && (I.current = null, E(null)), d && S.some((R) => R.contains(t))) {
       P(!1), N(null), Y.current = null;
       return;
     }
     Y.current !== t && (Y.current = t, N(t), P(!0));
-  }, [d, l, E]), Z = U(
+  }, [d, l, S]), Z = U(
     (t) => {
       if (t.target.closest('[data-element-selector-ui="true"]')) {
-        H.current && (clearTimeout(H.current), H.current = null), N(null), S(null), Y.current = null, I.current = null, P(!1);
+        H.current && (clearTimeout(H.current), H.current = null), N(null), E(null), Y.current = null, I.current = null, P(!1);
         return;
       }
       F.current = {
@@ -913,10 +913,10 @@ function Ae({
     },
     [te]
   ), K = U(() => {
-    H.current && (clearTimeout(H.current), H.current = null), N(null), S(null), Y.current = null, I.current = null, P(!1);
+    H.current && (clearTimeout(H.current), H.current = null), N(null), E(null), Y.current = null, I.current = null, P(!1);
   }, []), re = U(
     (t) => {
-      t !== l && (x(t), L([]), S(null), B(null), N(null), Y.current = null, I.current = null, P(!1));
+      t !== l && (x(t), L([]), E(null), B(null), N(null), Y.current = null, I.current = null, P(!1));
     },
     [l]
   ), e = U(
@@ -933,7 +933,7 @@ function Ae({
         if (!j)
           return;
         if (k) {
-          B(j), L([j.element]);
+          B(j), E(j), L([]);
           return;
         }
         r([
@@ -949,7 +949,7 @@ function Ae({
         t.clientX,
         t.clientY
       );
-      if (v && !(d && E.some((j) => j.contains(v)))) {
+      if (v && !(d && S.some((j) => j.contains(v)))) {
         if (d) {
           L((j) => j.includes(v) ? j : [...j, v]);
           return;
@@ -963,7 +963,7 @@ function Ae({
         ]);
       }
     },
-    [d, g, l, r, E, A]
+    [d, g, l, r, S, A]
   ), p = U((t) => {
     L(
       (k) => k.filter((R) => R !== t)
@@ -988,8 +988,8 @@ function Ae({
             ]);
             break;
           }
-          if (d && E.length > 0) {
-            const R = E.map(
+          if (d && S.length > 0) {
+            const R = S.map(
               (v) => A(v, { mode: "select" })
             );
             r(R);
@@ -1004,7 +1004,7 @@ function Ae({
     l,
     u,
     r,
-    E,
+    S,
     A
   ]), G(() => {
     const t = window.matchMedia("(max-width: 640px)"), k = () => Q(t.matches);
@@ -1020,17 +1020,17 @@ function Ae({
     cancelLabel: f?.cancelLabel ?? "✕"
   }, _ = l === "insert" ? h.instructionInsert : d ? h.instructionSelectMulti : h.instructionSelectSingle, $ = U(() => {
     const t = g && !d;
-    if (d && E.length > 0) {
-      const k = E.map(
+    if (d && S.length > 0) {
+      const k = S.map(
         (R) => A(R, { mode: "select" })
       );
       r(k);
       return;
     }
     if (t) {
-      if (l === "select" && E[0]) {
+      if (l === "select" && S[0]) {
         r([
-          A(E[0], { mode: "select" })
+          A(S[0], { mode: "select" })
         ]);
         return;
       }
@@ -1048,9 +1048,9 @@ function Ae({
     l,
     r,
     z,
-    E,
+    S,
     A
-  ]), O = g && !d, q = d ? E.length > 0 : O ? l === "select" ? E.length > 0 : !!z : !1, oe = d || O, C = {
+  ]), O = g && !d, q = d ? S.length > 0 : O ? l === "select" ? S.length > 0 : !!z : !1, oe = d || O, C = {
     vertical: c?.vertical ?? "top",
     horizontal: c?.horizontal ?? "center"
   }, T = {
@@ -1298,7 +1298,7 @@ function Ae({
             ]
           }
         ),
-        l === "select" && w && (!d || !E.includes(w)) && !g && /* @__PURE__ */ b.jsx(
+        l === "select" && w && (!d || !S.includes(w)) && !g && /* @__PURE__ */ b.jsx(
           je,
           {
             targetElement: w,
@@ -1316,7 +1316,7 @@ function Ae({
             rect: X.get(m.element) ?? null
           }
         ),
-        (d || g && E.length > 0) && E.map((t, k) => /* @__PURE__ */ b.jsx(
+        (d || g && S.length > 0) && S.map((t, k) => /* @__PURE__ */ b.jsx(
           ye,
           {
             targetElement: t,
@@ -1436,8 +1436,8 @@ function Be(r = {}) {
     d.id = "element-selector-root", d.style.position = "fixed", d.style.zIndex = "999999", d.style.inset = "0", document.body.appendChild(d);
     const i = he.createRoot(d), w = () => {
       i.unmount(), d.parentNode && d.parentNode.removeChild(d);
-    }, N = (S) => {
-      o && Le(S, a), w(), !u && S.length > 0 ? l(S[0]) : l(S);
+    }, N = (E) => {
+      o && Le(E, a), w(), !u && E.length > 0 ? l(E[0]) : l(E);
     }, m = () => {
       w(), x(new Error("Element selection cancelled by user"));
     };
