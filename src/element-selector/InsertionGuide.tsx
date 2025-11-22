@@ -63,9 +63,8 @@ export function InsertionGuide({
           position: "fixed",
           pointerEvents: "none",
           zIndex: 100000,
-          background:
-            "linear-gradient(90deg, rgba(147, 197, 253, 0.9), rgba(59, 130, 246, 0.9))",
-          boxShadow: "0 0 18px rgba(59, 130, 246, 0.6)",
+          background: "#f59e0b",
+          boxShadow: "0 0 14px rgba(245, 158, 11, 0.45)",
           borderRadius: LINE_THICKNESS,
         }}
       />
@@ -75,13 +74,13 @@ export function InsertionGuide({
           position: "fixed",
           pointerEvents: "none",
           zIndex: 100001,
-          background: "linear-gradient(135deg, #1d4ed8, #0ea5e9)",
-          color: "#f8fafc",
+          background: "#2b1b0a",
+          color: "#f6f1e8",
           padding: "6px 12px",
           borderRadius: "8px",
           fontSize: "12px",
           fontFamily: "system-ui, -apple-system, sans-serif",
-          boxShadow: "0 8px 20px rgba(14, 165, 233, 0.3)",
+          boxShadow: "0 8px 20px rgba(0, 0, 0, 0.28)",
           whiteSpace: "nowrap",
         }}
       >

@@ -2,7 +2,13 @@
  * DOM element picker component - allows visual selection of page elements
  */
 
-import React, { useState, useEffect, useRef, useCallback } from "react";
+import React, {
+  useState,
+  useEffect,
+  useRef,
+  useCallback,
+  CSSProperties,
+} from "react";
 import { HoveredItem } from "./HoveredItem";
 import { SelectedItem } from "./SelectedItem";
 import { InsertionGuide } from "./InsertionGuide";
@@ -17,6 +23,7 @@ import type {
   MousePosition,
   InsertionCandidate,
   ElementSelectorMode,
+  ElementSelectorTheme,
 } from "./types";
 
 const EDGE_BEHAVIOUR: Record<"top" | "bottom" | "left" | "right", Pick<InsertionCandidate, "position" | "axis">> = {
@@ -27,6 +34,102 @@ const EDGE_BEHAVIOUR: Record<"top" | "bottom" | "left" | "right", Pick<Insertion
 };
 
 const CONTEXT_CHARS = 300;
+
+type ThemeTokens = {
+  panelBg: string;
+  textColor: string;
+  subTextColor: string;
+  pillBg: string;
+  toggleSelectedBg: string;
+  toggleHoverBg: string;
+  toggleSelectedText: string;
+  toggleIdleText: string;
+  toggleIdleTextHover: string;
+  chipBg: string;
+  chipColor: string;
+  actionBg: string;
+  actionBgHover: string;
+  actionBgDisabled: string;
+  actionColor: string;
+  actionColorHover: string;
+  actionColorDisabled: string;
+  instructionTextColor: string;
+  shadow: string;
+  border: string;
+};
+
+function resolveThemeTokens(theme: ElementSelectorTheme): ThemeTokens {
+  if (theme === "light") {
+    return {
+      panelBg: "#f7f7f7",
+      textColor: "#111111",
+      subTextColor: "#1f1f1f",
+      pillBg: "#e6e6e6",
+      toggleSelectedBg: "#0f0f0f",
+      toggleHoverBg: "rgba(0, 0, 0, 0.08)",
+      toggleSelectedText: "#f7f7f7",
+      toggleIdleText: "#111111",
+      toggleIdleTextHover: "#111111",
+      chipBg: "#e6e6e6",
+      chipColor: "#111111",
+      actionBg: "rgba(0, 0, 0, 0.05)",
+      actionBgHover: "rgba(0, 0, 0, 0.12)",
+      actionBgDisabled: "rgba(0, 0, 0, 0.03)",
+      actionColor: "#111111",
+      actionColorHover: "#000000",
+      actionColorDisabled: "#6b7280",
+      instructionTextColor: "#111111",
+      shadow: "0 8px 28px rgba(0, 0, 0, 0.16)",
+      border: "1px solid rgba(0, 0, 0, 0.08)",
+    };
+  }
+
+  return {
+    panelBg: "#0f0f10",
+    textColor: "#f5f5f5",
+    subTextColor: "#e5e5e5",
+    pillBg: "#181818",
+    toggleSelectedBg: "#f5f5f5",
+    toggleHoverBg: "rgba(255, 255, 255, 0.14)",
+    toggleSelectedText: "#0f0f10",
+    toggleIdleText: "#f5f5f5",
+    toggleIdleTextHover: "#ffffff",
+    chipBg: "rgba(255, 255, 255, 0.12)",
+    chipColor: "#f5f5f5",
+    actionBg: "rgba(255, 255, 255, 0.10)",
+    actionBgHover: "rgba(255, 255, 255, 0.18)",
+    actionBgDisabled: "rgba(255, 255, 255, 0.06)",
+    actionColor: "#f5f5f5",
+    actionColorHover: "#ffffff",
+    actionColorDisabled: "#9ca3af",
+    instructionTextColor: "#f5f5f5",
+    shadow: "0 6px 28px rgba(0, 0, 0, 0.38)",
+    border: "1px solid rgba(255, 255, 255, 0.12)",
+  };
+}
+
+type AiAttributes = {
+  src?: string;
+  routeId?: string;
+  routeFile?: string;
+};
+
+function readAiAttributes(element: Element | null): AiAttributes {
+  if (!element) {
+    return {};
+  }
+
+  const read = (name: string) => {
+    const value = element.getAttribute(name);
+    return value || undefined;
+  };
+
+  return {
+    src: read("data-ai-src"),
+    routeId: read("data-ai-route-id"),
+    routeFile: read("data-ai-route-file"),
+  };
+}
 
 function deriveInsertionCandidate(
   element: HTMLElement | null,
@@ -70,9 +173,13 @@ export function ElementSelector({
   friendlySelectors = false,
   initialMode = "select",
   allowModeToggle = true,
+  optionsPanelPosition,
+  selectionBarText,
+  theme = "dark",
 }: ElementSelectorProps) {
   const [mode, setMode] = useState<ElementSelectorMode>(initialMode);
   const effectiveMultiSelect = mode === "select" && multiSelect;
+  const themeTokens = resolveThemeTokens(theme);
   const [currentHover, setCurrentHover] = useState<HTMLElement | null>(null);
   const [insertionCandidate, setInsertionCandidate] =
     useState<InsertionCandidate | null>(null);
@@ -111,6 +218,7 @@ export function ElementSelector({
         beforeHtml: baseContext.beforeHtml,
         elementHtml: baseContext.elementHtml,
         afterHtml: baseContext.afterHtml,
+        ...readAiAttributes(element),
         ...extra,
       };
 
@@ -123,6 +231,29 @@ export function ElementSelector({
           info.insertionPosition === "before"
             ? info.elementHtml + info.afterHtml
             : info.afterHtml;
+
+        const insertionSide =
+          info.insertionPosition === "before" ? "before" : "after";
+
+        const beforeElement =
+          insertionSide === "before"
+            ? element.previousElementSibling
+            : element;
+        const afterElement =
+          insertionSide === "before"
+            ? element
+            : element.nextElementSibling;
+
+        const beforeAttributes = readAiAttributes(beforeElement);
+        const afterAttributes = readAiAttributes(afterElement);
+
+        info.beforeSrc = beforeAttributes.src;
+        info.beforeRouteId = beforeAttributes.routeId;
+        info.beforeRouteFile = beforeAttributes.routeFile;
+
+        info.afterSrc = afterAttributes.src;
+        info.afterRouteId = afterAttributes.routeId;
+        info.afterRouteFile = afterAttributes.routeFile;
       } else {
         info.insertionBeforeHtml = info.beforeHtml;
         info.insertionAfterHtml = info.afterHtml;
@@ -188,6 +319,20 @@ export function ElementSelector({
   // Track mouse movement
   const handleMouseMove = useCallback(
     (event: MouseEvent) => {
+      const target = event.target as HTMLElement;
+      if (target.closest('[data-element-selector-ui="true"]')) {
+        if (updateTimerRef.current) {
+          clearTimeout(updateTimerRef.current);
+          updateTimerRef.current = null;
+        }
+        setCurrentHover(null);
+        setInsertionCandidate(null);
+        previousHoverRef.current = null;
+        previousInsertionRef.current = null;
+        setCanAddElement(false);
+        return;
+      }
+
       mousePositionRef.current = {
         x: event.clientX,
         y: event.clientY,
@@ -358,17 +503,98 @@ export function ElementSelector({
     toElementInfo,
   ]);
 
-  const instructionText =
-    mode === "insert"
-      ? "Click to choose where to insert new content"
-      : `Click ${effectiveMultiSelect ? "elements" : "an element"} to select`;
+  const resolvedText = {
+    selectLabel: selectionBarText?.selectLabel ?? "Select",
+    insertLabel: selectionBarText?.insertLabel ?? "Insert",
+    instructionSelectSingle:
+      selectionBarText?.instructionSelectSingle ??
+      "Click an element to select",
+    instructionSelectMulti:
+      selectionBarText?.instructionSelectMulti ??
+      "Click elements to select",
+    instructionInsert:
+      selectionBarText?.instructionInsert ??
+      "Click to choose where to insert new content",
+    selectedCount: selectionBarText?.selectedCount ?? "{count} selected",
+    confirmLabel: selectionBarText?.confirmLabel ?? "✓",
+    cancelLabel: selectionBarText?.cancelLabel ?? "✕",
+  };
 
-  const helperText =
-    mode === "insert"
-      ? "Click to confirm • Esc to cancel"
-      : effectiveMultiSelect
-      ? "Enter to confirm • Esc to cancel"
-      : "Esc to cancel";
+  const renderSelectedCount = (count: number) => {
+    const { selectedCount } = resolvedText;
+
+    if (typeof selectedCount === "function") {
+      return selectedCount(count);
+    }
+
+    return selectedCount.replace("{count}", String(count));
+  };
+
+  const instructionText = (() => {
+    if (mode === "insert") {
+      return resolvedText.instructionInsert;
+    }
+
+    return effectiveMultiSelect
+      ? resolvedText.instructionSelectMulti
+      : resolvedText.instructionSelectSingle;
+  })();
+
+  const confirmSelection = useCallback(() => {
+    if (effectiveMultiSelect && pickedElements.length > 0) {
+      const elementData: ElementInfo[] = pickedElements.map((element) =>
+        toElementInfo(element, { mode: "select" })
+      );
+      onElementSelected(elementData);
+    }
+  }, [effectiveMultiSelect, onElementSelected, pickedElements, toElementInfo]);
+
+  const canConfirm = effectiveMultiSelect && pickedElements.length > 0;
+
+  const showConfirmButton = effectiveMultiSelect;
+
+  const resolvedPanelPosition = {
+    vertical: optionsPanelPosition?.vertical ?? "top",
+    horizontal: optionsPanelPosition?.horizontal ?? "center",
+  } as const;
+
+  const panelStyle: CSSProperties = {
+    position: "fixed",
+    background: themeTokens.panelBg,
+    color: themeTokens.textColor,
+    padding: "16px 24px",
+    borderRadius: "12px",
+    fontSize: "15px",
+    fontFamily: "system-ui, -apple-system, sans-serif",
+    boxShadow: themeTokens.shadow,
+    border: themeTokens.border,
+    zIndex: 100001,
+    display: "flex",
+    alignItems: "center",
+    gap: "16px",
+    pointerEvents: "auto",
+  };
+
+  if (resolvedPanelPosition.vertical === "top") {
+    panelStyle.top = "24px";
+  } else {
+    panelStyle.bottom = "24px";
+  }
+
+  switch (resolvedPanelPosition.horizontal) {
+    case "left":
+      panelStyle.left = "24px";
+      panelStyle.transform = "none";
+      break;
+    case "right":
+      panelStyle.right = "24px";
+      panelStyle.transform = "none";
+      break;
+    default:
+      panelStyle.left = "50%";
+      panelStyle.transform = "translateX(-50%)";
+      break;
+  }
 
   return (
     <div
@@ -387,38 +613,26 @@ export function ElementSelector({
     >
       <div
         data-element-selector-ui="true"
-        style={{
-          position: "fixed",
-          top: "24px",
-          left: "50%",
-          transform: "translateX(-50%)",
-          background: "linear-gradient(135deg, #1e293b 0%, #334155 100%)",
-          color: "#f1f5f9",
-          padding: "16px 24px",
-          borderRadius: "12px",
-          fontSize: "15px",
-          fontFamily: "system-ui, -apple-system, sans-serif",
-          boxShadow: "0 4px 24px rgba(0, 0, 0, 0.3)",
-          zIndex: 100001,
-          display: "flex",
-          alignItems: "center",
-          gap: "16px",
-          pointerEvents: "auto",
-        }}
+        style={panelStyle}
       >
         {allowModeToggle && (
           <div
             style={{
               display: "flex",
               alignItems: "center",
-              background: "#1f2937",
+              background: themeTokens.pillBg,
               borderRadius: "999px",
               padding: "4px",
               gap: "4px",
+              boxShadow:
+                theme === "light"
+                  ? "inset 0 0 0 1px rgba(15, 23, 42, 0.08)"
+                  : "inset 0 0 0 1px rgba(248, 250, 252, 0.12)",
             }}
           >
             <button
               type="button"
+              className="element-selector-toggle"
               onClick={(event) => {
                 event.preventDefault();
                 event.stopPropagation();
@@ -429,16 +643,29 @@ export function ElementSelector({
                 borderRadius: "999px",
                 padding: "6px 14px",
                 cursor: mode === "select" ? "default" : "pointer",
-                backgroundColor: mode === "select" ? "#38bdf8" : "transparent",
-                color: mode === "select" ? "#0f172a" : "#e2e8f0",
                 fontWeight: mode === "select" ? 600 : 500,
                 transition: "background-color 120ms ease, color 120ms ease",
-              }}
+                boxShadow: "none",
+                transform: "none",
+                "--es-toggle-bg": mode === "select"
+                  ? themeTokens.toggleSelectedBg
+                  : "transparent",
+                "--es-toggle-bg-hover": mode === "select"
+                  ? themeTokens.toggleSelectedBg
+                  : themeTokens.toggleHoverBg,
+                "--es-toggle-color": mode === "select"
+                  ? themeTokens.toggleSelectedText
+                  : themeTokens.toggleIdleText,
+                "--es-toggle-color-hover": mode === "select"
+                  ? themeTokens.toggleSelectedText
+                  : themeTokens.toggleIdleTextHover,
+              } as React.CSSProperties}
             >
-              Select
+              {resolvedText.selectLabel}
             </button>
             <button
               type="button"
+              className="element-selector-toggle"
               onClick={(event) => {
                 event.preventDefault();
                 event.stopPropagation();
@@ -449,31 +676,116 @@ export function ElementSelector({
                 borderRadius: "999px",
                 padding: "6px 14px",
                 cursor: mode === "insert" ? "default" : "pointer",
-                backgroundColor: mode === "insert" ? "#38bdf8" : "transparent",
-                color: mode === "insert" ? "#0f172a" : "#e2e8f0",
                 fontWeight: mode === "insert" ? 600 : 500,
                 transition: "background-color 120ms ease, color 120ms ease",
-              }}
+                boxShadow: "none",
+                transform: "none",
+                "--es-toggle-bg": mode === "insert"
+                  ? themeTokens.toggleSelectedBg
+                  : "transparent",
+                "--es-toggle-bg-hover": mode === "insert"
+                  ? themeTokens.toggleSelectedBg
+                  : themeTokens.toggleHoverBg,
+                "--es-toggle-color": mode === "insert"
+                  ? themeTokens.toggleSelectedText
+                  : themeTokens.toggleIdleText,
+                "--es-toggle-color-hover": mode === "insert"
+                  ? themeTokens.toggleSelectedText
+                  : themeTokens.toggleIdleTextHover,
+              } as React.CSSProperties}
             >
-              Insert
+              {resolvedText.insertLabel}
             </button>
           </div>
         )}
 
-        <span>{instructionText}</span>
+        <span style={{ color: themeTokens.instructionTextColor, fontWeight: 600 }}>
+          {instructionText}
+        </span>
         {effectiveMultiSelect && (
           <span
             style={{
-              background: "#475569",
+              background: themeTokens.chipBg,
               padding: "4px 12px",
               borderRadius: "6px",
               fontWeight: "bold",
+              color: themeTokens.chipColor,
             }}
           >
-            {pickedElements.length} selected
+            {renderSelectedCount(pickedElements.length)}
           </span>
         )}
-        <span style={{ opacity: 0.8 }}>{helperText}</span>
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: "8px",
+          }}
+        >
+          {showConfirmButton && (
+            <button
+              type="button"
+              disabled={!canConfirm}
+              className="element-selector-action element-selector-confirm"
+              onClick={(event) => {
+                event.preventDefault();
+                event.stopPropagation();
+                if (canConfirm) {
+                  confirmSelection();
+                }
+              }}
+              style={{
+                border: "none",
+                borderRadius: "8px",
+                padding: "8px 12px",
+                cursor: canConfirm ? "pointer" : "not-allowed",
+                fontSize: "14px",
+                fontWeight: 700,
+                transition: "background-color 120ms ease, color 120ms ease",
+                boxShadow: "none",
+                transform: "none",
+                "--es-action-bg": themeTokens.actionBg,
+                "--es-action-bg-hover": themeTokens.actionBgHover,
+                "--es-action-bg-disabled": themeTokens.actionBgDisabled,
+                "--es-action-color": themeTokens.actionColor,
+                "--es-action-color-hover": themeTokens.actionColorHover,
+                "--es-action-color-disabled": themeTokens.actionColorDisabled,
+              } as React.CSSProperties}
+              aria-label={resolvedText.confirmLabel}
+            >
+              {resolvedText.confirmLabel}
+            </button>
+          )}
+          <button
+            type="button"
+            className="element-selector-action element-selector-cancel"
+            onClick={(event) => {
+              event.preventDefault();
+              event.stopPropagation();
+              onCancel();
+            }}
+              style={{
+                border: "none",
+                borderRadius: "8px",
+                padding: "8px 12px",
+                cursor: "pointer",
+                fontSize: "14px",
+                fontWeight: 700,
+                transition: "background-color 120ms ease, color 120ms ease",
+                boxShadow: "none",
+                transform: "none",
+                "--es-action-bg": themeTokens.actionBg,
+                "--es-action-bg-hover": themeTokens.actionBgHover,
+                "--es-action-bg-disabled": themeTokens.actionBgDisabled,
+                "--es-action-color": themeTokens.actionColor,
+                "--es-action-color-hover": themeTokens.actionColorHover,
+                "--es-action-color-disabled": themeTokens.actionColorDisabled,
+              } as React.CSSProperties}
+              aria-label={resolvedText.cancelLabel}
+            >
+            {resolvedText.cancelLabel}
+          </button>
+        </div>
       </div>
 
       {mode === "select" &&
@@ -509,6 +821,26 @@ export function ElementSelector({
         }
         body * {
           cursor: ${canAddElement ? "crosshair" : "default"} !important;
+        }
+        #element-selector-overlay .element-selector-toggle {
+          background-color: var(--es-toggle-bg);
+          color: var(--es-toggle-color);
+        }
+        #element-selector-overlay .element-selector-toggle:hover {
+          background-color: var(--es-toggle-bg-hover);
+          color: var(--es-toggle-color-hover);
+        }
+        #element-selector-overlay .element-selector-action {
+          background-color: var(--es-action-bg);
+          color: var(--es-action-color);
+        }
+        #element-selector-overlay .element-selector-action:hover:not(:disabled) {
+          background-color: var(--es-action-bg-hover);
+          color: var(--es-action-color-hover, var(--es-action-color));
+        }
+        #element-selector-overlay .element-selector-action:disabled {
+          background-color: var(--es-action-bg-disabled);
+          color: var(--es-action-color-disabled);
         }
       `}</style>
     </div>

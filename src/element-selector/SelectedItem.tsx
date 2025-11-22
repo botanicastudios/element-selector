@@ -7,9 +7,10 @@ import React, { useRef, useEffect, useState } from 'react';
 import { useAnimationFrame } from './useAnimationFrame';
 import type { SelectedItemProps } from './types';
 
-export function SelectedItem({ targetElement, onDeselect }: SelectedItemProps) {
+export function SelectedItem({ targetElement, onDeselect, variant = 'interactive' }: SelectedItemProps) {
   const highlightRef = useRef<HTMLButtonElement>(null);
   const [isHovered, setIsHovered] = useState(false);
+  const isInteractive = variant === 'interactive';
   
   // Update position to track element
   const updatePosition = () => {
@@ -40,35 +41,36 @@ export function SelectedItem({ targetElement, onDeselect }: SelectedItemProps) {
       ref={highlightRef}
       data-selected-element="true"
       onClick={(e: React.MouseEvent<HTMLButtonElement>) => {
+        if (!isInteractive) return;
         e.stopPropagation();
         e.preventDefault();
         onDeselect();
       }}
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
+      onMouseEnter={() => isInteractive && setIsHovered(true)}
+      onMouseLeave={() => isInteractive && setIsHovered(false)}
       style={{
         position: 'fixed',
         zIndex: 100000,
         opacity: 0,
         transition: 'border-color 200ms ease-out, background-color 200ms ease-out, box-shadow 200ms ease-out',
         boxSizing: 'border-box',
-        border: isHovered 
-          ? '3px solid #ef4444'
-          : '3px solid #8b5cf6',
+    border: isHovered 
+      ? '3px solid #dc2626'
+      : '3px solid #f59e0b',
         padding: 0,
-        background: isHovered 
-          ? 'rgba(239, 68, 68, 0.15)' 
-          : 'rgba(139, 92, 246, 0.15)',
+    background: isHovered 
+      ? 'rgba(220, 38, 38, 0.14)' 
+      : 'rgba(245, 158, 11, 0.16)',
         borderRadius: '8px',
         cursor: isHovered ? 'pointer' : 'default',
-        boxShadow: isHovered 
-          ? '0 0 20px rgba(239, 68, 68, 0.5), inset 0 0 20px rgba(239, 68, 68, 0.2)' 
-          : '0 0 20px rgba(139, 92, 246, 0.5), inset 0 0 20px rgba(139, 92, 246, 0.2)',
-        pointerEvents: 'auto' // Make it clickable
+    boxShadow: isHovered 
+      ? '0 0 18px rgba(220, 38, 38, 0.45), inset 0 0 16px rgba(220, 38, 38, 0.18)' 
+      : '0 0 18px rgba(245, 158, 11, 0.45), inset 0 0 16px rgba(245, 158, 11, 0.18)',
+        pointerEvents: isInteractive ? 'auto' : 'none'
       }}
     >
       {/* Remove indicator on hover */}
-      {isHovered && (
+      {isInteractive && isHovered && (
         <div
           style={{
             position: 'absolute',
@@ -99,7 +101,7 @@ export function SelectedItem({ targetElement, onDeselect }: SelectedItemProps) {
           width: '24px',
           height: '24px',
           borderRadius: '50%',
-          background: isHovered ? '#ef4444' : '#8b5cf6',
+          background: isHovered ? '#dc2626' : '#f59e0b',
           color: 'white',
           display: 'flex',
           alignItems: 'center',

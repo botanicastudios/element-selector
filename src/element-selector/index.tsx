@@ -5,7 +5,76 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
 import { ElementSelector } from "./ElementSelector";
+import { SelectedItem } from "./SelectedItem";
+import { InsertionGuide } from "./InsertionGuide";
 import type { ElementInfo, LaunchSelectorOptions } from "./types";
+
+let persistentContainer: HTMLDivElement | null = null;
+let persistentRoot: ReactDOM.Root | null = null;
+
+function ensurePersistentRoot() {
+  if (persistentContainer && persistentRoot) {
+    return persistentRoot;
+  }
+
+  persistentContainer = document.createElement("div");
+  persistentContainer.id = "element-selector-persistent-highlights";
+  persistentContainer.style.position = "fixed";
+  persistentContainer.style.inset = "0";
+  persistentContainer.style.pointerEvents = "none";
+  persistentContainer.style.zIndex = "99998";
+  document.body.appendChild(persistentContainer);
+
+  persistentRoot = ReactDOM.createRoot(persistentContainer);
+  return persistentRoot;
+}
+
+function renderPersistentHighlights(elements: ElementInfo[], friendlySelectors: boolean) {
+  if (!elements.length) return;
+
+  const root = ensurePersistentRoot();
+  root.render(
+    <React.StrictMode>
+      <>
+        {elements.map((element, index) => {
+          if (element.mode === "insert" && element.insertionPosition && element.insertionAxis) {
+            return (
+              <InsertionGuide
+                key={`persistent-insert-${index}`}
+                element={element.element}
+                position={element.insertionPosition}
+                axis={element.insertionAxis}
+                friendlySelectors={friendlySelectors}
+              />
+            );
+          }
+
+          return (
+            <SelectedItem
+              key={`persistent-select-${index}`}
+              targetElement={element.element}
+              onDeselect={() => {}}
+              variant="passive"
+            />
+          );
+        })}
+      </>
+    </React.StrictMode>
+  );
+}
+
+export function resetSelectionHighlights() {
+  if (persistentRoot) {
+    persistentRoot.unmount();
+    persistentRoot = null;
+  }
+
+  if (persistentContainer?.parentNode) {
+    persistentContainer.parentNode.removeChild(persistentContainer);
+  }
+
+  persistentContainer = null;
+}
 
 /**
  * Launch the element selector interface
@@ -20,7 +89,14 @@ export function launchSelector(
     friendlySelectors = false,
     mode = "select",
     allowModeToggle = true,
+    retainSelectionHighlights = false,
+    optionsPanelPosition,
+    selectionBarText,
+    theme = "dark",
   } = options;
+
+  // Always start with a clean slate; persisted highlights are cleared on every launch
+  resetSelectionHighlights();
 
   return new Promise((resolve, reject) => {
     // Create root container
@@ -44,6 +120,10 @@ export function launchSelector(
 
     // Handle selection complete
     const handleSelection = (selectedElements: ElementInfo[]) => {
+      if (retainSelectionHighlights) {
+        renderPersistentHighlights(selectedElements, friendlySelectors);
+      }
+
       cleanup();
       // For single select, return just the first element
       if (!multiSelect && selectedElements.length > 0) {
@@ -69,6 +149,9 @@ export function launchSelector(
           friendlySelectors={friendlySelectors}
           initialMode={mode}
           allowModeToggle={allowModeToggle}
+          optionsPanelPosition={optionsPanelPosition}
+          selectionBarText={selectionBarText}
+          theme={theme}
         />
       </React.StrictMode>
     );
@@ -83,6 +166,11 @@ export type {
   ElementSelectorProps,
   LaunchSelectorOptions,
   ElementSelectorMode,
+  ElementSelectorTheme,
   ContextHtmlOptions,
   ContextHtmlResult,
+  OptionsPanelPosition,
+  SelectionBarText,
+  PanelHorizontalPosition,
+  PanelVerticalPosition,
 } from "./types";

@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import './App.css';
-import { launchSelector } from './element-selector';
-import type { ElementInfo, ElementSelectorMode } from './element-selector';
+import { launchSelector, resetSelectionHighlights } from './element-selector';
+import type { ElementInfo, ElementSelectorMode, ElementSelectorTheme } from './element-selector';
 
 function App() {
   const [selectedElements, setSelectedElements] = useState<ElementInfo[] | null>(null);
@@ -10,6 +10,13 @@ function App() {
   const [multiSelect, setMultiSelect] = useState(false);
   const [friendlySelectors, setFriendlySelectors] = useState(false);
   const [mode, setMode] = useState<ElementSelectorMode>('select');
+  const [retainHighlights, setRetainHighlights] = useState(false);
+  const [panelTheme, setPanelTheme] = useState<ElementSelectorTheme>('dark');
+
+  const handleResetHighlights = () => {
+    resetSelectionHighlights();
+    setSelectedElements(null);
+  };
 
   useEffect(() => {
     if (mode === 'insert' && multiSelect) {
@@ -25,8 +32,12 @@ function App() {
       const result = await launchSelector({
         multiSelect: mode === 'select' ? multiSelect : false,
         friendlySelectors,
-        mode
+        mode,
+        retainSelectionHighlights: retainHighlights,
+        theme: panelTheme
       });
+      // Log the unmodified result so developers can inspect the raw output shape
+      console.log('Element selector raw result:', result);
       // Normalize to array for consistent handling in UI
       setSelectedElements(Array.isArray(result) ? result : [result]);
     } catch (err) {
@@ -87,6 +98,58 @@ function App() {
             />
             <span>Friendly names</span>
           </label>
+
+          <label style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '8px',
+            cursor: 'pointer'
+          }}>
+            <input
+              type="checkbox"
+              checked={retainHighlights}
+              onChange={(e) => setRetainHighlights(e.target.checked)}
+              style={{
+                width: '18px',
+                height: '18px',
+                cursor: 'pointer'
+              }}
+            />
+            <span>Retain highlights</span>
+          </label>
+        </div>
+
+        <div style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: '14px',
+          marginTop: '14px',
+          justifyContent: 'center',
+          flexWrap: 'wrap'
+        }}>
+          <span style={{ fontWeight: 600 }}>Options panel theme:</span>
+          <label style={{ display: 'flex', alignItems: 'center', gap: '6px', cursor: 'pointer' }}>
+            <input
+              type="radio"
+              name="panel-theme"
+              value="dark"
+              checked={panelTheme === 'dark'}
+              onChange={() => setPanelTheme('dark')}
+              style={{ cursor: 'pointer' }}
+            />
+            <span>Dark</span>
+          </label>
+          <label style={{ display: 'flex', alignItems: 'center', gap: '6px', cursor: 'pointer' }}>
+            <input
+              type="radio"
+              name="panel-theme"
+              value="light"
+              checked={panelTheme === 'light'}
+              onChange={() => setPanelTheme('light')}
+              style={{ cursor: 'pointer' }}
+            />
+            <span>Light</span>
+          </label>
         </div>
 
         <div style={{
@@ -113,8 +176,8 @@ function App() {
                 borderRadius: '999px',
                 padding: '6px 16px',
                 cursor: mode === 'select' ? 'default' : 'pointer',
-                backgroundColor: mode === 'select' ? '#61dafb' : 'transparent',
-                color: mode === 'select' ? '#1b2838' : '#f0f0f0',
+                backgroundColor: mode === 'select' ? '#f0f0f0' : 'transparent',
+                color: mode === 'select' ? '#1a1a1a' : '#f0f0f0',
                 fontWeight: mode === 'select' ? 700 : 500
               }}
             >
@@ -129,8 +192,8 @@ function App() {
                 borderRadius: '999px',
                 padding: '6px 16px',
                 cursor: mode === 'insert' ? 'default' : 'pointer',
-                backgroundColor: mode === 'insert' ? '#61dafb' : 'transparent',
-                color: mode === 'insert' ? '#1b2838' : '#f0f0f0',
+                backgroundColor: mode === 'insert' ? '#f0f0f0' : 'transparent',
+                color: mode === 'insert' ? '#1a1a1a' : '#f0f0f0',
                 fontWeight: mode === 'insert' ? 700 : 500
               }}
             >
@@ -139,23 +202,54 @@ function App() {
           </div>
         </div>
 
-        <button
-          onClick={handleLaunchSelector}
-          disabled={isSelecting}
+        <div
           style={{
-            fontSize: '18px',
-            padding: '12px 24px',
-            backgroundColor: '#61dafb',
-            border: 'none',
-            borderRadius: '8px',
-            cursor: isSelecting ? 'not-allowed' : 'pointer',
-            color: '#282c34',
-            fontWeight: 'bold',
-            marginTop: '20px'
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+            gap: '14px',
+            marginTop: '20px',
+            flexWrap: 'wrap'
           }}
         >
-          {isSelecting ? 'Selecting...' : 'Launch Element Selector'}
-        </button>
+          <button
+            onClick={handleLaunchSelector}
+            disabled={isSelecting}
+            style={{
+              fontSize: '18px',
+              padding: '12px 24px',
+              backgroundColor: '#e6e6e6',
+              border: 'none',
+              borderRadius: '8px',
+              cursor: isSelecting ? 'not-allowed' : 'pointer',
+              color: '#1a1a1a',
+              fontWeight: 'bold',
+              minWidth: '230px'
+            }}
+          >
+            {isSelecting ? 'Selecting...' : 'Launch Element Selector'}
+          </button>
+
+          <button
+            onClick={handleResetHighlights}
+            style={{
+              fontSize: '14px',
+              padding: '12px 18px',
+              background: 'rgba(255, 255, 255, 0.08)',
+              border: '1px solid rgba(255, 255, 255, 0.25)',
+              borderRadius: '10px',
+              cursor: 'pointer',
+              color: '#f8fafc',
+              fontWeight: 700,
+              backdropFilter: 'blur(4px)',
+              textTransform: 'uppercase',
+              letterSpacing: '0.04em',
+              minWidth: '160px'
+            }}
+          >
+            Reset highlights
+          </button>
+        </div>
 
         {error && (
           <div style={{ 
@@ -209,6 +303,30 @@ function App() {
                     <small style={{ color: '#bbb' }}>Text: "{el.textPreview}"</small>
                   </>
                 )}
+                {(el.src || el.routeId || el.routeFile) && (
+                  <>
+                    <br />
+                    <small style={{ color: '#7dd3fc' }}>
+                      ai-src: {el.src || '—'}
+                    </small>
+                    {el.routeId && (
+                      <>
+                        <br />
+                        <small style={{ color: '#7dd3fc' }}>
+                          routeId: {el.routeId}
+                        </small>
+                      </>
+                    )}
+                    {el.routeFile && (
+                      <>
+                        <br />
+                        <small style={{ color: '#7dd3fc' }}>
+                          routeFile: {el.routeFile}
+                        </small>
+                      </>
+                    )}
+                  </>
+                )}
                 <details style={{ marginTop: '10px' }}>
                   <summary style={{ cursor: 'pointer' }}>HTML context</summary>
                   <div style={{
@@ -240,10 +358,24 @@ function App() {
                           <div>
                             <em style={{ color: '#c4b5fd' }}>Before gap</em>
                             <pre style={{ whiteSpace: 'pre-wrap', margin: 0 }}>{el.insertionBeforeHtml || '(none)'}</pre>
+                            {(el.beforeSrc || el.beforeRouteId || el.beforeRouteFile) && (
+                              <div style={{ color: '#a5b4fc' }}>
+                                ai-src: {el.beforeSrc || '—'}
+                                {el.beforeRouteId ? ` | routeId: ${el.beforeRouteId}` : ''}
+                                {el.beforeRouteFile ? ` | routeFile: ${el.beforeRouteFile}` : ''}
+                              </div>
+                            )}
                           </div>
                           <div>
                             <em style={{ color: '#c4b5fd' }}>After gap</em>
                             <pre style={{ whiteSpace: 'pre-wrap', margin: 0 }}>{el.insertionAfterHtml || '(none)'}</pre>
+                            {(el.afterSrc || el.afterRouteId || el.afterRouteFile) && (
+                              <div style={{ color: '#a5b4fc' }}>
+                                ai-src: {el.afterSrc || '—'}
+                                {el.afterRouteId ? ` | routeId: ${el.afterRouteId}` : ''}
+                                {el.afterRouteFile ? ` | routeFile: ${el.afterRouteFile}` : ''}
+                              </div>
+                            )}
                           </div>
                         </div>
                       </div>

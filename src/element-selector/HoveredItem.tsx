@@ -1,6 +1,6 @@
 /**
  * Hover highlight component
- * Uses solid borders and gradient effects instead of dotted borders
+ * Uses solid borders and warm glow instead of dotted borders
  */
 
 import React, { useRef, useEffect } from "react";
@@ -59,12 +59,12 @@ export function HoveredItem({ targetElement, friendlySelectors = false }: Hovere
         zIndex: 100000,
         opacity: 0,
         transition: "opacity 150ms ease-out",
-        // Thick dashed border with strong color
-        border: "3px dashed #0ea5e9",
+        // Thick dashed border with warm color
+        border: "3px dashed #f59e0b",
         borderRadius: "8px",
-        background: "rgba(14, 165, 233, 0.2)",
+        background: "rgba(245, 158, 11, 0.18)",
         boxShadow:
-          "0 0 20px rgba(14, 165, 233, 0.6), inset 0 0 20px rgba(14, 165, 233, 0.3)",
+          "0 0 20px rgba(245, 158, 11, 0.55), inset 0 0 18px rgba(245, 158, 11, 0.3)",
         animation: "pulse 1.5s infinite",
         boxSizing: "border-box",
       }}
@@ -81,8 +81,8 @@ export function HoveredItem({ targetElement, friendlySelectors = false }: Hovere
             gap: "4px",
             fontSize: "12px",
             fontFamily: "ui-monospace, monospace",
-            background: "linear-gradient(135deg, #3b82f6, #10b981)",
-            color: "white",
+            background: "#2b1b0a",
+            color: "#f6f1e8",
             padding: "4px 8px",
             borderRadius: "6px",
             boxShadow: "0 2px 8px rgba(0, 0, 0, 0.2)",
@@ -105,10 +105,10 @@ export function HoveredItem({ targetElement, friendlySelectors = false }: Hovere
       <style>{`
         @keyframes pulse {
           0%, 100% {
-            box-shadow: 0 0 20px rgba(14, 165, 233, 0.6), inset 0 0 20px rgba(14, 165, 233, 0.3);
+            box-shadow: 0 0 20px rgba(245, 158, 11, 0.55), inset 0 0 20px rgba(245, 158, 11, 0.28);
           }
           50% {
-            box-shadow: 0 0 30px rgba(14, 165, 233, 0.9), inset 0 0 30px rgba(14, 165, 233, 0.4);
+            box-shadow: 0 0 28px rgba(245, 158, 11, 0.75), inset 0 0 24px rgba(245, 158, 11, 0.34);
           }
         }
       `}</style>

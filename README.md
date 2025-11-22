@@ -118,6 +118,9 @@ async function selectMultipleElements() {
     // - id: element ID (if any)
     // - classes: element class names
     // - textPreview: first 50 characters of text content
+    // - src / routeId / routeFile: ai-src metadata from data-ai-* attributes (if present)
+    // - beforeSrc / beforeRouteId / beforeRouteFile: ai-src metadata from the element before the insertion gap (insert mode)
+    // - afterSrc / afterRouteId / afterRouteFile: ai-src metadata from the element after the insertion gap (insert mode)
     // - mode: 'select' | 'insert'
     // - insertionPosition / insertionAxis (insert mode only)
     // - beforeHtml / elementHtml / afterHtml: safe context snippets around the target
@@ -182,6 +185,51 @@ Choose between two interaction modes:
 
 Controls whether the floating toolbar inside the selector lets users switch between select and insert modes. Set to `false` if you want to lock the selector to the mode you launch with.
 
+### `optionsPanelPosition` (default: `{ vertical: "top", horizontal: "center" }`)
+
+Sets where the floating toolbar (Select/Insert, instructions, counters) appears on screen.
+- `vertical`: `"top"` or `"bottom"`
+- `horizontal`: `"left"`, `"center"`, or `"right"`
+
+For example:
+
+```javascript
+await launchSelector({
+  optionsPanelPosition: { vertical: "bottom", horizontal: "right" }
+});
+```
+
+### `selectionBarText`
+
+Override the copy shown in the floating toolbar. All fields are optional; anything you omit falls back to the default text.
+
+```javascript
+await launchSelector({
+  selectionBarText: {
+    selectLabel: "Pick",
+    insertLabel: "Place",
+    instructionSelectSingle: "Tap an element",
+    instructionSelectMulti: "Tap every element you need",
+    instructionInsert: "Choose where new content should go",
+    selectedCount: "Items chosen: {count}",
+    confirmLabel: "Done",
+    cancelLabel: "Close",
+  },
+});
+```
+
+- `selectLabel` / `insertLabel`: Text for the mode toggle buttons when mode switching is allowed.
+- `instructionSelectSingle`: Instruction shown in select mode when picking a single element.
+- `instructionSelectMulti`: Instruction shown in select mode when multi-select is enabled.
+- `instructionInsert`: Instruction shown in insert mode.
+- `selectedCount`: Text next to the counter; `{count}` is replaced with the current number. You can also pass a formatter function `(count) => string`.
+- `confirmLabel`: Text for the confirm button.
+- `cancelLabel`: Text for the cancel button.
+
+### `retainSelectionHighlights` (default: `false`)
+
+When `true`, the purple selection boxes stay on the page after the selector resolves. They remain until you either launch the selector again in **select** mode or call the new `resetSelectionHighlights()` helper.
+
 ### `friendlySelectors` (default: `false`)
 
 When set to `true`, displays human-readable tag names instead of HTML tag names. For example:
@@ -202,6 +250,17 @@ When set to `true`, displays human-readable tag names instead of HTML tag names.
 4. Click to confirm the current highlight
 5. In select + multi-select mode: click multiple elements, then press Enter to confirm (click again to remove)
 6. Press Escape at any time to cancel without making a selection
+
+### Resetting persisted highlights
+
+If you enable `retainSelectionHighlights`, call `resetSelectionHighlights()` when you want to remove the overlays without starting a new selection session:
+
+```javascript
+import { resetSelectionHighlights } from "@botanicastudios/element-selector";
+
+// Clear persisted highlight boxes
+resetSelectionHighlights();
+```
 
 ## Available Scripts
 
