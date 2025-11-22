@@ -25,9 +25,8 @@ export interface SelectionBarText {
   /** Instruction copy shown in insert mode */
   instructionInsert?: string;
   /**
-   * Text displayed next to the counter in multi-select mode.
-   * If a string, `{count}` will be replaced with the current selection count.
-   * You can also provide a formatter function.
+   * @deprecated The selection count chip has been removed from the selection bar.
+   * This value is currently ignored.
    */
   selectedCount?: string | ((count: number) => string);
   /** Label for the confirm button */
@@ -83,6 +82,7 @@ export interface ElementSelectorProps {
 export interface HoveredItemProps {
   targetElement: HTMLElement | null;
   friendlySelectors?: boolean;
+  rect?: DOMRectReadOnly | null;
 }
 
 export interface SelectedItemProps {
@@ -93,6 +93,7 @@ export interface SelectedItemProps {
    * Useful for persisting highlights after the selector UI is dismissed.
    */
   variant?: "interactive" | "passive";
+  rect?: DOMRectReadOnly | null;
 }
 
 export interface InsertionCandidate {
@@ -103,6 +104,7 @@ export interface InsertionCandidate {
 
 export interface InsertionGuideProps extends InsertionCandidate {
   friendlySelectors?: boolean;
+  rect?: DOMRectReadOnly | null;
 }
 
 export interface AnimationFrameHook {

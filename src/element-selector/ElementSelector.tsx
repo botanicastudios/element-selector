@@ -7,6 +7,7 @@ import React, {
   useEffect,
   useRef,
   useCallback,
+  useMemo,
   CSSProperties,
 } from "react";
 import { HoveredItem } from "./HoveredItem";
@@ -17,6 +18,7 @@ import {
   buildElementSelector,
   balancedContextHtml,
 } from "./utils";
+import { useElementRectMap } from "./useElementRects";
 import type {
   ElementSelectorProps,
   ElementInfo,
@@ -40,6 +42,7 @@ type ThemeTokens = {
   textColor: string;
   subTextColor: string;
   pillBg: string;
+  pillBorder: string;
   toggleSelectedBg: string;
   toggleHoverBg: string;
   toggleSelectedText: string;
@@ -65,6 +68,7 @@ function resolveThemeTokens(theme: ElementSelectorTheme): ThemeTokens {
       textColor: "#111111",
       subTextColor: "#1f1f1f",
       pillBg: "#e6e6e6",
+      pillBorder: "rgba(0, 0, 0, 0.10)",
       toggleSelectedBg: "#0f0f0f",
       toggleHoverBg: "rgba(0, 0, 0, 0.08)",
       toggleSelectedText: "#f7f7f7",
@@ -89,6 +93,7 @@ function resolveThemeTokens(theme: ElementSelectorTheme): ThemeTokens {
     textColor: "#f5f5f5",
     subTextColor: "#e5e5e5",
     pillBg: "#181818",
+    pillBorder: "rgba(255, 255, 255, 0.18)",
     toggleSelectedBg: "#f5f5f5",
     toggleHoverBg: "rgba(255, 255, 255, 0.14)",
     toggleSelectedText: "#0f0f10",
@@ -185,6 +190,25 @@ export function ElementSelector({
     useState<InsertionCandidate | null>(null);
   const [pickedElements, setPickedElements] = useState<HTMLElement[]>([]);
   const [canAddElement, setCanAddElement] = useState(false);
+  const [pendingInsert, setPendingInsert] = useState<InsertionCandidate | null>(null);
+  const [isMobileViewport, setIsMobileViewport] = useState(() => {
+    if (typeof window === "undefined") return false;
+    return window.matchMedia("(max-width: 640px)").matches;
+  });
+
+  const trackedElements = useMemo(() => {
+    const list: HTMLElement[] = [];
+    if (currentHover) list.push(currentHover);
+    if (insertionCandidate?.element && !list.includes(insertionCandidate.element)) {
+      list.push(insertionCandidate.element);
+    }
+    pickedElements.forEach((el) => {
+      if (!list.includes(el)) list.push(el);
+    });
+    return list;
+  }, [currentHover, insertionCandidate, pickedElements]);
+
+  const rectMap = useElementRectMap(trackedElements);
 
   const mousePositionRef = useRef<MousePosition>({ x: 0, y: 0 });
   const updateTimerRef = useRef<NodeJS.Timeout | null>(null);
@@ -302,14 +326,18 @@ export function ElementSelector({
       setInsertionCandidate(null);
     }
 
-    const isAlreadyPicked =
-      effectiveMultiSelect && pickedElements.includes(targetElement);
+    const isInsidePickedElement =
+      effectiveMultiSelect &&
+      pickedElements.some((picked) => picked.contains(targetElement));
 
-    if (isAlreadyPicked) {
+    if (isInsidePickedElement) {
       setCanAddElement(false);
       setCurrentHover(null);
       previousHoverRef.current = null;
-    } else if (previousHoverRef.current !== targetElement) {
+      return;
+    }
+
+    if (previousHoverRef.current !== targetElement) {
       previousHoverRef.current = targetElement;
       setCurrentHover(targetElement);
       setCanAddElement(true);
@@ -370,6 +398,7 @@ export function ElementSelector({
       setMode(nextMode);
       setPickedElements([]);
       setInsertionCandidate(null);
+      setPendingInsert(null);
       setCurrentHover(null);
       previousHoverRef.current = null;
       previousInsertionRef.current = null;
@@ -381,6 +410,7 @@ export function ElementSelector({
   // Handle element selection
   const handleClick = useCallback(
     (event: MouseEvent) => {
+      const shouldDeferConfirm = isMobileViewport && !effectiveMultiSelect;
       const target = event.target as HTMLElement;
       if (
         target.closest('[data-selected-element="true"]') ||
@@ -403,6 +433,16 @@ export function ElementSelector({
           return;
         }
 
+        if (shouldDeferConfirm) {
+          // On mobile we don't get hover updates, so persist the insertion
+          // candidate directly and avoid marking the element as "selected"
+          // (which renders the SelectedItem pill instead of the insertion bar).
+          setPendingInsert(candidate);
+          setInsertionCandidate(candidate);
+          setPickedElements([]);
+          return;
+        }
+
         onElementSelected([
           toElementInfo(candidate.element, {
             mode: "insert",
@@ -422,6 +462,13 @@ export function ElementSelector({
         return;
       }
 
+      if (
+        effectiveMultiSelect &&
+        pickedElements.some((picked) => picked.contains(targetElement))
+      ) {
+        return;
+      }
+
       if (effectiveMultiSelect) {
         setPickedElements((previous) => {
           if (previous.includes(targetElement)) {
@@ -432,11 +479,17 @@ export function ElementSelector({
         return;
       }
 
+      if (shouldDeferConfirm) {
+        setPickedElements([targetElement]);
+        setPendingInsert(null);
+        return;
+      }
+
       onElementSelected([
         toElementInfo(targetElement, { mode: "select" }),
       ]);
     },
-    [effectiveMultiSelect, mode, onElementSelected, toElementInfo]
+    [effectiveMultiSelect, isMobileViewport, mode, onElementSelected, pickedElements, toElementInfo]
   );
 
   // Remove element from selection
@@ -503,6 +556,16 @@ export function ElementSelector({
     toElementInfo,
   ]);
 
+  useEffect(() => {
+    const mediaQuery = window.matchMedia("(max-width: 640px)");
+    const update = () => setIsMobileViewport(mediaQuery.matches);
+
+    update();
+    mediaQuery.addEventListener("change", update);
+
+    return () => mediaQuery.removeEventListener("change", update);
+  }, []);
+
   const resolvedText = {
     selectLabel: selectionBarText?.selectLabel ?? "Select",
     insertLabel: selectionBarText?.insertLabel ?? "Insert",
@@ -515,19 +578,8 @@ export function ElementSelector({
     instructionInsert:
       selectionBarText?.instructionInsert ??
       "Click to choose where to insert new content",
-    selectedCount: selectionBarText?.selectedCount ?? "{count} selected",
     confirmLabel: selectionBarText?.confirmLabel ?? "✓",
     cancelLabel: selectionBarText?.cancelLabel ?? "✕",
-  };
-
-  const renderSelectedCount = (count: number) => {
-    const { selectedCount } = resolvedText;
-
-    if (typeof selectedCount === "function") {
-      return selectedCount(count);
-    }
-
-    return selectedCount.replace("{count}", String(count));
   };
 
   const instructionText = (() => {
@@ -541,17 +593,54 @@ export function ElementSelector({
   })();
 
   const confirmSelection = useCallback(() => {
+    const shouldDeferConfirm = isMobileViewport && !effectiveMultiSelect;
+
     if (effectiveMultiSelect && pickedElements.length > 0) {
       const elementData: ElementInfo[] = pickedElements.map((element) =>
         toElementInfo(element, { mode: "select" })
       );
       onElementSelected(elementData);
+      return;
     }
-  }, [effectiveMultiSelect, onElementSelected, pickedElements, toElementInfo]);
 
-  const canConfirm = effectiveMultiSelect && pickedElements.length > 0;
+    if (shouldDeferConfirm) {
+      if (mode === "select" && pickedElements[0]) {
+        onElementSelected([
+          toElementInfo(pickedElements[0], { mode: "select" }),
+        ]);
+        return;
+      }
 
-  const showConfirmButton = effectiveMultiSelect;
+      if (mode === "insert" && pendingInsert) {
+        onElementSelected([
+          toElementInfo(pendingInsert.element, {
+            mode: "insert",
+            insertionPosition: pendingInsert.position,
+            insertionAxis: pendingInsert.axis,
+          }),
+        ]);
+      }
+    }
+  }, [
+    effectiveMultiSelect,
+    isMobileViewport,
+    mode,
+    onElementSelected,
+    pendingInsert,
+    pickedElements,
+    toElementInfo,
+  ]);
+
+  const shouldDeferConfirm = isMobileViewport && !effectiveMultiSelect;
+  const canConfirm = effectiveMultiSelect
+    ? pickedElements.length > 0
+    : shouldDeferConfirm
+      ? mode === "select"
+        ? pickedElements.length > 0
+        : Boolean(pendingInsert)
+      : false;
+
+  const showConfirmButton = effectiveMultiSelect || shouldDeferConfirm;
 
   const resolvedPanelPosition = {
     vertical: optionsPanelPosition?.vertical ?? "top",
@@ -562,8 +651,8 @@ export function ElementSelector({
     position: "fixed",
     background: themeTokens.panelBg,
     color: themeTokens.textColor,
-    padding: "16px 24px",
-    borderRadius: "12px",
+    padding: isMobileViewport ? "14px 16px" : "16px 24px",
+    borderRadius: isMobileViewport ? "16px" : "12px",
     fontSize: "15px",
     fontFamily: "system-ui, -apple-system, sans-serif",
     boxShadow: themeTokens.shadow,
@@ -571,29 +660,46 @@ export function ElementSelector({
     zIndex: 100001,
     display: "flex",
     alignItems: "center",
-    gap: "16px",
+    flexDirection: "row",
+    gap: isMobileViewport ? "10px" : "16px",
     pointerEvents: "auto",
+    width: isMobileViewport ? "calc(100% - 24px)" : undefined,
+    maxWidth: isMobileViewport
+      ? "min(720px, calc(100% - 24px))"
+      : "min(960px, calc(100% - 48px))",
+    boxSizing: "border-box",
+    flexWrap: "nowrap",
+    overflowX: "auto",
+    justifyContent: "space-between",
   };
 
-  if (resolvedPanelPosition.vertical === "top") {
-    panelStyle.top = "24px";
+  if (isMobileViewport) {
+    panelStyle.left = "12px";
+    panelStyle.right = "12px";
+    panelStyle.bottom = "16px";
+    panelStyle.top = undefined;
+    panelStyle.transform = "none";
   } else {
-    panelStyle.bottom = "24px";
-  }
+    if (resolvedPanelPosition.vertical === "top") {
+      panelStyle.top = "24px";
+    } else {
+      panelStyle.bottom = "24px";
+    }
 
-  switch (resolvedPanelPosition.horizontal) {
-    case "left":
-      panelStyle.left = "24px";
-      panelStyle.transform = "none";
-      break;
-    case "right":
-      panelStyle.right = "24px";
-      panelStyle.transform = "none";
-      break;
-    default:
-      panelStyle.left = "50%";
-      panelStyle.transform = "translateX(-50%)";
-      break;
+    switch (resolvedPanelPosition.horizontal) {
+      case "left":
+        panelStyle.left = "24px";
+        panelStyle.transform = "none";
+        break;
+      case "right":
+        panelStyle.right = "24px";
+        panelStyle.transform = "none";
+        break;
+      default:
+        panelStyle.left = "50%";
+        panelStyle.transform = "translateX(-50%)";
+        break;
+    }
   }
 
   return (
@@ -620,16 +726,25 @@ export function ElementSelector({
             style={{
               display: "flex",
               alignItems: "center",
-              background: themeTokens.pillBg,
+              background: "transparent",
               borderRadius: "999px",
-              padding: "4px",
-              gap: "4px",
-              boxShadow:
-                theme === "light"
-                  ? "inset 0 0 0 1px rgba(15, 23, 42, 0.08)"
-                  : "inset 0 0 0 1px rgba(248, 250, 252, 0.12)",
+              padding: 0,
+              gap: 0,
+              boxShadow: "none",
+              width: undefined,
+              justifyContent: "flex-start",
+              flexShrink: 1,
+              flexGrow: isMobileViewport ? 1 : undefined,
             }}
           >
+            <div
+              style={{
+                display: "flex",
+                gap: isMobileViewport ? "6px" : "4px",
+                flex: isMobileViewport ? "1 1 auto" : undefined,
+                flexShrink: 1,
+              }}
+            >
             <button
               type="button"
               className="element-selector-toggle"
@@ -639,23 +754,29 @@ export function ElementSelector({
                 handleModeToggle("select");
               }}
               style={{
-                border: "none",
-                borderRadius: "999px",
-                padding: "6px 14px",
-                cursor: mode === "select" ? "default" : "pointer",
+                border: mode === "select"
+                  ? "1px solid " + themeTokens.toggleSelectedBg
+                  : theme === "light"
+                    ? "1px solid rgba(0, 0, 0, 0.24)"
+                    : "1px solid rgba(255, 255, 255, 0.32)",
+                borderRadius: "999px 0 0 999px",
+                padding: isMobileViewport ? "10px 12px" : "6px 14px",
+                minHeight: isMobileViewport ? "44px" : undefined,
+                cursor: "pointer",
                 fontWeight: mode === "select" ? 600 : 500,
                 transition: "background-color 120ms ease, color 120ms ease",
                 boxShadow: "none",
                 transform: "none",
-                "--es-toggle-bg": mode === "select"
+                flex: isMobileViewport ? 1 : undefined,
+                background: mode === "select"
                   ? themeTokens.toggleSelectedBg
                   : "transparent",
-                "--es-toggle-bg-hover": mode === "select"
-                  ? themeTokens.toggleSelectedBg
-                  : themeTokens.toggleHoverBg,
-                "--es-toggle-color": mode === "select"
+                color: mode === "select"
                   ? themeTokens.toggleSelectedText
                   : themeTokens.toggleIdleText,
+                "--es-toggle-bg": "transparent",
+                "--es-toggle-bg-hover": "transparent",
+                "--es-toggle-color": "inherit",
                 "--es-toggle-color-hover": mode === "select"
                   ? themeTokens.toggleSelectedText
                   : themeTokens.toggleIdleTextHover,
@@ -672,23 +793,29 @@ export function ElementSelector({
                 handleModeToggle("insert");
               }}
               style={{
-                border: "none",
-                borderRadius: "999px",
-                padding: "6px 14px",
-                cursor: mode === "insert" ? "default" : "pointer",
+                border: mode === "insert"
+                  ? "1px solid " + themeTokens.toggleSelectedBg
+                  : theme === "light"
+                    ? "1px solid rgba(0, 0, 0, 0.24)"
+                    : "1px solid rgba(255, 255, 255, 0.32)",
+                borderRadius: "0 999px 999px 0",
+                padding: isMobileViewport ? "10px 12px" : "6px 14px",
+                minHeight: isMobileViewport ? "44px" : undefined,
+                cursor: "pointer",
                 fontWeight: mode === "insert" ? 600 : 500,
                 transition: "background-color 120ms ease, color 120ms ease",
                 boxShadow: "none",
                 transform: "none",
-                "--es-toggle-bg": mode === "insert"
+                flex: isMobileViewport ? 1 : undefined,
+                background: mode === "insert"
                   ? themeTokens.toggleSelectedBg
                   : "transparent",
-                "--es-toggle-bg-hover": mode === "insert"
-                  ? themeTokens.toggleSelectedBg
-                  : themeTokens.toggleHoverBg,
-                "--es-toggle-color": mode === "insert"
+                color: mode === "insert"
                   ? themeTokens.toggleSelectedText
                   : themeTokens.toggleIdleText,
+                "--es-toggle-bg": "transparent",
+                "--es-toggle-bg-hover": "transparent",
+                "--es-toggle-color": "inherit",
                 "--es-toggle-color-hover": mode === "insert"
                   ? themeTokens.toggleSelectedText
                   : themeTokens.toggleIdleTextHover,
@@ -696,30 +823,34 @@ export function ElementSelector({
             >
               {resolvedText.insertLabel}
             </button>
+            </div>
           </div>
         )}
 
-        <span style={{ color: themeTokens.instructionTextColor, fontWeight: 600 }}>
-          {instructionText}
-        </span>
-        {effectiveMultiSelect && (
+        {!isMobileViewport && (
           <span
+            className="element-selector-instruction"
             style={{
-              background: themeTokens.chipBg,
-              padding: "4px 12px",
-              borderRadius: "6px",
-              fontWeight: "bold",
-              color: themeTokens.chipColor,
+              color: themeTokens.instructionTextColor,
+              fontWeight: 600,
+              flex: 1,
+              textAlign: "center",
+              lineHeight: 1.4,
+              fontSize: "15px",
             }}
           >
-            {renderSelectedCount(pickedElements.length)}
+            {instructionText}
           </span>
         )}
         <div
           style={{
             display: "flex",
             alignItems: "center",
-            gap: "8px",
+            gap: isMobileViewport ? "10px" : "8px",
+            width: undefined,
+            justifyContent: "flex-end",
+            flex: isMobileViewport ? "1 1 auto" : undefined,
+            flexWrap: "nowrap",
           }}
         >
           {showConfirmButton && (
@@ -736,10 +867,12 @@ export function ElementSelector({
               }}
               style={{
                 border: "none",
-                borderRadius: "8px",
-                padding: "8px 12px",
+                borderRadius: isMobileViewport ? "10px" : "8px",
+                padding: isMobileViewport ? "12px 14px" : "8px 12px",
+                minHeight: isMobileViewport ? "44px" : undefined,
+                flex: isMobileViewport ? "0 1 auto" : undefined,
                 cursor: canConfirm ? "pointer" : "not-allowed",
-                fontSize: "14px",
+                fontSize: isMobileViewport ? "15px" : "14px",
                 fontWeight: 700,
                 transition: "background-color 120ms ease, color 120ms ease",
                 boxShadow: "none",
@@ -764,25 +897,27 @@ export function ElementSelector({
               event.stopPropagation();
               onCancel();
             }}
-              style={{
-                border: "none",
-                borderRadius: "8px",
-                padding: "8px 12px",
-                cursor: "pointer",
-                fontSize: "14px",
-                fontWeight: 700,
-                transition: "background-color 120ms ease, color 120ms ease",
-                boxShadow: "none",
-                transform: "none",
-                "--es-action-bg": themeTokens.actionBg,
-                "--es-action-bg-hover": themeTokens.actionBgHover,
-                "--es-action-bg-disabled": themeTokens.actionBgDisabled,
-                "--es-action-color": themeTokens.actionColor,
-                "--es-action-color-hover": themeTokens.actionColorHover,
-                "--es-action-color-disabled": themeTokens.actionColorDisabled,
-              } as React.CSSProperties}
-              aria-label={resolvedText.cancelLabel}
-            >
+            style={{
+              border: "none",
+              borderRadius: isMobileViewport ? "10px" : "8px",
+              padding: isMobileViewport ? "12px 14px" : "8px 12px",
+              cursor: "pointer",
+              fontSize: isMobileViewport ? "15px" : "14px",
+              fontWeight: 700,
+              transition: "background-color 120ms ease, color 120ms ease",
+              boxShadow: "none",
+              transform: "none",
+              "--es-action-bg": themeTokens.actionBg,
+              "--es-action-bg-hover": themeTokens.actionBgHover,
+              "--es-action-bg-disabled": themeTokens.actionBgDisabled,
+              "--es-action-color": themeTokens.actionColor,
+              "--es-action-color-hover": themeTokens.actionColorHover,
+              "--es-action-color-disabled": themeTokens.actionColorDisabled,
+              flex: isMobileViewport ? "0 1 auto" : undefined,
+              marginLeft: isMobileViewport ? "6px" : undefined,
+            } as React.CSSProperties}
+            aria-label={resolvedText.cancelLabel}
+          >
             {resolvedText.cancelLabel}
           </button>
         </div>
@@ -790,10 +925,12 @@ export function ElementSelector({
 
       {mode === "select" &&
         currentHover &&
-        (!effectiveMultiSelect || !pickedElements.includes(currentHover)) && (
+        (!effectiveMultiSelect || !pickedElements.includes(currentHover)) &&
+        !isMobileViewport && (
           <HoveredItem
             targetElement={currentHover}
             friendlySelectors={friendlySelectors}
+            rect={rectMap.get(currentHover) ?? null}
           />
         )}
 
@@ -803,15 +940,17 @@ export function ElementSelector({
           position={insertionCandidate.position}
           axis={insertionCandidate.axis}
           friendlySelectors={friendlySelectors}
+          rect={rectMap.get(insertionCandidate.element) ?? null}
         />
       )}
 
-      {effectiveMultiSelect &&
+      {(effectiveMultiSelect || (isMobileViewport && pickedElements.length > 0)) &&
         pickedElements.map((element, index) => (
           <SelectedItem
             key={`selected-${index}`}
             targetElement={element}
             onDeselect={() => deselectElement(element)}
+            rect={rectMap.get(element) ?? null}
           />
         ))}
 
@@ -821,6 +960,15 @@ export function ElementSelector({
         }
         body * {
           cursor: ${canAddElement ? "crosshair" : "default"} !important;
+        }
+        #element-selector-overlay [data-element-selector-ui="true"],
+        #element-selector-overlay [data-element-selector-ui="true"] * {
+          cursor: default !important;
+        }
+        #element-selector-overlay .element-selector-toggle,
+        #element-selector-overlay .element-selector-action,
+        #element-selector-overlay button {
+          cursor: pointer !important;
         }
         #element-selector-overlay .element-selector-toggle {
           background-color: var(--es-toggle-bg);
@@ -841,6 +989,14 @@ export function ElementSelector({
         #element-selector-overlay .element-selector-action:disabled {
           background-color: var(--es-action-bg-disabled);
           color: var(--es-action-color-disabled);
+        }
+        #element-selector-overlay .element-selector-instruction {
+          text-align: center;
+        }
+        @media (min-width: 768px) {
+          #element-selector-overlay .element-selector-instruction {
+            min-width: 22em;
+          }
         }
       `}</style>
     </div>

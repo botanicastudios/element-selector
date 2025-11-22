@@ -2,6 +2,7 @@
  * Type definitions for the element selector component
  */
 export type ElementSelectorMode = "select" | "insert";
+export type ElementSelectorTheme = "light" | "dark";
 export type PanelVerticalPosition = "top" | "bottom";
 export type PanelHorizontalPosition = "left" | "center" | "right";
 export interface OptionsPanelPosition {
@@ -20,9 +21,8 @@ export interface SelectionBarText {
     /** Instruction copy shown in insert mode */
     instructionInsert?: string;
     /**
-     * Text displayed next to the counter in multi-select mode.
-     * If a string, `{count}` will be replaced with the current selection count.
-     * You can also provide a formatter function.
+     * @deprecated The selection count chip has been removed from the selection bar.
+     * This value is currently ignored.
      */
     selectedCount?: string | ((count: number) => string);
     /** Label for the confirm button */
@@ -67,10 +67,15 @@ export interface ElementSelectorProps {
     allowModeToggle?: boolean;
     optionsPanelPosition?: OptionsPanelPosition;
     selectionBarText?: SelectionBarText;
+    /**
+     * Visual theme for the floating options panel
+     */
+    theme?: ElementSelectorTheme;
 }
 export interface HoveredItemProps {
     targetElement: HTMLElement | null;
     friendlySelectors?: boolean;
+    rect?: DOMRectReadOnly | null;
 }
 export interface SelectedItemProps {
     targetElement: HTMLElement;
@@ -80,6 +85,7 @@ export interface SelectedItemProps {
      * Useful for persisting highlights after the selector UI is dismissed.
      */
     variant?: "interactive" | "passive";
+    rect?: DOMRectReadOnly | null;
 }
 export interface InsertionCandidate {
     element: HTMLElement;
@@ -88,6 +94,7 @@ export interface InsertionCandidate {
 }
 export interface InsertionGuideProps extends InsertionCandidate {
     friendlySelectors?: boolean;
+    rect?: DOMRectReadOnly | null;
 }
 export interface AnimationFrameHook {
     (callback: () => void, targetFps?: number): void;
@@ -103,6 +110,10 @@ export interface LaunchSelectorOptions {
     allowModeToggle?: boolean;
     optionsPanelPosition?: OptionsPanelPosition;
     selectionBarText?: SelectionBarText;
+    /**
+     * Switch between light and dark styling for the options panel UI
+     */
+    theme?: ElementSelectorTheme;
     /**
      * Keep the visual highlight on selected elements after the selector completes.
      * Highlights stay until `resetSelectionHighlights()` is called or the selector

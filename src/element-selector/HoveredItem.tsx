@@ -4,19 +4,25 @@
  */
 
 import React, { useRef, useEffect } from "react";
-import { useAnimationFrame } from "./useAnimationFrame";
 import { getFriendlyTagName } from "./utils";
 import type { HoveredItemProps } from "./types";
 
-export function HoveredItem({ targetElement, friendlySelectors = false }: HoveredItemProps) {
+export function HoveredItem({
+  targetElement,
+  friendlySelectors = false,
+  rect = null,
+}: HoveredItemProps) {
   const highlightRef = useRef<HTMLDivElement>(null);
 
   // Update position to track element
-  const updatePosition = () => {
-    if (!highlightRef.current || !targetElement) return;
-
-    const rect = targetElement.getBoundingClientRect();
+  useEffect(() => {
     const highlight = highlightRef.current;
+    if (!highlight) return;
+
+    if (!rect) {
+      highlight.style.opacity = "0";
+      return;
+    }
 
     // Add minimal padding around the element
     const padding = 1;
@@ -25,15 +31,7 @@ export function HoveredItem({ targetElement, friendlySelectors = false }: Hovere
     highlight.style.width = `${rect.width + padding * 2}px`;
     highlight.style.height = `${rect.height + padding * 2}px`;
     highlight.style.opacity = "1";
-  };
-
-  // Initialize on mount
-  useEffect(() => {
-    updatePosition();
-  }, [targetElement, updatePosition]);
-
-  // Continuous position updates
-  useAnimationFrame(updatePosition, 30);
+  }, [rect]);
 
   // Element info tag
   const elementInfo = targetElement

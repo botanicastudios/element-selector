@@ -1,5 +1,4 @@
-import React, { useCallback, useEffect, useRef } from "react";
-import { useAnimationFrame } from "./useAnimationFrame";
+import React, { useEffect, useRef } from "react";
 import { getFriendlyTagName } from "./utils";
 import type { InsertionGuideProps } from "./types";
 
@@ -10,14 +9,21 @@ export function InsertionGuide({
   position,
   axis,
   friendlySelectors = false,
+  rect = null,
 }: InsertionGuideProps) {
   const lineRef = useRef<HTMLDivElement>(null);
   const labelRef = useRef<HTMLDivElement>(null);
 
-  const updatePosition = useCallback(() => {
+  useEffect(() => {
     if (!lineRef.current || !labelRef.current) return;
+    if (!rect) {
+      lineRef.current.style.opacity = "0";
+      labelRef.current.style.opacity = "0";
+      return;
+    }
 
-    const rect = element.getBoundingClientRect();
+    lineRef.current.style.opacity = "1";
+    labelRef.current.style.opacity = "1";
 
     if (axis === "horizontal") {
       const y = position === "before" ? rect.top : rect.bottom;
@@ -41,13 +47,7 @@ export function InsertionGuide({
       labelRef.current.style.left = `${labelX}px`;
       labelRef.current.style.top = `${rect.top}px`;
     }
-  }, [element, position, axis]);
-
-  useEffect(() => {
-    updatePosition();
-  }, [updatePosition]);
-
-  useAnimationFrame(updatePosition, 30);
+  }, [rect, axis, position]);
 
   const tag = element.tagName.toLowerCase();
   const friendlyTag = friendlySelectors
@@ -63,6 +63,7 @@ export function InsertionGuide({
           position: "fixed",
           pointerEvents: "none",
           zIndex: 100000,
+          opacity: 0,
           background: "#f59e0b",
           boxShadow: "0 0 14px rgba(245, 158, 11, 0.45)",
           borderRadius: LINE_THICKNESS,
@@ -74,6 +75,7 @@ export function InsertionGuide({
           position: "fixed",
           pointerEvents: "none",
           zIndex: 100001,
+          opacity: 0,
           background: "#2b1b0a",
           color: "#f6f1e8",
           padding: "6px 12px",

@@ -4,37 +4,30 @@
  */
 
 import React, { useRef, useEffect, useState } from 'react';
-import { useAnimationFrame } from './useAnimationFrame';
 import type { SelectedItemProps } from './types';
 
-export function SelectedItem({ targetElement, onDeselect, variant = 'interactive' }: SelectedItemProps) {
+export function SelectedItem({ targetElement, onDeselect, variant = 'interactive', rect = null }: SelectedItemProps) {
   const highlightRef = useRef<HTMLButtonElement>(null);
   const [isHovered, setIsHovered] = useState(false);
   const isInteractive = variant === 'interactive';
   
   // Update position to track element
-  const updatePosition = () => {
-    if (!highlightRef.current || !targetElement) return;
-    
-    const rect = targetElement.getBoundingClientRect();
+  useEffect(() => {
     const highlight = highlightRef.current;
-    
-    // Add minimal padding around the element
+    if (!highlight) return;
+
+    if (!rect) {
+      highlight.style.opacity = '0';
+      return;
+    }
+
     const padding = 1;
     highlight.style.top = `${rect.top - padding}px`;
     highlight.style.left = `${rect.left - padding}px`;
     highlight.style.width = `${rect.width + (padding * 2)}px`;
     highlight.style.height = `${rect.height + (padding * 2)}px`;
     highlight.style.opacity = '1';
-  };
-  
-  // Initialize on mount
-  useEffect(() => {
-    updatePosition();
-  }, [targetElement, updatePosition]);
-  
-  // Continuous position updates
-  useAnimationFrame(updatePosition, 30);
+  }, [rect]);
   
   return (
     <button

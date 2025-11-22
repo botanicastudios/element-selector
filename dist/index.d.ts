@@ -11,4 +11,4 @@ export declare function resetSelectionHighlights(): void;
 export declare function launchSelector(options?: LaunchSelectorOptions): Promise<ElementInfo | ElementInfo[]>;
 export { ElementSelector } from "./ElementSelector";
 export { findElementAtCoordinates, buildElementSelector } from "./utils";
-export type { ElementInfo, ElementSelectorProps, LaunchSelectorOptions, ElementSelectorMode, ContextHtmlOptions, ContextHtmlResult, OptionsPanelPosition, SelectionBarText, PanelHorizontalPosition, PanelVerticalPosition, } from "./types";
+export type { ElementInfo, ElementSelectorProps, LaunchSelectorOptions, ElementSelectorMode, ElementSelectorTheme, ContextHtmlOptions, ContextHtmlResult, OptionsPanelPosition, SelectionBarText, PanelHorizontalPosition, PanelVerticalPosition, } from "./types";

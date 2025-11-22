@@ -2,11 +2,12 @@
  * Element selector API - Visual DOM element picker
  */
 
-import React from "react";
+import React, { useMemo } from "react";
 import ReactDOM from "react-dom/client";
 import { ElementSelector } from "./ElementSelector";
 import { SelectedItem } from "./SelectedItem";
 import { InsertionGuide } from "./InsertionGuide";
+import { useElementRectMap } from "./useElementRects";
 import type { ElementInfo, LaunchSelectorOptions } from "./types";
 
 let persistentContainer: HTMLDivElement | null = null;
@@ -29,36 +30,60 @@ function ensurePersistentRoot() {
   return persistentRoot;
 }
 
+function PersistentHighlights({
+  elements,
+  friendlySelectors,
+}: {
+  elements: ElementInfo[];
+  friendlySelectors: boolean;
+}) {
+  const targets = useMemo(
+    () => elements.map((item) => item.element),
+    [elements]
+  );
+  const rectMap = useElementRectMap(targets);
+
+  if (!elements.length) return null;
+
+  return (
+    <>
+      {elements.map((element, index) => {
+        const rect = rectMap.get(element.element) ?? null;
+
+        if (element.mode === "insert" && element.insertionPosition && element.insertionAxis) {
+          return (
+            <InsertionGuide
+              key={`persistent-insert-${index}`}
+              element={element.element}
+              position={element.insertionPosition}
+              axis={element.insertionAxis}
+              friendlySelectors={friendlySelectors}
+              rect={rect}
+            />
+          );
+        }
+
+        return (
+          <SelectedItem
+            key={`persistent-select-${index}`}
+            targetElement={element.element}
+            onDeselect={() => {}}
+            variant="passive"
+            rect={rect}
+          />
+        );
+      })}
+    </>
+  );
+}
+
 function renderPersistentHighlights(elements: ElementInfo[], friendlySelectors: boolean) {
   if (!elements.length) return;
 
   const root = ensurePersistentRoot();
   root.render(
     <React.StrictMode>
-      <>
-        {elements.map((element, index) => {
-          if (element.mode === "insert" && element.insertionPosition && element.insertionAxis) {
-            return (
-              <InsertionGuide
-                key={`persistent-insert-${index}`}
-                element={element.element}
-                position={element.insertionPosition}
-                axis={element.insertionAxis}
-                friendlySelectors={friendlySelectors}
-              />
-            );
-          }
-
-          return (
-            <SelectedItem
-              key={`persistent-select-${index}`}
-              targetElement={element.element}
-              onDeselect={() => {}}
-              variant="passive"
-            />
-          );
-        })}
-      </>
+      <PersistentHighlights elements={elements} friendlySelectors={friendlySelectors} />
     </React.StrictMode>
   );
 }

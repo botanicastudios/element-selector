@@ -2,6 +2,8 @@
 
 A DOM element picker that provides a visual interface for selecting elements on any webpage. Works in any JavaScript environment - vanilla JS, React, Vue, Angular, etc.
 
+[**Live demo**](https://botanicastudios.github.io/element-selector/)
+
 ## Features
 
 - Works in any JavaScript environment (not just React)
@@ -35,14 +37,14 @@ The `launchSelector` function works in any JavaScript environment, not just Reac
 
 ```html
 <script type="module">
-  import { launchSelector } from '@botanicastudios/element-selector';
-  
-  document.getElementById('select-btn').addEventListener('click', async () => {
+  import { launchSelector } from "@botanicastudios/element-selector";
+
+  document.getElementById("select-btn").addEventListener("click", async () => {
     try {
       const element = await launchSelector();
-      console.log('Selected:', element);
+      console.log("Selected:", element);
     } catch (error) {
-      console.log('Cancelled');
+      console.log("Cancelled");
     }
   });
 </script>
@@ -51,7 +53,7 @@ The `launchSelector` function works in any JavaScript environment, not just Reac
 #### Vue Example
 
 ```javascript
-import { launchSelector } from '@botanicastudios/element-selector';
+import { launchSelector } from "@botanicastudios/element-selector";
 
 export default {
   methods: {
@@ -60,29 +62,29 @@ export default {
         const element = await launchSelector();
         this.selectedElement = element;
       } catch (error) {
-        console.log('Cancelled');
+        console.log("Cancelled");
       }
-    }
-  }
-}
+    },
+  },
+};
 ```
 
 #### Angular Example
 
 ```typescript
-import { launchSelector } from '@botanicastudios/element-selector';
+import { launchSelector } from "@botanicastudios/element-selector";
 
 @Component({
-  selector: 'app-picker',
-  template: `<button (click)="pick()">Select Element</button>`
+  selector: "app-picker",
+  template: `<button (click)="pick()">Select Element</button>`,
 })
 export class PickerComponent {
   async pick() {
     try {
       const element = await launchSelector();
-      console.log('Selected:', element);
+      console.log("Selected:", element);
     } catch (error) {
-      console.log('Cancelled');
+      console.log("Cancelled");
     }
   }
 }
@@ -107,8 +109,8 @@ async function selectElement() {
 async function selectMultipleElements() {
   try {
     const elements = await launchSelector({
-      multiSelect: true,        // Allow selecting multiple elements
-      friendlySelectors: true   // Show human-readable tag names
+      multiSelect: true, // Allow selecting multiple elements
+      friendlySelectors: true, // Show human-readable tag names
     });
     console.log("Selected elements:", elements);
     // Each element object contains:
@@ -149,8 +151,8 @@ function MyApp() {
     <ElementSelector
       onElementSelected={handleElementSelected}
       onCancel={handleCancel}
-      multiSelect={true}        // Optional: Allow multiple selections
-      friendlySelectors={true}  // Optional: Use friendly tag names
+      multiSelect={true} // Optional: Allow multiple selections
+      friendlySelectors={true} // Optional: Use friendly tag names
     />
   );
 }
@@ -162,8 +164,8 @@ You can also use the library directly from a CDN without installing:
 
 ```html
 <script type="module">
-  import { launchSelector } from 'https://unpkg.com/@botanicastudios/element-selector/dist/element-selector.js';
-  
+  import { launchSelector } from "https://unpkg.com/@botanicastudios/element-selector/dist/element-selector.js";
+
   // Use launchSelector as shown above
 </script>
 ```
@@ -188,6 +190,7 @@ Controls whether the floating toolbar inside the selector lets users switch betw
 ### `optionsPanelPosition` (default: `{ vertical: "top", horizontal: "center" }`)
 
 Sets where the floating toolbar (Select/Insert, instructions, counters) appears on screen.
+
 - `vertical`: `"top"` or `"bottom"`
 - `horizontal`: `"left"`, `"center"`, or `"right"`
 
@@ -195,9 +198,13 @@ For example:
 
 ```javascript
 await launchSelector({
-  optionsPanelPosition: { vertical: "bottom", horizontal: "right" }
+  optionsPanelPosition: { vertical: "bottom", horizontal: "right" },
 });
 ```
+
+### `theme` (default: `"dark"`)
+
+Switch the toolbar and buttons between the built‑in `"dark"` and `"light"` styles. This only affects the selector UI, not your page styles.
 
 ### `selectionBarText`
 
@@ -211,7 +218,6 @@ await launchSelector({
     instructionSelectSingle: "Tap an element",
     instructionSelectMulti: "Tap every element you need",
     instructionInsert: "Choose where new content should go",
-    selectedCount: "Items chosen: {count}",
     confirmLabel: "Done",
     cancelLabel: "Close",
   },
@@ -222,17 +228,19 @@ await launchSelector({
 - `instructionSelectSingle`: Instruction shown in select mode when picking a single element.
 - `instructionSelectMulti`: Instruction shown in select mode when multi-select is enabled.
 - `instructionInsert`: Instruction shown in insert mode.
-- `selectedCount`: Text next to the counter; `{count}` is replaced with the current number. You can also pass a formatter function `(count) => string`.
 - `confirmLabel`: Text for the confirm button.
 - `cancelLabel`: Text for the cancel button.
 
+`selectedCount` is kept for backward compatibility but currently ignored because the counter chip was removed from the toolbar.
+
 ### `retainSelectionHighlights` (default: `false`)
 
-When `true`, the purple selection boxes stay on the page after the selector resolves. They remain until you either launch the selector again in **select** mode or call the new `resetSelectionHighlights()` helper.
+When `true`, the purple selection boxes stay on the page after the selector resolves. They remain until you start another selection session (launching `launchSelector` always clears them first) or call the `resetSelectionHighlights()` helper.
 
 ### `friendlySelectors` (default: `false`)
 
 When set to `true`, displays human-readable tag names instead of HTML tag names. For example:
+
 - `<a>` shows as "link"
 - `<button>` shows as "button"
 - `<p>` shows as "paragraph"
@@ -283,3 +291,7 @@ This creates the production-ready library files that can be published to npm.
 
 Launches the test runner in the interactive watch mode.\
 See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+
+## GitHub Pages
+
+Pushes to `main` automatically build the Create React App demo (`npm run demo:build`) and publish it to GitHub Pages via `.github/workflows/deploy-demo.yml`. You can also trigger a deployment manually with the **Run workflow** button in the Actions tab.

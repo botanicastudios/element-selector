@@ -12,6 +12,7 @@ function App() {
   const [mode, setMode] = useState<ElementSelectorMode>('select');
   const [retainHighlights, setRetainHighlights] = useState(false);
   const [panelTheme, setPanelTheme] = useState<ElementSelectorTheme>('dark');
+  const [allowModeToggle, setAllowModeToggle] = useState(true);
 
   const handleResetHighlights = () => {
     resetSelectionHighlights();
@@ -33,6 +34,7 @@ function App() {
         multiSelect: mode === 'select' ? multiSelect : false,
         friendlySelectors,
         mode,
+        allowModeToggle,
         retainSelectionHighlights: retainHighlights,
         theme: panelTheme
       });
@@ -116,6 +118,25 @@ function App() {
               }}
             />
             <span>Retain highlights</span>
+          </label>
+
+          <label style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '8px',
+            cursor: 'pointer'
+          }}>
+            <input
+              type="checkbox"
+              checked={allowModeToggle}
+              onChange={(e) => setAllowModeToggle(e.target.checked)}
+              style={{
+                width: '18px',
+                height: '18px',
+                cursor: 'pointer'
+              }}
+            />
+            <span>Show select/insert toggle in bar</span>
           </label>
         </div>
 
