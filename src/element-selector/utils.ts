@@ -5,6 +5,34 @@
 import type { ContextHtmlOptions, ContextHtmlResult } from "./types";
 
 /**
+ * Safely extract class names from any element (HTML or SVG)
+ * Handles string, SVGAnimatedString, and DOMTokenList variants
+ */
+export function getClassNames(element: Element | null): string[] {
+  if (!element) return [];
+
+  const classNameValue = (element as HTMLElement).className as unknown;
+
+  // Plain string (common for HTML elements)
+  if (typeof classNameValue === "string") {
+    return classNameValue.split(/\s+/).filter(Boolean);
+  }
+
+  // SVGAnimatedString exposes the value on baseVal
+  const baseVal = (classNameValue as { baseVal?: unknown })?.baseVal;
+  if (typeof baseVal === "string") {
+    return baseVal.split(/\s+/).filter(Boolean);
+  }
+
+  // Fallback to classList if available
+  if ((element as Element).classList) {
+    return Array.from(element.classList).filter(Boolean);
+  }
+
+  return [];
+}
+
+/**
  * Find the topmost element at given coordinates
  * Excludes overlay elements and SVG internals
  */
@@ -63,16 +91,13 @@ export function buildElementSelector(element: HTMLElement): string {
     let selector = current.tagName.toLowerCase();
 
     // Add classes if available
-    if (current.className && typeof current.className === "string") {
-      const classes = current.className
-        .split(/\s+/)
-        .filter((c) => c && !c.includes(":"))
-        .map((c) => `.${CSS.escape(c)}`)
-        .slice(0, 2) // Limit to 2 classes for readability
-        .join("");
-      if (classes) {
-        selector += classes;
-      }
+    const classNames = getClassNames(current)
+      .filter((c) => !c.includes(":"))
+      .slice(0, 2); // Limit to 2 classes for readability
+
+    if (classNames.length > 0) {
+      const classes = classNames.map((c) => `.${CSS.escape(c)}`).join("");
+      selector += classes;
     }
 
     // Add nth-child if needed for uniqueness
@@ -116,15 +141,10 @@ export function getElementDescription(element: HTMLElement): string {
 
   const tag = element.tagName.toLowerCase();
   const id = element.id ? `#${element.id}` : "";
-  const classes =
-    element.className && typeof element.className === "string"
-      ? element.className
-          .split(/\s+/)
-          .filter((c) => c)
-          .map((c) => `.${c}`)
-          .slice(0, 2)
-          .join("")
-      : "";
+  const classes = getClassNames(element)
+    .slice(0, 2)
+    .map((c) => `.${c}`)
+    .join("");
 
   const text = element.textContent?.trim().slice(0, 30);
   const textPreview = text ? ` "${text}${text.length > 30 ? "..." : ""}"` : "";

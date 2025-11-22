@@ -181,6 +181,7 @@ export function ElementSelector({
   optionsPanelPosition,
   selectionBarText,
   theme = "dark",
+  debug = false,
 }: ElementSelectorProps) {
   const [mode, setMode] = useState<ElementSelectorMode>(initialMode);
   const effectiveMultiSelect = mode === "select" && multiSelect;
@@ -208,7 +209,25 @@ export function ElementSelector({
     return list;
   }, [currentHover, insertionCandidate, pickedElements]);
 
-  const rectMap = useElementRectMap(trackedElements);
+  const rectMap = useElementRectMap(trackedElements, { skipOffscreen: true, debug });
+
+  const logDebug = useCallback(
+    (...messages: unknown[]) => {
+      if (!debug) return;
+      console.debug("[element-selector]", ...messages);
+    },
+    [debug]
+  );
+
+  useEffect(() => {
+    if (!debug || !currentHover) return;
+    logDebug("current hover rect", {
+      tag: currentHover.tagName,
+      id: currentHover.id,
+      className: currentHover.className,
+      rect: rectMap.get(currentHover) ?? null,
+    });
+  }, [currentHover, rectMap, debug, logDebug]);
 
   const mousePositionRef = useRef<MousePosition>({ x: 0, y: 0 });
   const updateTimerRef = useRef<NodeJS.Timeout | null>(null);
@@ -295,6 +314,13 @@ export function ElementSelector({
       mousePositionRef.current.y
     );
 
+    logDebug("hover update", {
+      point: { ...mousePositionRef.current },
+      target: targetElement?.tagName,
+      id: targetElement?.id,
+      className: targetElement?.className,
+    });
+
     if (mode === "insert") {
       const candidate = deriveInsertionCandidate(
         targetElement,
@@ -341,8 +367,14 @@ export function ElementSelector({
       previousHoverRef.current = targetElement;
       setCurrentHover(targetElement);
       setCanAddElement(true);
+      logDebug("setCurrentHover", {
+        tag: targetElement.tagName,
+        id: targetElement.id,
+        className: targetElement.className,
+        rect: rectMap.get(targetElement) ?? null,
+      });
     }
-  }, [effectiveMultiSelect, mode, pickedElements]);
+  }, [effectiveMultiSelect, mode, pickedElements, rectMap, logDebug]);
 
   // Track mouse movement
   const handleMouseMove = useCallback(
@@ -395,6 +427,7 @@ export function ElementSelector({
       if (nextMode === mode) {
         return;
       }
+      logDebug("mode toggle", { from: mode, to: nextMode });
       setMode(nextMode);
       setPickedElements([]);
       setInsertionCandidate(null);
@@ -404,7 +437,7 @@ export function ElementSelector({
       previousInsertionRef.current = null;
       setCanAddElement(false);
     },
-    [mode]
+    [mode, logDebug]
   );
 
   // Handle element selection
@@ -430,6 +463,9 @@ export function ElementSelector({
         );
 
         if (!candidate) {
+          logDebug("insert click with no candidate", {
+            point: { x: event.clientX, y: event.clientY },
+          });
           return;
         }
 
@@ -488,8 +524,14 @@ export function ElementSelector({
       onElementSelected([
         toElementInfo(targetElement, { mode: "select" }),
       ]);
+      logDebug("select click", {
+        tag: targetElement.tagName,
+        id: targetElement.id,
+        className: targetElement.className,
+        rect: rectMap.get(targetElement) ?? null,
+      });
     },
-    [effectiveMultiSelect, isMobileViewport, mode, onElementSelected, pickedElements, toElementInfo]
+    [effectiveMultiSelect, isMobileViewport, mode, onElementSelected, pickedElements, toElementInfo, rectMap, logDebug]
   );
 
   // Remove element from selection
@@ -505,6 +547,14 @@ export function ElementSelector({
     document.addEventListener("mouseleave", handleMouseLeave, true);
     document.addEventListener("click", handleClick, true);
 
+    logDebug("selector mounted", {
+      viewport: {
+        width: window.innerWidth,
+        height: window.innerHeight,
+      },
+      tracked: trackedElements.length,
+    });
+
     return () => {
       document.removeEventListener("mousemove", handleMouseMove, true);
       document.removeEventListener("mouseleave", handleMouseLeave, true);
@@ -512,8 +562,9 @@ export function ElementSelector({
       if (updateTimerRef.current) {
         clearTimeout(updateTimerRef.current);
       }
+      logDebug("selector unmounted");
     };
-  }, [handleMouseMove, handleMouseLeave, handleClick]);
+  }, [handleMouseMove, handleMouseLeave, handleClick, trackedElements.length, logDebug]);
 
   // Keyboard shortcuts
   useEffect(() => {

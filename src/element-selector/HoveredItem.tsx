@@ -4,7 +4,7 @@
  */
 
 import React, { useRef, useEffect } from "react";
-import { getFriendlyTagName } from "./utils";
+import { getClassNames, getFriendlyTagName } from "./utils";
 import type { HoveredItemProps } from "./types";
 
 export function HoveredItem({
@@ -41,10 +41,7 @@ export function HoveredItem({
           ? getFriendlyTagName(targetElement.tagName)
           : targetElement.tagName.toLowerCase(),
         id: targetElement.id,
-        classes: targetElement.className
-          ?.split(" ")
-          .filter((c) => c)
-          .slice(0, 2),
+        classes: getClassNames(targetElement).slice(0, 2),
       }
     : null;
 

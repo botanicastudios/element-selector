@@ -12,11 +12,13 @@ type UseElementRectMapOptions = {
    * until they enter the viewport again.
    */
   skipOffscreen?: boolean;
+  /** When true, log every measurement for debugging. */
+  debug?: boolean;
 };
 
 export function useElementRectMap(
   elements: Array<HTMLElement | null>,
-  { skipOffscreen = true }: UseElementRectMapOptions = {}
+  { skipOffscreen = true, debug = false }: UseElementRectMapOptions = {}
 ): Map<HTMLElement, DOMRectReadOnly> {
   const [rectMap, setRectMap] = useState<Map<HTMLElement, DOMRectReadOnly>>(
     () => new Map()
@@ -66,6 +68,13 @@ export function useElementRectMap(
             // preserve the previous rect if we had one so consumers can decide
             // whether to render.
             if (!isVisible) {
+              if (debug) {
+                console.debug("[element-selector] skip measure (offscreen)", {
+                  tag: el.tagName,
+                  id: el.id,
+                  className: el.className,
+                });
+              }
               const priorRect = previous.get(el);
               if (priorRect) {
                 next.set(el, priorRect);
@@ -84,6 +93,20 @@ export function useElementRectMap(
 
             if (rectChanged) {
               changed = true;
+              if (debug) {
+                console.debug("[element-selector] measure", {
+                  tag: el.tagName,
+                  id: el.id,
+                  className: el.className,
+                  rect: {
+                    top: rect.top,
+                    left: rect.left,
+                    width: rect.width,
+                    height: rect.height,
+                  },
+                  visible: isVisible,
+                });
+              }
             }
             next.set(el, rect);
           }

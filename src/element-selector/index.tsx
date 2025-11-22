@@ -118,6 +118,7 @@ export function launchSelector(
     optionsPanelPosition,
     selectionBarText,
     theme = "dark",
+    debug = false,
   } = options;
 
   // Always start with a clean slate; persisted highlights are cleared on every launch
@@ -177,6 +178,7 @@ export function launchSelector(
           optionsPanelPosition={optionsPanelPosition}
           selectionBarText={selectionBarText}
           theme={theme}
+          debug={debug}
         />
       </React.StrictMode>
     );

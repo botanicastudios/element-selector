@@ -3,6 +3,11 @@
  */
 import type { ContextHtmlOptions, ContextHtmlResult } from "./types";
 /**
+ * Safely extract class names from any element (HTML or SVG)
+ * Handles string, SVGAnimatedString, and DOMTokenList variants
+ */
+export declare function getClassNames(element: Element | null): string[];
+/**
  * Find the topmost element at given coordinates
  * Excludes overlay elements and SVG internals
  */
