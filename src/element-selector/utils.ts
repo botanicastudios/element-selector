@@ -49,8 +49,15 @@ export function findElementAtCoordinates(x: number, y: number): HTMLElement {
   const deepFromPoint = (
     root: Document | ShadowRoot,
     cx: number,
-    cy: number
+    cy: number,
+    visited = new Set<Document | ShadowRoot>()
   ): HTMLElement | null => {
+    // Guard against browsers that return the same root/host repeatedly
+    // (e.g. elementFromPoint on a ShadowRoot returning the host), which can
+    // otherwise recurse forever and blow the stack in production builds.
+    if (visited.has(root)) return null;
+    visited.add(root);
+
     const elementFromPoint = (root as any).elementFromPoint as
       | ((x: number, y: number) => Element | null)
       | undefined;
@@ -70,16 +77,16 @@ export function findElementAtCoordinates(x: number, y: number): HTMLElement {
         }) || assigned[0];
 
       if (underPoint) {
-        if (underPoint.shadowRoot) {
-          const inner = deepFromPoint(underPoint.shadowRoot, cx, cy);
+        if (underPoint.shadowRoot && !visited.has(underPoint.shadowRoot)) {
+          const inner = deepFromPoint(underPoint.shadowRoot, cx, cy, visited);
           if (inner) return inner;
         }
         return underPoint;
       }
     }
 
-    if (hit.shadowRoot) {
-      const inner = deepFromPoint(hit.shadowRoot, cx, cy);
+    if (hit.shadowRoot && !visited.has(hit.shadowRoot)) {
+      const inner = deepFromPoint(hit.shadowRoot, cx, cy, visited);
       if (inner) return inner;
     }
 

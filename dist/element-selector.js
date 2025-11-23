@@ -16,8 +16,8 @@ function Ye() {
   Ce = 1;
   var e = Symbol.for("react.transitional.element"), t = Symbol.for("react.fragment");
   function l(i, n, r) {
-    var c = null;
-    if (r !== void 0 && (c = "" + r), n.key !== void 0 && (c = "" + n.key), "key" in n) {
+    var u = null;
+    if (r !== void 0 && (u = "" + r), n.key !== void 0 && (u = "" + n.key), "key" in n) {
       r = {};
       for (var a in n)
         a !== "key" && (r[a] = n[a]);
@@ -25,7 +25,7 @@ function Ye() {
     return n = r.ref, {
       $$typeof: e,
       type: i,
-      key: c,
+      key: u,
       ref: n !== void 0 ? n : null,
       props: r
     };
@@ -55,7 +55,7 @@ function We() {
           return "Fragment";
         case P:
           return "Profiler";
-        case S:
+        case w:
           return "StrictMode";
         case L:
           return "Suspense";
@@ -72,7 +72,7 @@ function We() {
             return "Portal";
           case B:
             return (o.displayName || "Context") + ".Provider";
-          case w:
+          case R:
             return (o._context.displayName || "Context") + ".Consumer";
           case J:
             var b = o.render;
@@ -126,7 +126,7 @@ function We() {
     function r() {
       return Error("react-stack-top-frame");
     }
-    function c(o) {
+    function u(o) {
       if (k.call(o, "key")) {
         var b = Object.getOwnPropertyDescriptor(o, "key").get;
         if (b && b.isReactWarning) return !1;
@@ -151,7 +151,7 @@ function We() {
         "Accessing element.ref was removed in React 19. ref is now a regular prop. It will be removed from the JSX Element type in a future release."
       )), o = this.props.ref, o !== void 0 ? o : null;
     }
-    function v(o, b, T, H, W, V, z, ae) {
+    function x(o, b, T, H, W, V, z, ae) {
       return T = V.ref, o = {
         $$typeof: f,
         type: o,
@@ -183,19 +183,19 @@ function We() {
         value: ae
       }), Object.freeze && (Object.freeze(o.props), Object.freeze(o)), o;
     }
-    function u(o, b, T, H, W, V, z, ae) {
+    function c(o, b, T, H, W, V, z, ae) {
       var A = b.children;
       if (A !== void 0)
         if (H)
           if (te(A)) {
             for (H = 0; H < A.length; H++)
-              x(A[H]);
+              v(A[H]);
             Object.freeze && Object.freeze(A);
           } else
             console.error(
               "React.jsx: Static children should always be an array. You are likely explicitly calling React.jsxs or React.jsxDEV. Use the Babel transform instead."
             );
-        else x(A);
+        else v(A);
       if (k.call(b, "key")) {
         A = e(o);
         var Q = Object.keys(b).filter(function(xe) {
@@ -214,7 +214,7 @@ React keys must be passed directly to JSX without using spread:
           A
         ), D[A + H] = !0);
       }
-      if (A = null, T !== void 0 && (l(T), A = "" + T), c(b) && (l(b.key), A = "" + b.key), "key" in b) {
+      if (A = null, T !== void 0 && (l(T), A = "" + T), u(b) && (l(b.key), A = "" + b.key), "key" in b) {
         T = {};
         for (var oe in b)
           oe !== "key" && (T[oe] = b[oe]);
@@ -222,7 +222,7 @@ React keys must be passed directly to JSX without using spread:
       return A && a(
         T,
         typeof o == "function" ? o.displayName || o.name || "Unknown" : o
-      ), v(
+      ), x(
         o,
         A,
         V,
@@ -233,10 +233,10 @@ React keys must be passed directly to JSX without using spread:
         ae
       );
     }
-    function x(o) {
+    function v(o) {
       typeof o == "object" && o !== null && o.$$typeof === f && o._store && (o._store.validated = 1);
     }
-    var d = Te, f = Symbol.for("react.transitional.element"), p = Symbol.for("react.portal"), y = Symbol.for("react.fragment"), S = Symbol.for("react.strict_mode"), P = Symbol.for("react.profiler"), w = Symbol.for("react.consumer"), B = Symbol.for("react.context"), J = Symbol.for("react.forward_ref"), L = Symbol.for("react.suspense"), _ = Symbol.for("react.suspense_list"), Z = Symbol.for("react.memo"), h = Symbol.for("react.lazy"), ie = Symbol.for("react.activity"), ne = Symbol.for("react.client.reference"), N = d.__CLIENT_INTERNALS_DO_NOT_USE_OR_WARN_USERS_THEY_CANNOT_UPGRADE, k = Object.prototype.hasOwnProperty, te = Array.isArray, M = console.createTask ? console.createTask : function() {
+    var d = Te, f = Symbol.for("react.transitional.element"), p = Symbol.for("react.portal"), y = Symbol.for("react.fragment"), w = Symbol.for("react.strict_mode"), P = Symbol.for("react.profiler"), R = Symbol.for("react.consumer"), B = Symbol.for("react.context"), J = Symbol.for("react.forward_ref"), L = Symbol.for("react.suspense"), _ = Symbol.for("react.suspense_list"), Z = Symbol.for("react.memo"), h = Symbol.for("react.lazy"), ie = Symbol.for("react.activity"), ne = Symbol.for("react.client.reference"), N = d.__CLIENT_INTERNALS_DO_NOT_USE_OR_WARN_USERS_THEY_CANNOT_UPGRADE, k = Object.prototype.hasOwnProperty, te = Array.isArray, M = console.createTask ? console.createTask : function() {
       return null;
     };
     d = {
@@ -250,7 +250,7 @@ React keys must be passed directly to JSX without using spread:
     )(), G = M(i(r)), D = {};
     fe.Fragment = y, fe.jsx = function(o, b, T, H, W) {
       var V = 1e4 > N.recentlyCreatedOwnerStacks++;
-      return u(
+      return c(
         o,
         b,
         T,
@@ -262,7 +262,7 @@ React keys must be passed directly to JSX without using spread:
       );
     }, fe.jsxs = function(o, b, T, H, W) {
       var V = 1e4 > N.recentlyCreatedOwnerStacks++;
-      return u(
+      return c(
         o,
         b,
         T,
@@ -288,38 +288,40 @@ function je(e) {
   const l = t?.baseVal;
   return typeof l == "string" ? l.split(/\s+/).filter(Boolean) : e.classList ? Array.from(e.classList).filter(Boolean) : [];
 }
-function ye(e, t) {
-  const l = (a) => !!a && (a.id === "element-selector-overlay" || a.closest("#element-selector-overlay") || a.id === "element-selector-root" || a.closest("#element-selector-root")), i = (a, m, v) => {
-    const u = a.elementFromPoint;
-    if (!u) return null;
-    const x = u.call(a, m, v);
-    if (!x) return null;
-    if (x instanceof HTMLSlotElement) {
-      const d = x.assignedElements({ flatten: !0 }), f = d.find((p) => {
-        const y = p.getBoundingClientRect();
-        return m >= y.left && m <= y.right && v >= y.top && v <= y.bottom;
-      }) || d[0];
-      if (f) {
-        if (f.shadowRoot) {
-          const p = i(f.shadowRoot, m, v);
-          if (p) return p;
+function we(e, t) {
+  const l = (a) => !!a && (a.id === "element-selector-overlay" || a.closest("#element-selector-overlay") || a.id === "element-selector-root" || a.closest("#element-selector-root")), i = (a, m, x, c = /* @__PURE__ */ new Set()) => {
+    if (c.has(a)) return null;
+    c.add(a);
+    const v = a.elementFromPoint;
+    if (!v) return null;
+    const d = v.call(a, m, x);
+    if (!d) return null;
+    if (d instanceof HTMLSlotElement) {
+      const f = d.assignedElements({ flatten: !0 }), p = f.find((y) => {
+        const w = y.getBoundingClientRect();
+        return m >= w.left && m <= w.right && x >= w.top && x <= w.bottom;
+      }) || f[0];
+      if (p) {
+        if (p.shadowRoot && !c.has(p.shadowRoot)) {
+          const y = i(p.shadowRoot, m, x, c);
+          if (y) return y;
         }
-        return f;
+        return p;
       }
     }
-    if (x.shadowRoot) {
-      const d = i(x.shadowRoot, m, v);
-      if (d) return d;
+    if (d.shadowRoot && !c.has(d.shadowRoot)) {
+      const f = i(d.shadowRoot, m, x, c);
+      if (f) return f;
     }
-    return x;
+    return d;
   }, n = () => {
     const a = document.elementsFromPoint(e, t).filter(
-      (v) => v instanceof HTMLElement && !l(v)
+      (x) => x instanceof HTMLElement && !l(x)
     );
     return a.find(
-      (v) => v !== document.documentElement && v !== document.body
+      (x) => x !== document.documentElement && x !== document.body
     ) ?? a[0] ?? null;
-  }, c = (() => {
+  }, u = (() => {
     let a = i(document, e, t);
     if (a?.shadowRoot) {
       const m = i(a.shadowRoot, e, t);
@@ -327,7 +329,7 @@ function ye(e, t) {
     }
     return a && !l(a) && a !== document.body && a !== document.documentElement ? a : n();
   })() ?? document.body;
-  return c.tagName !== "svg" && c.tagName !== "SVG" && c.closest("svg") ? c.closest("svg") || document.body : c;
+  return u.tagName !== "svg" && u.tagName !== "SVG" && u.closest("svg") ? u.closest("svg") || document.body : u;
 }
 function Be(e) {
   if (!e || e === document.body)
@@ -340,7 +342,7 @@ function Be(e) {
     let i = l.tagName.toLowerCase();
     const n = je(l).filter((r) => !r.includes(":")).slice(0, 2);
     if (n.length > 0) {
-      const r = n.map((c) => `.${CSS.escape(c)}`).join("");
+      const r = n.map((u) => `.${CSS.escape(u)}`).join("");
       i += r;
     }
     if (l.parentElement) {
@@ -354,8 +356,8 @@ function Be(e) {
     }
     t.unshift(i);
     try {
-      const r = t.join(" > "), c = document.querySelectorAll(r);
-      if (c.length === 1 && c[0] === e)
+      const r = t.join(" > "), u = document.querySelectorAll(r);
+      if (u.length === 1 && u[0] === e)
         return r;
     } catch {
     }
@@ -437,7 +439,7 @@ function Le(e) {
 function he(e) {
   return e.width === 0 && e.height === 0;
 }
-function we(e) {
+function ye(e) {
   return getComputedStyle(e).display === "contents";
 }
 function Ie(e) {
@@ -447,9 +449,9 @@ function Ie(e) {
 function Se(e) {
   if (!e) return null;
   const t = e.getRootNode(), l = e.getBoundingClientRect();
-  if (!he(l) && !we(e))
+  if (!he(l) && !ye(e))
     return { element: e, rect: l };
-  if (we(e)) {
+  if (ye(e)) {
     const n = Array.from(e.children).filter((r) => r instanceof HTMLElement).map((r) => r.getBoundingClientRect()).filter((r) => !he(r));
     if (n.length)
       return { element: e, rect: Ie(n) };
@@ -465,7 +467,7 @@ function Se(e) {
     if (!n || n === document.body || n.getRootNode() !== t)
       break;
     const r = n.getBoundingClientRect();
-    if (!he(r) && !we(n))
+    if (!he(r) && !ye(n))
       return { element: n, rect: r };
     i = n;
   }
@@ -478,13 +480,13 @@ function Ue(e, t = 300, { maxAncestors: l = 10 } = {}) {
     const p = [];
     let y = f;
     for (; y && y !== d; ) {
-      const S = y.parentNode;
-      if (!S)
+      const w = y.parentNode;
+      if (!w)
         throw new Error("Failed to resolve node path for context extraction.");
-      const P = Array.prototype.indexOf.call(S.childNodes, y);
+      const P = Array.prototype.indexOf.call(w.childNodes, y);
       if (P === -1)
         throw new Error("Unable to map node into cloned context tree.");
-      p.unshift(P), y = S;
+      p.unshift(P), y = w;
     }
     if (y !== d)
       throw new Error("Context root does not contain the requested node.");
@@ -493,7 +495,7 @@ function Ue(e, t = 300, { maxAncestors: l = 10 } = {}) {
     d.querySelectorAll(
       "#element-selector-root, #element-selector-overlay"
     ).forEach((p) => p.remove());
-  }, c = {
+  }, u = {
     start: `__element_selector_start_${Math.random().toString(36).slice(2)}__`,
     end: `__element_selector_end_${Math.random().toString(36).slice(2)}__`
   }, a = (d) => {
@@ -507,47 +509,47 @@ function Ue(e, t = 300, { maxAncestors: l = 10 } = {}) {
       return N.appendChild(p), N;
     })() : p;
     f.appendChild(y), r(f);
-    const S = y;
-    if (!S.firstChild)
+    const w = y;
+    if (!w.firstChild)
       return {
         beforeHtml: "",
         elementHtml: i(e),
         afterHtml: ""
       };
     const P = n(d, e);
-    let w = S;
+    let R = w;
     for (const N of P) {
-      const k = w.childNodes.item(N);
+      const k = R.childNodes.item(N);
       if (!k)
         throw new Error("Failed to mirror node inside cloned context tree.");
-      w = k;
+      R = k;
     }
-    const B = w.parentNode;
+    const B = R.parentNode;
     if (!B)
       return {
         beforeHtml: "",
         elementHtml: i(e),
         afterHtml: ""
       };
-    const J = document.createTextNode(c.start), L = document.createTextNode(c.end);
-    B.insertBefore(J, w), B.insertBefore(L, w.nextSibling), B.removeChild(w);
-    const _ = d.nodeType === Node.DOCUMENT_FRAGMENT_NODE ? y.innerHTML : f.innerHTML, Z = _.indexOf(c.start), h = _.indexOf(c.end);
+    const J = document.createTextNode(u.start), L = document.createTextNode(u.end);
+    B.insertBefore(J, R), B.insertBefore(L, R.nextSibling), B.removeChild(R);
+    const _ = d.nodeType === Node.DOCUMENT_FRAGMENT_NODE ? y.innerHTML : f.innerHTML, Z = _.indexOf(u.start), h = _.indexOf(u.end);
     if (Z === -1 || h === -1 || h < Z)
       throw new Error("Failed to locate context markers during serialization.");
-    const ie = _.slice(0, Z), ne = _.slice(h + c.end.length);
+    const ie = _.slice(0, Z), ne = _.slice(h + u.end.length);
     return {
       beforeHtml: ie,
       elementHtml: i(e),
       afterHtml: ne
     };
   }, m = (d) => d.parentNode ? d.parentNode.nodeType === Node.DOCUMENT_NODE ? d.parentNode.documentElement ?? null : d.parentNode : null;
-  let v = 0, u = e.parentNode ?? e, x = a(u);
-  for (; v < l && (x.beforeHtml.length < t || x.afterHtml.length < t); ) {
-    const d = m(u);
-    if (!d || d === u || (v += 1, u = d, x = a(u), !u.parentNode || u.parentNode.nodeType === Node.DOCUMENT_NODE))
+  let x = 0, c = e.parentNode ?? e, v = a(c);
+  for (; x < l && (v.beforeHtml.length < t || v.afterHtml.length < t); ) {
+    const d = m(c);
+    if (!d || d === c || (x += 1, c = d, v = a(c), !c.parentNode || c.parentNode.nodeType === Node.DOCUMENT_NODE))
       break;
   }
-  return x;
+  return v;
 }
 function Xe({
   targetElement: e,
@@ -562,8 +564,8 @@ function Xe({
       r.style.opacity = "0";
       return;
     }
-    const c = 1;
-    r.style.top = `${l.top - c}px`, r.style.left = `${l.left - c}px`, r.style.width = `${l.width + c * 2}px`, r.style.height = `${l.height + c * 2}px`, r.style.opacity = "1";
+    const u = 1;
+    r.style.top = `${l.top - u}px`, r.style.left = `${l.left - u}px`, r.style.width = `${l.width + u * 2}px`, r.style.height = `${l.height + u * 2}px`, r.style.opacity = "1";
   }, [l]);
   const n = e ? {
     tag: e.tagName.toLowerCase(),
@@ -637,7 +639,7 @@ function Xe({
   );
 }
 function Oe({ targetElement: e, onDeselect: t, variant: l = "interactive", rect: i = null }) {
-  const n = X(null), [r, c] = ee(!1), a = l === "interactive";
+  const n = X(null), [r, u] = ee(!1), a = l === "interactive";
   return re(() => {
     const m = n.current;
     if (!m) return;
@@ -645,8 +647,8 @@ function Oe({ targetElement: e, onDeselect: t, variant: l = "interactive", rect:
       m.style.opacity = "0";
       return;
     }
-    const v = 1;
-    m.style.top = `${i.top - v}px`, m.style.left = `${i.left - v}px`, m.style.width = `${i.width + v * 2}px`, m.style.height = `${i.height + v * 2}px`, m.style.opacity = "1";
+    const x = 1;
+    m.style.top = `${i.top - x}px`, m.style.left = `${i.left - x}px`, m.style.width = `${i.width + x * 2}px`, m.style.height = `${i.height + x * 2}px`, m.style.opacity = "1";
   }, [i]), /* @__PURE__ */ E.jsxs(
     "button",
     {
@@ -655,8 +657,8 @@ function Oe({ targetElement: e, onDeselect: t, variant: l = "interactive", rect:
       onClick: (m) => {
         a && (m.stopPropagation(), m.preventDefault(), t());
       },
-      onMouseEnter: () => a && c(!0),
-      onMouseLeave: () => a && c(!1),
+      onMouseEnter: () => a && u(!0),
+      onMouseLeave: () => a && u(!1),
       style: {
         position: "fixed",
         zIndex: 1e5,
@@ -728,27 +730,27 @@ function Fe({
   friendlySelectors: i = !1,
   rect: n = null
 }) {
-  const r = X(null), c = X(null);
+  const r = X(null), u = X(null);
   re(() => {
-    if (!(!r.current || !c.current)) {
+    if (!(!r.current || !u.current)) {
       if (!n) {
-        r.current.style.opacity = "0", c.current.style.opacity = "0";
+        r.current.style.opacity = "0", u.current.style.opacity = "0";
         return;
       }
-      if (r.current.style.opacity = "1", c.current.style.opacity = "1", l === "horizontal") {
-        const u = t === "before" ? n.top : n.bottom;
-        r.current.style.top = `${u - me / 2}px`, r.current.style.left = `${n.left}px`, r.current.style.width = `${Math.max(n.width, 1)}px`, r.current.style.height = `${me}px`;
-        const x = t === "before" ? u - 32 : u + 8;
-        c.current.style.top = `${x}px`, c.current.style.left = `${n.left}px`;
+      if (r.current.style.opacity = "1", u.current.style.opacity = "1", l === "horizontal") {
+        const c = t === "before" ? n.top : n.bottom;
+        r.current.style.top = `${c - me / 2}px`, r.current.style.left = `${n.left}px`, r.current.style.width = `${Math.max(n.width, 1)}px`, r.current.style.height = `${me}px`;
+        const v = t === "before" ? c - 32 : c + 8;
+        u.current.style.top = `${v}px`, u.current.style.left = `${n.left}px`;
       } else {
-        const u = t === "before" ? n.left : n.right;
-        r.current.style.left = `${u - me / 2}px`, r.current.style.top = `${n.top}px`, r.current.style.height = `${Math.max(n.height, 1)}px`, r.current.style.width = `${me}px`;
-        const x = t === "before" ? u - 140 : u + 12;
-        c.current.style.left = `${x}px`, c.current.style.top = `${n.top}px`;
+        const c = t === "before" ? n.left : n.right;
+        r.current.style.left = `${c - me / 2}px`, r.current.style.top = `${n.top}px`, r.current.style.height = `${Math.max(n.height, 1)}px`, r.current.style.width = `${me}px`;
+        const v = t === "before" ? c - 140 : c + 12;
+        u.current.style.left = `${v}px`, u.current.style.top = `${n.top}px`;
       }
     }
   }, [n, l, t]);
-  const a = e.tagName.toLowerCase(), m = i ? Le(e.tagName) : a, v = `${t === "before" ? "Insert before" : "Insert after"} ${m}`;
+  const a = e.tagName.toLowerCase(), m = i ? Le(e.tagName) : a, x = `${t === "before" ? "Insert before" : "Insert after"} ${m}`;
   return /* @__PURE__ */ E.jsxs(E.Fragment, { children: [
     /* @__PURE__ */ E.jsx(
       "div",
@@ -768,7 +770,7 @@ function Fe({
     /* @__PURE__ */ E.jsx(
       "div",
       {
-        ref: c,
+        ref: u,
         style: {
           position: "fixed",
           pointerEvents: "none",
@@ -783,7 +785,7 @@ function Fe({
           boxShadow: "0 8px 20px rgba(0, 0, 0, 0.28)",
           whiteSpace: "nowrap"
         },
-        children: v
+        children: x
       }
     )
   ] });
@@ -792,9 +794,9 @@ function $e(e, { debug: t = !1 } = {}) {
   const [l, i] = ee(
     () => /* @__PURE__ */ new Map()
   ), n = X(null), r = Ne(() => {
-    const c = /* @__PURE__ */ new Set(), a = [];
+    const u = /* @__PURE__ */ new Set(), a = [];
     for (const m of e)
-      m && !c.has(m) && (c.add(m), a.push(m));
+      m && !u.has(m) && (u.add(m), a.push(m));
     return a;
   }, [e]);
   return re(() => {
@@ -802,38 +804,38 @@ function $e(e, { debug: t = !1 } = {}) {
       i(/* @__PURE__ */ new Map());
       return;
     }
-    let c = null;
+    let u = null;
     const a = () => {
       n.current === null && (n.current = requestAnimationFrame(() => {
         n.current = null, i((m) => {
-          const v = /* @__PURE__ */ new Map();
-          let u = !1;
-          for (const x of r) {
-            const f = Se(x)?.rect;
+          const x = /* @__PURE__ */ new Map();
+          let c = !1;
+          for (const v of r) {
+            const f = Se(v)?.rect;
             if (!f) {
-              const S = m.get(x);
-              S && v.set(x, S);
+              const w = m.get(v);
+              w && x.set(v, w);
               continue;
             }
-            const p = m.get(x);
-            (!p || f.top !== p.top || f.left !== p.left || f.width !== p.width || f.height !== p.height) && (u = !0, t && console.debug("[element-selector] measure", {
-              tag: x.tagName,
-              id: x.id,
-              className: x.className,
+            const p = m.get(v);
+            (!p || f.top !== p.top || f.left !== p.left || f.width !== p.width || f.height !== p.height) && (c = !0, t && console.debug("[element-selector] measure", {
+              tag: v.tagName,
+              id: v.id,
+              className: v.className,
               rect: {
                 top: f.top,
                 left: f.left,
                 width: f.width,
                 height: f.height
               }
-            })), v.set(x, f);
+            })), x.set(v, f);
           }
-          return !u && m.size === v.size ? m : v;
+          return !c && m.size === x.size ? m : x;
         });
       }));
     };
-    return c = new ResizeObserver(a), r.forEach((m) => c?.observe(m)), window.addEventListener("scroll", a, !0), window.addEventListener("resize", a), a(), () => {
-      c && c.disconnect(), window.removeEventListener("scroll", a, !0), window.removeEventListener("resize", a), n.current !== null && (cancelAnimationFrame(n.current), n.current = null);
+    return u = new ResizeObserver(a), r.forEach((m) => u?.observe(m)), window.addEventListener("scroll", a, !0), window.addEventListener("resize", a), a(), () => {
+      u && u.disconnect(), window.removeEventListener("scroll", a, !0), window.removeEventListener("resize", a), n.current !== null && (cancelAnimationFrame(n.current), n.current = null);
     };
   }, [r]), l;
 }
@@ -901,10 +903,10 @@ function pe(e) {
   let i = e;
   for (; i; ) {
     const n = i;
-    if (l.forEach(([c, a]) => {
-      if (t[c] !== void 0) return;
+    if (l.forEach(([u, a]) => {
+      if (t[u] !== void 0) return;
       const m = n.getAttribute(a);
-      m && (t[c] = m);
+      m && (t[u] = m);
     }), t.src && t.routeId && t.routeFile)
       break;
     if (i.parentElement) {
@@ -936,11 +938,11 @@ function Pe(e, t, l) {
   const r = n[0];
   if (!r)
     return null;
-  const c = qe[r.edge];
+  const u = qe[r.edge];
   return {
     element: e,
-    position: c.position,
-    axis: c.axis
+    position: u.position,
+    axis: u.axis
   };
 }
 function Qe(e) {
@@ -966,36 +968,36 @@ function et({
   friendlySelectors: i = !1,
   initialMode: n = "select",
   allowModeToggle: r = !0,
-  optionsPanelPosition: c,
+  optionsPanelPosition: u,
   selectionBarText: a,
   theme: m = "dark",
-  debug: v = !1
+  debug: x = !1
 }) {
-  const [u, x] = ee(n), d = u === "select" && l, f = Je(m), [p, y] = ee(null), [S, P] = ee(null), [w, B] = ee([]), [J, L] = ee(!1), [_, Z] = ee(
+  const [c, v] = ee(n), d = c === "select" && l, f = Je(m), [p, y] = ee(null), [w, P] = ee(null), [R, B] = ee([]), [J, L] = ee(!1), [_, Z] = ee(
     null
   ), [h, ie] = ee(() => typeof window > "u" ? !1 : window.matchMedia("(max-width: 640px)").matches), ne = Ne(() => {
     const s = [];
-    return p && s.push(p), S?.element && !s.includes(S.element) && s.push(S.element), w.forEach((R) => {
-      s.includes(R) || s.push(R);
+    return p && s.push(p), w?.element && !s.includes(w.element) && s.push(w.element), R.forEach((S) => {
+      s.includes(S) || s.push(S);
     }), s;
-  }, [p, S, w]), N = $e(ne, {
-    debug: v
+  }, [p, w, R]), N = $e(ne, {
+    debug: x
   }), k = K(
     (...s) => {
-      v && console.debug("[element-selector]", ...s);
+      x && console.debug("[element-selector]", ...s);
     },
-    [v]
+    [x]
   );
   re(() => {
-    !v || !p || k("current hover rect", {
+    !x || !p || k("current hover rect", {
       tag: p.tagName,
       id: p.id,
       className: p.className,
       rect: N.get(p) ?? null
     });
-  }, [p, N, v, k]);
+  }, [p, N, x, k]);
   const te = X({ x: 0, y: 0 }), M = X(null), q = X(null), O = X(null), se = X(null), G = X(null), D = K(
-    (s, R = {}) => {
+    (s, S = {}) => {
       const $ = (() => {
         try {
           return Ue(s, Ge);
@@ -1017,7 +1019,7 @@ function et({
         elementHtml: $.elementHtml,
         afterHtml: $.afterHtml,
         ...pe(s),
-        ...R
+        ...S
       }, ce = s.previousElementSibling, C = s.nextElementSibling, ue = pe(ce), j = pe(C);
       if (g.beforeSrc = ue.src, g.beforeRouteId = ue.routeId, g.beforeRouteFile = ue.routeFile, g.afterSrc = j.src, g.afterRouteId = j.routeId, g.afterRouteFile = j.routeFile, g.mode === "insert") {
         g.insertionBeforeHtml = g.insertionPosition === "after" ? g.beforeHtml + g.elementHtml : g.beforeHtml, g.insertionAfterHtml = g.insertionPosition === "before" ? g.elementHtml + g.afterHtml : g.afterHtml;
@@ -1029,24 +1031,24 @@ function et({
     },
     []
   ), o = K(() => {
-    const s = ye(
+    const s = we(
       te.current.x,
       te.current.y
-    ), R = Re(
+    ), S = Re(
       G.current,
       s
-    ), g = Se(R)?.element ?? R;
+    ), g = Se(S)?.element ?? S;
     if (k("hover update", {
       point: { ...te.current },
       composedTarget: G.current?.tagName,
       pointTarget: s?.tagName,
-      chosenTarget: R?.tagName,
+      chosenTarget: S?.tagName,
       measurableTarget: g?.tagName,
-      id: R?.id,
-      className: R?.className,
+      id: S?.id,
+      className: S?.className,
       pointRoot: s?.getRootNode() instanceof ShadowRoot ? s.getRootNode().host.tagName : null,
       composedRoot: G.current?.getRootNode() instanceof ShadowRoot ? G.current.getRootNode().host.tagName : null
-    }), u === "insert") {
+    }), c === "insert") {
       const C = Pe(
         g,
         te.current.x,
@@ -1055,7 +1057,7 @@ function et({
       (C && (!O.current || O.current.element !== C.element || O.current.position !== C.position || O.current.axis !== C.axis) || !C && O.current) && (O.current = C, P(C ?? null)), L(!!C), y(C ? C.element : null), q.current = C ? C.element : null;
       return;
     }
-    if (O.current && (O.current = null, P(null)), d && w.some((C) => C.contains(g ?? R ?? C))) {
+    if (O.current && (O.current = null, P(null)), d && R.some((C) => C.contains(g ?? S ?? C))) {
       L(!1), y(null), q.current = null;
       return;
     }
@@ -1065,15 +1067,15 @@ function et({
       className: g?.className,
       rect: g ? N.get(g) ?? null : null
     }));
-  }, [d, u, w, N, k]), b = K(
+  }, [d, c, R, N, k]), b = K(
     (s) => {
-      const R = _e(s);
-      if ((R ?? s.target)?.closest('[data-element-selector-ui="true"]')) {
+      const S = _e(s);
+      if ((S ?? s.target)?.closest('[data-element-selector-ui="true"]')) {
         M.current && (clearTimeout(M.current), M.current = null), se.current = null, G.current = null, y(null), P(null), q.current = null, O.current = null, L(!1);
         return;
       }
-      const g = ye(s.clientX, s.clientY);
-      G.current = R, se.current = Re(R, g), te.current = {
+      const g = we(s.clientX, s.clientY);
+      G.current = S, se.current = Re(S, g), te.current = {
         x: s.clientX,
         y: s.clientY
       }, M.current && clearTimeout(M.current), M.current = setTimeout(() => {
@@ -1085,17 +1087,17 @@ function et({
     M.current && (clearTimeout(M.current), M.current = null), y(null), P(null), q.current = null, O.current = null, L(!1), se.current = null, G.current = null;
   }, []), H = K(
     (s) => {
-      s !== u && (k("mode toggle", { from: u, to: s }), x(s), B([]), P(null), Z(null), y(null), q.current = null, O.current = null, L(!1));
+      s !== c && (k("mode toggle", { from: c, to: s }), v(s), B([]), P(null), Z(null), y(null), q.current = null, O.current = null, L(!1));
     },
-    [u, k]
+    [c, k]
   ), W = K(
     (s) => {
-      const R = h && !d, $ = s.target;
+      const S = h && !d, $ = s.target;
       if ($.closest('[data-selected-element="true"]') || $.closest('[data-element-selector-ui="true"]'))
         return;
       s.preventDefault(), s.stopPropagation();
-      const g = _e(s), ce = ye(s.clientX, s.clientY), C = Re(g, ce) ?? ce, j = Se(C)?.element ?? C;
-      if (u === "insert") {
+      const g = _e(s), ce = we(s.clientX, s.clientY), C = Re(g, ce) ?? ce, j = Se(C)?.element ?? C;
+      if (c === "insert") {
         const I = Pe(
           j,
           s.clientX,
@@ -1107,7 +1109,7 @@ function et({
           });
           return;
         }
-        if (R) {
+        if (S) {
           Z(I), P(I), B([]);
           return;
         }
@@ -1120,12 +1122,12 @@ function et({
         ]);
         return;
       }
-      if (j && !(d && w.some((I) => I.contains(j)))) {
+      if (j && !(d && R.some((I) => I.contains(j)))) {
         if (d) {
           B((I) => I.includes(j) ? I : [...I, j]);
           return;
         }
-        if (R) {
+        if (S) {
           B([j]), Z(null);
           return;
         }
@@ -1140,16 +1142,16 @@ function et({
     [
       d,
       h,
-      u,
+      c,
       e,
-      w,
+      R,
       D,
       N,
       k
     ]
   ), V = K((s) => {
     B(
-      (R) => R.filter(($) => $ !== s)
+      (S) => S.filter(($) => $ !== s)
     );
   }, []);
   re(() => (document.addEventListener("mousemove", b, !0), document.addEventListener("mouseleave", T, !0), document.addEventListener("click", W, !0), k("selector mounted", {
@@ -1167,24 +1169,24 @@ function et({
     ne.length,
     k
   ]), re(() => {
-    const s = (R) => {
-      switch (R.key) {
+    const s = (S) => {
+      switch (S.key) {
         case "Escape":
           t();
           break;
         case "Enter":
-          if (u === "insert" && S) {
+          if (c === "insert" && w) {
             e([
-              D(S.element, {
+              D(w.element, {
                 mode: "insert",
-                insertionPosition: S.position,
-                insertionAxis: S.axis
+                insertionPosition: w.position,
+                insertionAxis: w.axis
               })
             ]);
             break;
           }
-          if (d && w.length > 0) {
-            const $ = w.map(
+          if (d && R.length > 0) {
+            const $ = R.map(
               (g) => D(g, { mode: "select" })
             );
             e($);
@@ -1195,15 +1197,15 @@ function et({
     return window.addEventListener("keydown", s), () => window.removeEventListener("keydown", s);
   }, [
     d,
-    S,
-    u,
+    w,
+    c,
     t,
     e,
-    w,
+    R,
     D
   ]), re(() => {
-    const s = window.matchMedia("(max-width: 640px)"), R = () => ie(s.matches);
-    return R(), s.addEventListener("change", R), () => s.removeEventListener("change", R);
+    const s = window.matchMedia("(max-width: 640px)"), S = () => ie(s.matches);
+    return S(), s.addEventListener("change", S), () => s.removeEventListener("change", S);
   }, []);
   const z = {
     selectLabel: a?.selectLabel ?? "Select",
@@ -1213,23 +1215,23 @@ function et({
     instructionInsert: a?.instructionInsert ?? "Click to choose where to insert new content",
     confirmLabel: a?.confirmLabel ?? "✓",
     cancelLabel: a?.cancelLabel ?? "✕"
-  }, ae = u === "insert" ? z.instructionInsert : d ? z.instructionSelectMulti : z.instructionSelectSingle, A = K(() => {
+  }, ae = c === "insert" ? z.instructionInsert : d ? z.instructionSelectMulti : z.instructionSelectSingle, A = K(() => {
     const s = h && !d;
-    if (d && w.length > 0) {
-      const R = w.map(
+    if (d && R.length > 0) {
+      const S = R.map(
         ($) => D($, { mode: "select" })
       );
-      e(R);
+      e(S);
       return;
     }
     if (s) {
-      if (u === "select" && w[0]) {
+      if (c === "select" && R[0]) {
         e([
-          D(w[0], { mode: "select" })
+          D(R[0], { mode: "select" })
         ]);
         return;
       }
-      u === "insert" && _ && e([
+      c === "insert" && _ && e([
         D(_.element, {
           mode: "insert",
           insertionPosition: _.position,
@@ -1240,14 +1242,14 @@ function et({
   }, [
     d,
     h,
-    u,
+    c,
     e,
     _,
-    w,
+    R,
     D
-  ]), Q = h && !d, oe = d ? w.length > 0 : Q ? u === "select" ? w.length > 0 : !!_ : !1, xe = d || Q, ke = {
-    vertical: c?.vertical ?? "top",
-    horizontal: c?.horizontal ?? "center"
+  ]), Q = h && !d, oe = d ? R.length > 0 : Q ? c === "select" ? R.length > 0 : !!_ : !1, xe = d || Q, ke = {
+    vertical: u?.vertical ?? "top",
+    horizontal: u?.horizontal ?? "center"
   }, F = {
     position: "fixed",
     background: f.panelBg,
@@ -1345,22 +1347,22 @@ function et({
                               s.preventDefault(), s.stopPropagation(), H("select");
                             },
                             style: {
-                              border: u === "select" ? "1px solid " + f.toggleSelectedBg : m === "light" ? "1px solid rgba(0, 0, 0, 0.24)" : "1px solid rgba(255, 255, 255, 0.32)",
+                              border: c === "select" ? "1px solid " + f.toggleSelectedBg : m === "light" ? "1px solid rgba(0, 0, 0, 0.24)" : "1px solid rgba(255, 255, 255, 0.32)",
                               borderRadius: "999px 0 0 999px",
                               padding: h ? "10px 12px" : "6px 14px",
                               minHeight: h ? "44px" : void 0,
                               cursor: "pointer",
-                              fontWeight: u === "select" ? 600 : 500,
+                              fontWeight: c === "select" ? 600 : 500,
                               transition: "background-color 120ms ease, color 120ms ease",
                               boxShadow: "none",
                               transform: "none",
                               flex: h ? 1 : void 0,
-                              background: u === "select" ? f.toggleSelectedBg : "transparent",
-                              color: u === "select" ? f.toggleSelectedText : f.toggleIdleText,
+                              background: c === "select" ? f.toggleSelectedBg : "transparent",
+                              color: c === "select" ? f.toggleSelectedText : f.toggleIdleText,
                               "--es-toggle-bg": "transparent",
                               "--es-toggle-bg-hover": "transparent",
                               "--es-toggle-color": "inherit",
-                              "--es-toggle-color-hover": u === "select" ? f.toggleSelectedText : f.toggleIdleTextHover
+                              "--es-toggle-color-hover": c === "select" ? f.toggleSelectedText : f.toggleIdleTextHover
                             },
                             children: z.selectLabel
                           }
@@ -1374,22 +1376,22 @@ function et({
                               s.preventDefault(), s.stopPropagation(), H("insert");
                             },
                             style: {
-                              border: u === "insert" ? "1px solid " + f.toggleSelectedBg : m === "light" ? "1px solid rgba(0, 0, 0, 0.24)" : "1px solid rgba(255, 255, 255, 0.32)",
+                              border: c === "insert" ? "1px solid " + f.toggleSelectedBg : m === "light" ? "1px solid rgba(0, 0, 0, 0.24)" : "1px solid rgba(255, 255, 255, 0.32)",
                               borderRadius: "0 999px 999px 0",
                               padding: h ? "10px 12px" : "6px 14px",
                               minHeight: h ? "44px" : void 0,
                               cursor: "pointer",
-                              fontWeight: u === "insert" ? 600 : 500,
+                              fontWeight: c === "insert" ? 600 : 500,
                               transition: "background-color 120ms ease, color 120ms ease",
                               boxShadow: "none",
                               transform: "none",
                               flex: h ? 1 : void 0,
-                              background: u === "insert" ? f.toggleSelectedBg : "transparent",
-                              color: u === "insert" ? f.toggleSelectedText : f.toggleIdleText,
+                              background: c === "insert" ? f.toggleSelectedBg : "transparent",
+                              color: c === "insert" ? f.toggleSelectedText : f.toggleIdleText,
                               "--es-toggle-bg": "transparent",
                               "--es-toggle-bg-hover": "transparent",
                               "--es-toggle-color": "inherit",
-                              "--es-toggle-color-hover": u === "insert" ? f.toggleSelectedText : f.toggleIdleTextHover
+                              "--es-toggle-color-hover": c === "insert" ? f.toggleSelectedText : f.toggleIdleTextHover
                             },
                             children: z.insertLabel
                           }
@@ -1496,7 +1498,7 @@ function et({
             ]
           }
         ),
-        u === "select" && p && (!d || !w.includes(p)) && !h && /* @__PURE__ */ E.jsx(
+        c === "select" && p && (!d || !R.includes(p)) && !h && /* @__PURE__ */ E.jsx(
           Xe,
           {
             targetElement: p,
@@ -1504,24 +1506,24 @@ function et({
             rect: N.get(p) ?? null
           }
         ),
-        u === "insert" && S && /* @__PURE__ */ E.jsx(
+        c === "insert" && w && /* @__PURE__ */ E.jsx(
           Fe,
           {
-            element: S.element,
-            position: S.position,
-            axis: S.axis,
+            element: w.element,
+            position: w.position,
+            axis: w.axis,
             friendlySelectors: i,
-            rect: N.get(S.element) ?? null
+            rect: N.get(w.element) ?? null
           }
         ),
-        (d || h && w.length > 0) && w.map((s, R) => /* @__PURE__ */ E.jsx(
+        (d || h && R.length > 0) && R.map((s, S) => /* @__PURE__ */ E.jsx(
           Oe,
           {
             targetElement: s,
             onDeselect: () => V(s),
             rect: N.get(s) ?? null
           },
-          `selected-${R}`
+          `selected-${S}`
         )),
         /* @__PURE__ */ E.jsx("style", { children: `
         body {
@@ -1585,7 +1587,7 @@ function rt({
     [e]
   ), i = $e(l);
   return e.length ? /* @__PURE__ */ E.jsx(E.Fragment, { children: e.map((n, r) => {
-    const c = i.get(n.element) ?? null;
+    const u = i.get(n.element) ?? null;
     return n.mode === "insert" && n.insertionPosition && n.insertionAxis ? /* @__PURE__ */ E.jsx(
       Fe,
       {
@@ -1593,7 +1595,7 @@ function rt({
         position: n.insertionPosition,
         axis: n.insertionAxis,
         friendlySelectors: t,
-        rect: c
+        rect: u
       },
       `persistent-insert-${r}`
     ) : /* @__PURE__ */ E.jsx(
@@ -1603,7 +1605,7 @@ function rt({
         onDeselect: () => {
         },
         variant: "passive",
-        rect: c
+        rect: u
       },
       `persistent-select-${r}`
     );
@@ -1675,7 +1677,7 @@ ${r}`;
 };
 function it(e, t) {
   if (e.mode === "insert") {
-    const a = e.insertionPosition ?? "after", m = a === "before" ? e.element.previousElementSibling : e.element, v = a === "before" ? e.element : e.element.nextElementSibling, u = be(m), x = be(v), d = U(
+    const a = e.insertionPosition ?? "after", m = a === "before" ? e.element.previousElementSibling : e.element, x = a === "before" ? e.element : e.element.nextElementSibling, c = be(m), v = be(x), d = U(
       e.insertionBeforeHtml ?? e.beforeHtml,
       t.snipHtml
     ) ?? "", f = U(
@@ -1684,41 +1686,41 @@ function it(e, t) {
     ) ?? "", p = {
       mode: "insert",
       htmlBefore: d,
-      elementBefore: u.element,
+      elementBefore: c.element,
       htmlAfter: f,
-      elementAfter: x.element,
+      elementAfter: v.element,
       elementBeforeHtml: U(
-        u.html,
+        c.html,
         t.snipElementHtml
       ),
       elementAfterHtml: U(
-        x.html,
+        v.html,
         t.snipElementHtml
       ),
-      htmlWithMarker: `${U(u.html, t.snipElementHtml) ?? ""}
+      htmlWithMarker: `${U(c.html, t.snipElementHtml) ?? ""}
 <!-- INSERTION POINT -->
-${U(x.html, t.snipElementHtml) ?? ""}`,
+${U(v.html, t.snipElementHtml) ?? ""}`,
       srcBefore: e.beforeSrc,
       srcAfter: e.afterSrc,
       routeIdBefore: e.beforeRouteId,
       routeIdAfter: e.afterRouteId,
       routeFileBefore: e.beforeRouteFile,
       routeFileAfter: e.afterRouteFile,
-      elementBeforeClasses: u.classes,
-      elementBeforeId: u.id,
-      elementBeforeTextPreview: u.textPreview,
-      elementBeforeTag: u.tag,
-      elementBeforeSelector: u.selector,
-      elementAfterClasses: x.classes,
-      elementAfterId: x.id,
-      elementAfterTextPreview: x.textPreview,
-      elementAfterTag: x.tag,
-      elementAfterSelector: x.selector,
+      elementBeforeClasses: c.classes,
+      elementBeforeId: c.id,
+      elementBeforeTextPreview: c.textPreview,
+      elementBeforeTag: c.tag,
+      elementBeforeSelector: c.selector,
+      elementAfterClasses: v.classes,
+      elementAfterId: v.id,
+      elementAfterTextPreview: v.textPreview,
+      elementAfterTag: v.tag,
+      elementAfterSelector: v.selector,
       markdownSummary: ""
     };
     return p.markdownSummary = st(p), p;
   }
-  const l = e.element.previousElementSibling, i = e.element.nextElementSibling, n = be(l), r = be(i), c = {
+  const l = e.element.previousElementSibling, i = e.element.nextElementSibling, n = be(l), r = be(i), u = {
     mode: "select",
     selectedElement: e.element,
     htmlBefore: U(e.beforeHtml, t.snipHtml) ?? "",
@@ -1746,7 +1748,7 @@ ${U(x.html, t.snipElementHtml) ?? ""}`,
     afterSrc: e.afterSrc,
     markdownSummary: ""
   };
-  return c.markdownSummary = lt(c), c;
+  return u.markdownSummary = lt(u), u;
 }
 function at() {
   le && (le.unmount(), le = null), Y?.parentNode && Y.parentNode.removeChild(Y), Y = null;
@@ -1758,44 +1760,44 @@ function dt(e = {}) {
     mode: i = "select",
     allowModeToggle: n = !0,
     retainSelectionHighlights: r = !1,
-    optionsPanelPosition: c,
+    optionsPanelPosition: u,
     selectionBarText: a,
     theme: m = "dark",
-    debug: v = !1,
-    snipElementHtml: u = !0,
-    snipHtml: x = !0
+    debug: x = !1,
+    snipElementHtml: c = !0,
+    snipHtml: v = !0
   } = e;
   return at(), new Promise((d, f) => {
     const p = document.createElement("div");
     p.id = "element-selector-root", p.style.position = "fixed", p.style.zIndex = "999999", p.style.inset = "0", p.style.pointerEvents = "none", document.body.appendChild(p);
-    const y = Me.createRoot(p), S = () => {
+    const y = Me.createRoot(p), w = () => {
       y.unmount(), p.parentNode && p.parentNode.removeChild(p);
     }, P = {
-      snipElementHtml: u,
-      snipHtml: x
-    }, w = (J) => {
+      snipElementHtml: c,
+      snipHtml: v
+    }, R = (J) => {
       r && nt(J, l);
       const L = J.map(
         (_) => it(_, P)
       );
-      S(), !t && L.length > 0 ? d(L[0]) : d(L);
+      w(), !t && L.length > 0 ? d(L[0]) : d(L);
     }, B = () => {
-      S(), f(new Error("Element selection cancelled by user"));
+      w(), f(new Error("Element selection cancelled by user"));
     };
     y.render(
       /* @__PURE__ */ E.jsx(Te.StrictMode, { children: /* @__PURE__ */ E.jsx(
         et,
         {
-          onElementSelected: w,
+          onElementSelected: R,
           onCancel: B,
           multiSelect: t,
           friendlySelectors: l,
           initialMode: i,
           allowModeToggle: n,
-          optionsPanelPosition: c,
+          optionsPanelPosition: u,
           selectionBarText: a,
           theme: m,
-          debug: v
+          debug: x
         }
       ) })
     );
@@ -1804,7 +1806,7 @@ function dt(e = {}) {
 export {
   et as ElementSelector,
   Be as buildElementSelector,
-  ye as findElementAtCoordinates,
+  we as findElementAtCoordinates,
   dt as launchSelector,
   at as resetSelectionHighlights
 };
