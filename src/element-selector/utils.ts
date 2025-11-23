@@ -38,28 +38,43 @@ export function getClassNames(element: Element | null): string[] {
  */
 export function findElementAtCoordinates(x: number, y: number): HTMLElement {
   const isSelectorArtifact = (el: Element | null) =>
-    !!el && (
+    !!el &&
+    (
       el.id === "element-selector-overlay" ||
       el.closest("#element-selector-overlay") ||
       el.id === "element-selector-root" ||
       el.closest("#element-selector-root")
     );
 
-  const deepFromPoint = (root: Document | ShadowRoot, cx: number, cy: number): HTMLElement | null => {
-    const hit = root.elementFromPoint(cx, cy) as HTMLElement | null;
+  const deepFromPoint = (
+    root: Document | ShadowRoot,
+    cx: number,
+    cy: number
+  ): HTMLElement | null => {
+    const elementFromPoint = (root as any).elementFromPoint as
+      | ((x: number, y: number) => Element | null)
+      | undefined;
+
+    if (!elementFromPoint) return null;
+
+    const hit = elementFromPoint.call(root, cx, cy) as HTMLElement | null;
     if (!hit) return null;
 
-    // Follow assigned slot content
-    if (hit.tagName === "SLOT") {
-      const assigned = (hit as HTMLSlotElement).assignedElements({ flatten: true });
-      if (assigned.length > 0) {
-        const assignedEl = assigned[0] as HTMLElement;
-        // dive further if assigned node has its own shadow root
-        if (assignedEl.shadowRoot) {
-          const inner = deepFromPoint(assignedEl.shadowRoot, cx, cy);
+    // Follow assigned slot content, preferring the assigned node under the point
+    if (hit instanceof HTMLSlotElement) {
+      const assigned = hit.assignedElements({ flatten: true }) as HTMLElement[];
+      const underPoint =
+        assigned.find((el) => {
+          const r = el.getBoundingClientRect();
+          return cx >= r.left && cx <= r.right && cy >= r.top && cy <= r.bottom;
+        }) || assigned[0];
+
+      if (underPoint) {
+        if (underPoint.shadowRoot) {
+          const inner = deepFromPoint(underPoint.shadowRoot, cx, cy);
           if (inner) return inner;
         }
-        return assignedEl;
+        return underPoint;
       }
     }
 
@@ -73,18 +88,43 @@ export function findElementAtCoordinates(x: number, y: number): HTMLElement {
 
   // Start from the document root and walk into shadow roots; this avoids
   // re-sampling the same overlay with elementsFromPoint loops.
-  let element = deepFromPoint(document, x, y);
+  const pickFromStack = (): HTMLElement | null => {
+    const stack = document
+      .elementsFromPoint(x, y)
+      .filter(
+        (el): el is HTMLElement =>
+          el instanceof HTMLElement && !isSelectorArtifact(el)
+      );
 
-  if (isSelectorArtifact(element)) {
-    // If we landed on our own UI (should be rare because pointer-events: none),
-    // fall back to the next candidate from elementsFromPoint.
-    const fallback = document.elementsFromPoint(x, y).find((el) => !isSelectorArtifact(el));
-    element = (fallback as HTMLElement | undefined) ?? null;
-  }
+    const nonDocument = stack.find(
+      (el) => el !== document.documentElement && el !== document.body
+    );
 
-  if (!element) {
-    return document.body;
-  }
+    return nonDocument ?? stack[0] ?? null;
+  };
+
+  const pickCandidate = (): HTMLElement | null => {
+    let candidate = deepFromPoint(document, x, y);
+
+    // If we landed on a host with an open shadow root, try to pick the inner hit first.
+    if (candidate?.shadowRoot) {
+      const inner = deepFromPoint(candidate.shadowRoot, x, y);
+      if (inner) candidate = inner;
+    }
+
+    if (
+      candidate &&
+      !isSelectorArtifact(candidate) &&
+      candidate !== document.body &&
+      candidate !== document.documentElement
+    ) {
+      return candidate;
+    }
+
+    return pickFromStack();
+  };
+
+  const element = pickCandidate() ?? document.body;
 
   // Skip SVG internal elements (but allow top-level SVG)
   if (
@@ -267,6 +307,76 @@ export function getFriendlyTagName(tagName: string): string {
   return friendlyNames[tagName.toLowerCase()] || tagName.toLowerCase();
 }
 
+function isZeroRect(rect: DOMRectReadOnly): boolean {
+  return rect.width === 0 && rect.height === 0;
+}
+
+function isDisplayContents(el: HTMLElement): boolean {
+  return getComputedStyle(el).display === "contents";
+}
+
+function unionRects(rects: DOMRectReadOnly[]): DOMRectReadOnly {
+  const left = Math.min(...rects.map((r) => r.left));
+  const top = Math.min(...rects.map((r) => r.top));
+  const right = Math.max(...rects.map((r) => r.right));
+  const bottom = Math.max(...rects.map((r) => r.bottom));
+  return new DOMRectReadOnly(left, top, right - left, bottom - top);
+}
+
+/**
+ * Compute a renderable box for an element without climbing out of its root.
+ * Handles display: contents and slots by unioning descendant/assigned rects.
+ */
+export function getRenderableBox(
+  element: HTMLElement | null
+): { element: HTMLElement; rect: DOMRectReadOnly } | null {
+  if (!element) return null;
+
+  const root = element.getRootNode();
+
+  const rect = element.getBoundingClientRect();
+  if (!isZeroRect(rect) && !isDisplayContents(element)) {
+    return { element, rect };
+  }
+
+  if (isDisplayContents(element)) {
+    const childRects = Array.from(element.children)
+      .filter((n): n is HTMLElement => n instanceof HTMLElement)
+      .map((child) => child.getBoundingClientRect())
+      .filter((r) => !isZeroRect(r));
+
+    if (childRects.length) {
+      return { element, rect: unionRects(childRects) };
+    }
+  }
+
+  if (element instanceof HTMLSlotElement) {
+    const assignedRects = element
+      .assignedElements({ flatten: true })
+      .map((el) => el.getBoundingClientRect())
+      .filter((r) => !isZeroRect(r));
+    if (assignedRects.length) {
+      return { element, rect: unionRects(assignedRects) };
+    }
+  }
+
+  let current: HTMLElement | null = element;
+  while (current) {
+    const parent: HTMLElement | null = current.parentElement;
+    if (!parent || parent === document.body || parent.getRootNode() !== root) {
+      break;
+    }
+    const parentRect = parent.getBoundingClientRect();
+    if (!isZeroRect(parentRect) && !isDisplayContents(parent)) {
+      return { element: parent, rect: parentRect };
+    }
+    current = parent;
+  }
+
+  // Fallback: zero rect for the original element
+  return { element, rect };
+}
+
 /**
  * Balanced, well-formed HTML context around `node`.
  * Builds an ancestor container that reaches the desired context size,
@@ -333,12 +443,37 @@ export function balancedContextHtml(
 
   const serializeForRoot = (root: Node): ContextHtmlResult => {
     const wrapper = document.createElement("div");
-    const clonedRoot = root.cloneNode(true);
+    const clonedRoot =
+      root instanceof ShadowRoot
+        ? (() => {
+            const frag = document.createDocumentFragment();
+            root.childNodes.forEach((child) =>
+              frag.appendChild(child.cloneNode(true))
+            );
+            return frag;
+          })()
+        : root.cloneNode(true);
 
-    wrapper.appendChild(clonedRoot);
+    // ShadowRoot/DocumentFragment cannot be appended directly (their children are
+    // moved instead), so wrap them to preserve the structure we mirror against.
+    const cloneContainer =
+      clonedRoot.nodeType === Node.DOCUMENT_FRAGMENT_NODE
+        ? (() => {
+            const container = document.createElement("div");
+            container.appendChild(clonedRoot);
+            return container;
+          })()
+        : (clonedRoot as Node);
+
+    wrapper.appendChild(cloneContainer);
     removeSelectorArtifacts(wrapper);
 
-    if (!wrapper.firstChild) {
+    // Traverse the clone contained in `cloneContainer` so child indices match
+    // the original root (DocumentFragments end up with their children moved
+    // into the container).
+    const cloneTraversalRoot = cloneContainer as Node;
+
+    if (!cloneTraversalRoot.firstChild) {
       return {
         beforeHtml: "",
         elementHtml: serializeSingleNode(node),
@@ -347,7 +482,7 @@ export function balancedContextHtml(
     }
 
     const path = getNodePath(root, node);
-    let cloneTarget: Node = wrapper.firstChild;
+    let cloneTarget: Node = cloneTraversalRoot;
     for (const index of path) {
       const next = cloneTarget.childNodes.item(index);
       if (!next) {
@@ -373,7 +508,10 @@ export function balancedContextHtml(
     parentClone.insertBefore(endMarkerNode, cloneTarget.nextSibling);
     parentClone.removeChild(cloneTarget);
 
-    const serialized = wrapper.innerHTML;
+    const serialized =
+      root.nodeType === Node.DOCUMENT_FRAGMENT_NODE
+        ? (cloneContainer as HTMLElement).innerHTML
+        : wrapper.innerHTML;
     const startIndex = serialized.indexOf(markers.start);
     const endIndex = serialized.indexOf(markers.end);
 

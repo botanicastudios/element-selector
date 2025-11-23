@@ -26,6 +26,14 @@ export declare function getElementDescription(element: HTMLElement): string;
  */
 export declare function getFriendlyTagName(tagName: string): string;
 /**
+ * Compute a renderable box for an element without climbing out of its root.
+ * Handles display: contents and slots by unioning descendant/assigned rects.
+ */
+export declare function getRenderableBox(element: HTMLElement | null): {
+    element: HTMLElement;
+    rect: DOMRectReadOnly;
+} | null;
+/**
  * Balanced, well-formed HTML context around `node`.
  * Builds an ancestor container that reaches the desired context size,
  * replaces the node with markers, then splits the container HTML so the

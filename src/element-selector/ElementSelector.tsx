@@ -17,6 +17,7 @@ import {
   findElementAtCoordinates,
   buildElementSelector,
   balancedContextHtml,
+  getRenderableBox,
 } from "./utils";
 import { useElementRectMap } from "./useElementRects";
 import type {
@@ -28,7 +29,10 @@ import type {
   ElementSelectorTheme,
 } from "./types";
 
-const EDGE_BEHAVIOUR: Record<"top" | "bottom" | "left" | "right", Pick<InsertionCandidate, "position" | "axis">> = {
+const EDGE_BEHAVIOUR: Record<
+  "top" | "bottom" | "left" | "right",
+  Pick<InsertionCandidate, "position" | "axis">
+> = {
   top: { position: "before", axis: "horizontal" },
   bottom: { position: "after", axis: "horizontal" },
   left: { position: "before", axis: "vertical" },
@@ -150,7 +154,10 @@ function deriveInsertionCandidate(
     return null;
   }
 
-  const distances: Array<{ edge: "top" | "bottom" | "left" | "right"; value: number }> = [
+  const distances: Array<{
+    edge: "top" | "bottom" | "left" | "right";
+    value: number;
+  }> = [
     { edge: "top", value: Math.abs(y - rect.top) },
     { edge: "bottom", value: Math.abs(y - rect.bottom) },
     { edge: "left", value: Math.abs(x - rect.left) },
@@ -171,29 +178,40 @@ function deriveInsertionCandidate(
   };
 }
 
-function getMeasurableTarget(element: HTMLElement | null): HTMLElement | null {
-  let current: HTMLElement | null = element;
-  while (current) {
-    const rect = current.getBoundingClientRect();
-    if (rect.width !== 0 || rect.height !== 0) {
-      return current;
-    }
-    if (!current.parentElement || current === document.body) {
-      return current;
-    }
-    current = current.parentElement as HTMLElement | null;
-  }
-  return null;
-}
-
 function isSelectorArtifact(node: HTMLElement | null): boolean {
   if (!node) return false;
   return Boolean(
     node.id === "element-selector-overlay" ||
-    node.closest("#element-selector-overlay") ||
-    node.id === "element-selector-root" ||
-    node.closest("#element-selector-root")
+      node.closest("#element-selector-overlay") ||
+      node.id === "element-selector-root" ||
+      node.closest("#element-selector-root")
   );
+}
+
+function isDocumentRootElement(node: HTMLElement | null): boolean {
+  return node === document.body || node === document.documentElement;
+}
+
+function preferDeepTarget(
+  pathTarget: HTMLElement | null,
+  pointTarget: HTMLElement | null
+): HTMLElement | null {
+  // If pointTarget lives inside the shadow root of the pathTarget host, prefer it.
+  if (
+    pointTarget &&
+    pathTarget &&
+    pathTarget.shadowRoot &&
+    pointTarget.getRootNode() === pathTarget.shadowRoot
+  ) {
+    return pointTarget;
+  }
+
+  // Otherwise keep the composed-path target when it exists and isn't a document root.
+  if (pathTarget && !isDocumentRootElement(pathTarget)) {
+    return pathTarget;
+  }
+
+  return pointTarget;
 }
 
 function targetFromComposedPath(event: MouseEvent): HTMLElement | null {
@@ -226,7 +244,9 @@ export function ElementSelector({
     useState<InsertionCandidate | null>(null);
   const [pickedElements, setPickedElements] = useState<HTMLElement[]>([]);
   const [canAddElement, setCanAddElement] = useState(false);
-  const [pendingInsert, setPendingInsert] = useState<InsertionCandidate | null>(null);
+  const [pendingInsert, setPendingInsert] = useState<InsertionCandidate | null>(
+    null
+  );
   const [isMobileViewport, setIsMobileViewport] = useState(() => {
     if (typeof window === "undefined") return false;
     return window.matchMedia("(max-width: 640px)").matches;
@@ -235,7 +255,10 @@ export function ElementSelector({
   const trackedElements = useMemo(() => {
     const list: HTMLElement[] = [];
     if (currentHover) list.push(currentHover);
-    if (insertionCandidate?.element && !list.includes(insertionCandidate.element)) {
+    if (
+      insertionCandidate?.element &&
+      !list.includes(insertionCandidate.element)
+    ) {
       list.push(insertionCandidate.element);
     }
     pickedElements.forEach((el) => {
@@ -244,7 +267,9 @@ export function ElementSelector({
     return list;
   }, [currentHover, insertionCandidate, pickedElements]);
 
-  const rectMap = useElementRectMap(trackedElements, { skipOffscreen: false, debug });
+  const rectMap = useElementRectMap(trackedElements, {
+    debug,
+  });
 
   const logDebug = useCallback(
     (...messages: unknown[]) => {
@@ -268,12 +293,11 @@ export function ElementSelector({
   const updateTimerRef = useRef<NodeJS.Timeout | null>(null);
   const previousHoverRef = useRef<HTMLElement | null>(null);
   const previousInsertionRef = useRef<InsertionCandidate | null>(null);
+  const lastPointerTargetRef = useRef<HTMLElement | null>(null);
+  const lastPathTargetRef = useRef<HTMLElement | null>(null);
 
   const toElementInfo = useCallback(
-    (
-      element: HTMLElement,
-      extra: Partial<ElementInfo> = {}
-    ): ElementInfo => {
+    (element: HTMLElement, extra: Partial<ElementInfo> = {}): ElementInfo => {
       const baseContext = (() => {
         try {
           return balancedContextHtml(element, CONTEXT_CHARS);
@@ -314,13 +338,9 @@ export function ElementSelector({
           info.insertionPosition === "before" ? "before" : "after";
 
         const beforeElement =
-          insertionSide === "before"
-            ? element.previousElementSibling
-            : element;
+          insertionSide === "before" ? element.previousElementSibling : element;
         const afterElement =
-          insertionSide === "before"
-            ? element
-            : element.nextElementSibling;
+          insertionSide === "before" ? element : element.nextElementSibling;
 
         const beforeAttributes = readAiAttributes(beforeElement);
         const afterAttributes = readAiAttributes(afterElement);
@@ -344,19 +364,35 @@ export function ElementSelector({
 
   // Update hover element based on current mouse position
   const updateHoverElement = useCallback(() => {
-    const targetElement = findElementAtCoordinates(
+    const pointTarget = findElementAtCoordinates(
       mousePositionRef.current.x,
       mousePositionRef.current.y
     );
 
-    const measurableTarget = getMeasurableTarget(targetElement);
+    const rawTarget = preferDeepTarget(
+      lastPathTargetRef.current,
+      pointTarget
+    );
+
+    const measurable = getRenderableBox(rawTarget);
+    const measurableTarget = measurable?.element ?? rawTarget;
 
     logDebug("hover update", {
       point: { ...mousePositionRef.current },
-      target: targetElement?.tagName,
+      composedTarget: lastPathTargetRef.current?.tagName,
+      pointTarget: pointTarget?.tagName,
+      chosenTarget: rawTarget?.tagName,
       measurableTarget: measurableTarget?.tagName,
-      id: targetElement?.id,
-      className: targetElement?.className,
+      id: rawTarget?.id,
+      className: rawTarget?.className,
+      pointRoot:
+        pointTarget?.getRootNode() instanceof ShadowRoot
+          ? (pointTarget.getRootNode() as ShadowRoot).host.tagName
+          : null,
+      composedRoot:
+        lastPathTargetRef.current?.getRootNode() instanceof ShadowRoot
+          ? ((lastPathTargetRef.current.getRootNode() as ShadowRoot).host as HTMLElement).tagName
+          : null,
     });
 
     if (mode === "insert") {
@@ -392,7 +428,7 @@ export function ElementSelector({
 
     const isInsidePickedElement =
       effectiveMultiSelect &&
-      pickedElements.some((picked) => picked.contains(targetElement));
+      pickedElements.some((picked) => picked.contains(measurableTarget ?? rawTarget ?? picked));
 
     if (isInsidePickedElement) {
       setCanAddElement(false);
@@ -401,30 +437,32 @@ export function ElementSelector({
       return;
     }
 
-      if (previousHoverRef.current !== targetElement) {
-        previousHoverRef.current = measurableTarget;
-        setCurrentHover(measurableTarget);
-        setCanAddElement(true);
-        logDebug("setCurrentHover", {
-          tag: measurableTarget?.tagName,
-          id: measurableTarget?.id,
-          className: measurableTarget?.className,
-          rect: measurableTarget ? rectMap.get(measurableTarget) ?? null : null,
-        });
-      }
-    }, [effectiveMultiSelect, mode, pickedElements, rectMap, logDebug]);
+    if (previousHoverRef.current !== measurableTarget) {
+      previousHoverRef.current = measurableTarget;
+      setCurrentHover(measurableTarget);
+      setCanAddElement(true);
+      logDebug("setCurrentHover", {
+        tag: measurableTarget?.tagName,
+        id: measurableTarget?.id,
+        className: measurableTarget?.className,
+        rect: measurableTarget ? rectMap.get(measurableTarget) ?? null : null,
+      });
+    }
+  }, [effectiveMultiSelect, mode, pickedElements, rectMap, logDebug]);
 
   // Track mouse movement
   const handleMouseMove = useCallback(
     (event: MouseEvent) => {
       const pathTarget = targetFromComposedPath(event);
-      const target = (pathTarget ?? (event.target as HTMLElement | null));
+      const target = pathTarget ?? (event.target as HTMLElement | null);
 
       if (target?.closest('[data-element-selector-ui="true"]')) {
         if (updateTimerRef.current) {
           clearTimeout(updateTimerRef.current);
           updateTimerRef.current = null;
         }
+        lastPointerTargetRef.current = null;
+        lastPathTargetRef.current = null;
         setCurrentHover(null);
         setInsertionCandidate(null);
         previousHoverRef.current = null;
@@ -432,6 +470,10 @@ export function ElementSelector({
         setCanAddElement(false);
         return;
       }
+
+      const pointTarget = findElementAtCoordinates(event.clientX, event.clientY);
+      lastPathTargetRef.current = pathTarget;
+      lastPointerTargetRef.current = preferDeepTarget(pathTarget, pointTarget);
 
       mousePositionRef.current = {
         x: event.clientX,
@@ -460,6 +502,8 @@ export function ElementSelector({
     previousHoverRef.current = null;
     previousInsertionRef.current = null;
     setCanAddElement(false);
+    lastPointerTargetRef.current = null;
+    lastPathTargetRef.current = null;
   }, []);
 
   const handleModeToggle = useCallback(
@@ -495,11 +539,17 @@ export function ElementSelector({
       event.preventDefault();
       event.stopPropagation();
 
+      const fromPath = targetFromComposedPath(event);
+      const fromPoint = findElementAtCoordinates(event.clientX, event.clientY);
+
+      const rawTarget = preferDeepTarget(fromPath, fromPoint) ?? fromPoint;
+
+      const measurable = getRenderableBox(rawTarget);
+      const targetElement = measurable?.element ?? rawTarget;
+
       if (mode === "insert") {
         const candidate = deriveInsertionCandidate(
-          getMeasurableTarget(
-            targetFromComposedPath(event) ?? findElementAtCoordinates(event.clientX, event.clientY)
-          ),
+          targetElement,
           event.clientX,
           event.clientY
         );
@@ -531,10 +581,6 @@ export function ElementSelector({
         return;
       }
 
-      const targetElement = getMeasurableTarget(
-        targetFromComposedPath(event) ?? findElementAtCoordinates(event.clientX, event.clientY)
-      );
-
       if (!targetElement) {
         return;
       }
@@ -562,9 +608,7 @@ export function ElementSelector({
         return;
       }
 
-      onElementSelected([
-        toElementInfo(targetElement, { mode: "select" }),
-      ]);
+      onElementSelected([toElementInfo(targetElement, { mode: "select" })]);
       logDebug("select click", {
         tag: targetElement.tagName,
         id: targetElement.id,
@@ -572,7 +616,16 @@ export function ElementSelector({
         rect: rectMap.get(targetElement) ?? null,
       });
     },
-    [effectiveMultiSelect, isMobileViewport, mode, onElementSelected, pickedElements, toElementInfo, rectMap, logDebug]
+    [
+      effectiveMultiSelect,
+      isMobileViewport,
+      mode,
+      onElementSelected,
+      pickedElements,
+      toElementInfo,
+      rectMap,
+      logDebug,
+    ]
   );
 
   // Remove element from selection
@@ -605,7 +658,13 @@ export function ElementSelector({
       }
       logDebug("selector unmounted");
     };
-  }, [handleMouseMove, handleMouseLeave, handleClick, trackedElements.length, logDebug]);
+  }, [
+    handleMouseMove,
+    handleMouseLeave,
+    handleClick,
+    trackedElements.length,
+    logDebug,
+  ]);
 
   // Keyboard shortcuts
   useEffect(() => {
@@ -662,11 +721,9 @@ export function ElementSelector({
     selectLabel: selectionBarText?.selectLabel ?? "Select",
     insertLabel: selectionBarText?.insertLabel ?? "Insert",
     instructionSelectSingle:
-      selectionBarText?.instructionSelectSingle ??
-      "Click an element to select",
+      selectionBarText?.instructionSelectSingle ?? "Click an element to select",
     instructionSelectMulti:
-      selectionBarText?.instructionSelectMulti ??
-      "Click elements to select",
+      selectionBarText?.instructionSelectMulti ?? "Click elements to select",
     instructionInsert:
       selectionBarText?.instructionInsert ??
       "Click to choose where to insert new content",
@@ -727,10 +784,10 @@ export function ElementSelector({
   const canConfirm = effectiveMultiSelect
     ? pickedElements.length > 0
     : shouldDeferConfirm
-      ? mode === "select"
-        ? pickedElements.length > 0
-        : Boolean(pendingInsert)
-      : false;
+    ? mode === "select"
+      ? pickedElements.length > 0
+      : Boolean(pendingInsert)
+    : false;
 
   const showConfirmButton = effectiveMultiSelect || shouldDeferConfirm;
 
@@ -811,7 +868,10 @@ export function ElementSelector({
     >
       <div
         data-element-selector-ui="true"
-        style={panelStyle}
+        style={{
+          pointerEvents: "auto",
+          ...panelStyle,
+        }}
       >
         {allowModeToggle && (
           <div
@@ -837,84 +897,96 @@ export function ElementSelector({
                 flexShrink: 1,
               }}
             >
-            <button
-              type="button"
-              className="element-selector-toggle"
-              onClick={(event) => {
-                event.preventDefault();
-                event.stopPropagation();
-                handleModeToggle("select");
-              }}
-              style={{
-                border: mode === "select"
-                  ? "1px solid " + themeTokens.toggleSelectedBg
-                  : theme === "light"
-                    ? "1px solid rgba(0, 0, 0, 0.24)"
-                    : "1px solid rgba(255, 255, 255, 0.32)",
-                borderRadius: "999px 0 0 999px",
-                padding: isMobileViewport ? "10px 12px" : "6px 14px",
-                minHeight: isMobileViewport ? "44px" : undefined,
-                cursor: "pointer",
-                fontWeight: mode === "select" ? 600 : 500,
-                transition: "background-color 120ms ease, color 120ms ease",
-                boxShadow: "none",
-                transform: "none",
-                flex: isMobileViewport ? 1 : undefined,
-                background: mode === "select"
-                  ? themeTokens.toggleSelectedBg
-                  : "transparent",
-                color: mode === "select"
-                  ? themeTokens.toggleSelectedText
-                  : themeTokens.toggleIdleText,
-                "--es-toggle-bg": "transparent",
-                "--es-toggle-bg-hover": "transparent",
-                "--es-toggle-color": "inherit",
-                "--es-toggle-color-hover": mode === "select"
-                  ? themeTokens.toggleSelectedText
-                  : themeTokens.toggleIdleTextHover,
-              } as React.CSSProperties}
-            >
-              {resolvedText.selectLabel}
-            </button>
-            <button
-              type="button"
-              className="element-selector-toggle"
-              onClick={(event) => {
-                event.preventDefault();
-                event.stopPropagation();
-                handleModeToggle("insert");
-              }}
-              style={{
-                border: mode === "insert"
-                  ? "1px solid " + themeTokens.toggleSelectedBg
-                  : theme === "light"
-                    ? "1px solid rgba(0, 0, 0, 0.24)"
-                    : "1px solid rgba(255, 255, 255, 0.32)",
-                borderRadius: "0 999px 999px 0",
-                padding: isMobileViewport ? "10px 12px" : "6px 14px",
-                minHeight: isMobileViewport ? "44px" : undefined,
-                cursor: "pointer",
-                fontWeight: mode === "insert" ? 600 : 500,
-                transition: "background-color 120ms ease, color 120ms ease",
-                boxShadow: "none",
-                transform: "none",
-                flex: isMobileViewport ? 1 : undefined,
-                background: mode === "insert"
-                  ? themeTokens.toggleSelectedBg
-                  : "transparent",
-                color: mode === "insert"
-                  ? themeTokens.toggleSelectedText
-                  : themeTokens.toggleIdleText,
-                "--es-toggle-bg": "transparent",
-                "--es-toggle-bg-hover": "transparent",
-                "--es-toggle-color": "inherit",
-                "--es-toggle-color-hover": mode === "insert"
-                  ? themeTokens.toggleSelectedText
-                  : themeTokens.toggleIdleTextHover,
-              } as React.CSSProperties}
-            >
-              {resolvedText.insertLabel}
-            </button>
+              <button
+                type="button"
+                className="element-selector-toggle"
+                onClick={(event) => {
+                  event.preventDefault();
+                  event.stopPropagation();
+                  handleModeToggle("select");
+                }}
+                style={
+                  {
+                    border:
+                      mode === "select"
+                        ? "1px solid " + themeTokens.toggleSelectedBg
+                        : theme === "light"
+                        ? "1px solid rgba(0, 0, 0, 0.24)"
+                        : "1px solid rgba(255, 255, 255, 0.32)",
+                    borderRadius: "999px 0 0 999px",
+                    padding: isMobileViewport ? "10px 12px" : "6px 14px",
+                    minHeight: isMobileViewport ? "44px" : undefined,
+                    cursor: "pointer",
+                    fontWeight: mode === "select" ? 600 : 500,
+                    transition: "background-color 120ms ease, color 120ms ease",
+                    boxShadow: "none",
+                    transform: "none",
+                    flex: isMobileViewport ? 1 : undefined,
+                    background:
+                      mode === "select"
+                        ? themeTokens.toggleSelectedBg
+                        : "transparent",
+                    color:
+                      mode === "select"
+                        ? themeTokens.toggleSelectedText
+                        : themeTokens.toggleIdleText,
+                    "--es-toggle-bg": "transparent",
+                    "--es-toggle-bg-hover": "transparent",
+                    "--es-toggle-color": "inherit",
+                    "--es-toggle-color-hover":
+                      mode === "select"
+                        ? themeTokens.toggleSelectedText
+                        : themeTokens.toggleIdleTextHover,
+                  } as React.CSSProperties
+                }
+              >
+                {resolvedText.selectLabel}
+              </button>
+              <button
+                type="button"
+                className="element-selector-toggle"
+                onClick={(event) => {
+                  event.preventDefault();
+                  event.stopPropagation();
+                  handleModeToggle("insert");
+                }}
+                style={
+                  {
+                    border:
+                      mode === "insert"
+                        ? "1px solid " + themeTokens.toggleSelectedBg
+                        : theme === "light"
+                        ? "1px solid rgba(0, 0, 0, 0.24)"
+                        : "1px solid rgba(255, 255, 255, 0.32)",
+                    borderRadius: "0 999px 999px 0",
+                    padding: isMobileViewport ? "10px 12px" : "6px 14px",
+                    minHeight: isMobileViewport ? "44px" : undefined,
+                    cursor: "pointer",
+                    fontWeight: mode === "insert" ? 600 : 500,
+                    transition: "background-color 120ms ease, color 120ms ease",
+                    boxShadow: "none",
+                    transform: "none",
+                    flex: isMobileViewport ? 1 : undefined,
+                    background:
+                      mode === "insert"
+                        ? themeTokens.toggleSelectedBg
+                        : "transparent",
+                    color:
+                      mode === "insert"
+                        ? themeTokens.toggleSelectedText
+                        : themeTokens.toggleIdleText,
+                    "--es-toggle-bg": "transparent",
+                    "--es-toggle-bg-hover": "transparent",
+                    "--es-toggle-color": "inherit",
+                    "--es-toggle-color-hover":
+                      mode === "insert"
+                        ? themeTokens.toggleSelectedText
+                        : themeTokens.toggleIdleTextHover,
+                  } as React.CSSProperties
+                }
+              >
+                {resolvedText.insertLabel}
+              </button>
             </div>
           </div>
         )}
@@ -957,25 +1029,27 @@ export function ElementSelector({
                   confirmSelection();
                 }
               }}
-              style={{
-                border: "none",
-                borderRadius: isMobileViewport ? "10px" : "8px",
-                padding: isMobileViewport ? "12px 14px" : "8px 12px",
-                minHeight: isMobileViewport ? "44px" : undefined,
-                flex: isMobileViewport ? "0 1 auto" : undefined,
-                cursor: canConfirm ? "pointer" : "not-allowed",
-                fontSize: isMobileViewport ? "15px" : "14px",
-                fontWeight: 700,
-                transition: "background-color 120ms ease, color 120ms ease",
-                boxShadow: "none",
-                transform: "none",
-                "--es-action-bg": themeTokens.actionBg,
-                "--es-action-bg-hover": themeTokens.actionBgHover,
-                "--es-action-bg-disabled": themeTokens.actionBgDisabled,
-                "--es-action-color": themeTokens.actionColor,
-                "--es-action-color-hover": themeTokens.actionColorHover,
-                "--es-action-color-disabled": themeTokens.actionColorDisabled,
-              } as React.CSSProperties}
+              style={
+                {
+                  border: "none",
+                  borderRadius: isMobileViewport ? "10px" : "8px",
+                  padding: isMobileViewport ? "12px 14px" : "8px 12px",
+                  minHeight: isMobileViewport ? "44px" : undefined,
+                  flex: isMobileViewport ? "0 1 auto" : undefined,
+                  cursor: canConfirm ? "pointer" : "not-allowed",
+                  fontSize: isMobileViewport ? "15px" : "14px",
+                  fontWeight: 700,
+                  transition: "background-color 120ms ease, color 120ms ease",
+                  boxShadow: "none",
+                  transform: "none",
+                  "--es-action-bg": themeTokens.actionBg,
+                  "--es-action-bg-hover": themeTokens.actionBgHover,
+                  "--es-action-bg-disabled": themeTokens.actionBgDisabled,
+                  "--es-action-color": themeTokens.actionColor,
+                  "--es-action-color-hover": themeTokens.actionColorHover,
+                  "--es-action-color-disabled": themeTokens.actionColorDisabled,
+                } as React.CSSProperties
+              }
               aria-label={resolvedText.confirmLabel}
             >
               {resolvedText.confirmLabel}
@@ -989,25 +1063,27 @@ export function ElementSelector({
               event.stopPropagation();
               onCancel();
             }}
-            style={{
-              border: "none",
-              borderRadius: isMobileViewport ? "10px" : "8px",
-              padding: isMobileViewport ? "12px 14px" : "8px 12px",
-              cursor: "pointer",
-              fontSize: isMobileViewport ? "15px" : "14px",
-              fontWeight: 700,
-              transition: "background-color 120ms ease, color 120ms ease",
-              boxShadow: "none",
-              transform: "none",
-              "--es-action-bg": themeTokens.actionBg,
-              "--es-action-bg-hover": themeTokens.actionBgHover,
-              "--es-action-bg-disabled": themeTokens.actionBgDisabled,
-              "--es-action-color": themeTokens.actionColor,
-              "--es-action-color-hover": themeTokens.actionColorHover,
-              "--es-action-color-disabled": themeTokens.actionColorDisabled,
-              flex: isMobileViewport ? "0 1 auto" : undefined,
-              marginLeft: isMobileViewport ? "6px" : undefined,
-            } as React.CSSProperties}
+            style={
+              {
+                border: "none",
+                borderRadius: isMobileViewport ? "10px" : "8px",
+                padding: isMobileViewport ? "12px 14px" : "8px 12px",
+                cursor: "pointer",
+                fontSize: isMobileViewport ? "15px" : "14px",
+                fontWeight: 700,
+                transition: "background-color 120ms ease, color 120ms ease",
+                boxShadow: "none",
+                transform: "none",
+                "--es-action-bg": themeTokens.actionBg,
+                "--es-action-bg-hover": themeTokens.actionBgHover,
+                "--es-action-bg-disabled": themeTokens.actionBgDisabled,
+                "--es-action-color": themeTokens.actionColor,
+                "--es-action-color-hover": themeTokens.actionColorHover,
+                "--es-action-color-disabled": themeTokens.actionColorDisabled,
+                flex: isMobileViewport ? "0 1 auto" : undefined,
+                marginLeft: isMobileViewport ? "6px" : undefined,
+              } as React.CSSProperties
+            }
             aria-label={resolvedText.cancelLabel}
           >
             {resolvedText.cancelLabel}
@@ -1036,7 +1112,8 @@ export function ElementSelector({
         />
       )}
 
-      {(effectiveMultiSelect || (isMobileViewport && pickedElements.length > 0)) &&
+      {(effectiveMultiSelect ||
+        (isMobileViewport && pickedElements.length > 0)) &&
         pickedElements.map((element, index) => (
           <SelectedItem
             key={`selected-${index}`}

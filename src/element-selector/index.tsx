@@ -131,6 +131,7 @@ export function launchSelector(
     container.style.position = "fixed";
     container.style.zIndex = "999999";
     container.style.inset = "0";
+    container.style.pointerEvents = "none";
     document.body.appendChild(container);
 
     // Create React root

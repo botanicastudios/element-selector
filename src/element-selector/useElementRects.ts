@@ -5,27 +5,21 @@
  */
 
 import { useEffect, useMemo, useRef, useState } from "react";
+import { getRenderableBox } from "./utils";
 
 type UseElementRectMapOptions = {
-  /**
-   * If true, elements that are outside the viewport won't be measured
-   * until they enter the viewport again.
-   */
-  skipOffscreen?: boolean;
   /** When true, log every measurement for debugging. */
   debug?: boolean;
 };
 
 export function useElementRectMap(
   elements: Array<HTMLElement | null>,
-  { skipOffscreen = true, debug = false }: UseElementRectMapOptions = {}
+  { debug = false }: UseElementRectMapOptions = {}
 ): Map<HTMLElement, DOMRectReadOnly> {
   const [rectMap, setRectMap] = useState<Map<HTMLElement, DOMRectReadOnly>>(
     () => new Map()
   );
 
-  // Keep intersection state in a ref to avoid extra renders
-  const visibilityRef = useRef<Map<HTMLElement, boolean>>(new Map());
   const frameRef = useRef<number | null>(null);
 
   // Deduplicate elements to avoid double observing the same node
@@ -48,7 +42,6 @@ export function useElementRectMap(
     }
 
     let resizeObserver: ResizeObserver | null = null;
-    let intersectionObserver: IntersectionObserver | null = null;
 
     const scheduleMeasure = () => {
       if (frameRef.current !== null) return;
@@ -59,22 +52,9 @@ export function useElementRectMap(
           let changed = false;
 
           for (const el of trackedElements) {
-            const isVisible =
-              !skipOffscreen ||
-              visibilityRef.current.get(el) ||
-              visibilityRef.current.size === 0;
-
-            // If we're skipping off-screen items and this one isn't visible,
-            // preserve the previous rect if we had one so consumers can decide
-            // whether to render.
-            if (!isVisible) {
-              if (debug) {
-                console.debug("[element-selector] skip measure (offscreen)", {
-                  tag: el.tagName,
-                  id: el.id,
-                  className: el.className,
-                });
-              }
+            const box = getRenderableBox(el);
+            const rect = box?.rect;
+            if (!rect) {
               const priorRect = previous.get(el);
               if (priorRect) {
                 next.set(el, priorRect);
@@ -82,7 +62,6 @@ export function useElementRectMap(
               continue;
             }
 
-            const rect = el.getBoundingClientRect();
             const prevRect = previous.get(el);
             const rectChanged =
               !prevRect ||
@@ -104,7 +83,6 @@ export function useElementRectMap(
                     width: rect.width,
                     height: rect.height,
                   },
-                  visible: isVisible,
                 });
               }
             }
@@ -125,20 +103,6 @@ export function useElementRectMap(
     resizeObserver = new ResizeObserver(scheduleMeasure);
     trackedElements.forEach((el) => resizeObserver?.observe(el));
 
-    // Watch viewport visibility
-    if ("IntersectionObserver" in window) {
-      intersectionObserver = new IntersectionObserver(
-        (entries) => {
-          entries.forEach((entry) => {
-            visibilityRef.current.set(entry.target as HTMLElement, entry.isIntersecting);
-          });
-          scheduleMeasure();
-        },
-        { root: null, threshold: 0 }
-      );
-      trackedElements.forEach((el) => intersectionObserver?.observe(el));
-    }
-
     // Listen for scroll/resize to reposition overlays
     window.addEventListener("scroll", scheduleMeasure, true);
     window.addEventListener("resize", scheduleMeasure);
@@ -148,7 +112,6 @@ export function useElementRectMap(
 
     return () => {
       if (resizeObserver) resizeObserver.disconnect();
-      if (intersectionObserver) intersectionObserver.disconnect();
       window.removeEventListener("scroll", scheduleMeasure, true);
       window.removeEventListener("resize", scheduleMeasure);
       if (frameRef.current !== null) {
@@ -156,7 +119,7 @@ export function useElementRectMap(
         frameRef.current = null;
       }
     };
-  }, [trackedElements, skipOffscreen]);
+  }, [trackedElements]);
 
   return rectMap;
 }
