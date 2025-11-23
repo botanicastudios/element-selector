@@ -128,17 +128,51 @@ function readAiAttributes(element: Element | null): AiAttributes {
     return {};
   }
 
-  const read = (name: string) => {
-    const value = element.getAttribute(name);
-    return value || undefined;
-  };
+  const attrs: AiAttributes = {};
+  const attrNames: Array<[keyof AiAttributes, string]> = [
+    ["src", "data-ai-src"],
+    ["routeId", "data-ai-route-id"],
+    ["routeFile", "data-ai-route-file"],
+  ];
 
-  return {
-    src: read("data-ai-src"),
-    routeId: read("data-ai-route-id"),
-    routeFile: read("data-ai-route-file"),
-  };
+  let current: Element | null = element;
+
+  // Walk up through regular DOM parents and across shadow boundaries (via host)
+  // until we find the nearest provider for each attribute.
+  while (current) {
+    const node = current;
+    attrNames.forEach(([key, name]) => {
+      if (attrs[key] !== undefined) return;
+      const value = node.getAttribute(name);
+      if (value) {
+        attrs[key] = value;
+      }
+    });
+
+    if (attrs.src && attrs.routeId && attrs.routeFile) {
+      break;
+    }
+
+    if (current.parentElement) {
+      current = current.parentElement;
+      continue;
+    }
+
+    const root = current.getRootNode();
+    current = root instanceof ShadowRoot ? root.host : null;
+  }
+
+  return attrs;
 }
+
+const textPreviewFor = (element: HTMLElement): string => {
+  const raw = (element.innerText ?? element.textContent ?? "").toString();
+  const normalized = raw.replace(/\s+/g, " ").trim();
+  const limit = 1024;
+  if (normalized.length <= limit) return normalized;
+  const trimmed = normalized.slice(0, limit);
+  return `${trimmed}<!-- SNIPPET FOR BREVITY -->`;
+};
 
 function deriveInsertionCandidate(
   element: HTMLElement | null,
@@ -316,13 +350,26 @@ export function ElementSelector({
         tag: element.tagName.toLowerCase(),
         id: element.id || null,
         classes: element.className || "",
-        textPreview: element.textContent?.substring(0, 50) || "",
+        textPreview: textPreviewFor(element),
         beforeHtml: baseContext.beforeHtml,
         elementHtml: baseContext.elementHtml,
         afterHtml: baseContext.afterHtml,
         ...readAiAttributes(element),
         ...extra,
       };
+
+      // Neighbor AI metadata (used for markdown summaries and insert context)
+      const prev = element.previousElementSibling;
+      const next = element.nextElementSibling;
+      const prevAttrs = readAiAttributes(prev);
+      const nextAttrs = readAiAttributes(next);
+
+      info.beforeSrc = prevAttrs.src;
+      info.beforeRouteId = prevAttrs.routeId;
+      info.beforeRouteFile = prevAttrs.routeFile;
+      info.afterSrc = nextAttrs.src;
+      info.afterRouteId = nextAttrs.routeId;
+      info.afterRouteFile = nextAttrs.routeFile;
 
       if (info.mode === "insert") {
         info.insertionBeforeHtml =

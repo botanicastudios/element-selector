@@ -64,6 +64,59 @@ export interface ElementInfo {
   afterRouteFile?: string;
 }
 
+export interface SelectResult {
+  mode: "select";
+  selectedElement: HTMLElement;
+  htmlBefore: string;
+  elementBefore: HTMLElement | null;
+  elementBeforeHtml: string | null;
+  htmlAfter: string;
+  elementAfter: HTMLElement | null;
+  elementAfterHtml: string | null;
+  selectedSrc?: string;
+  selectedRouteId?: string;
+  selectedRouteFile?: string;
+  selectedElementHtml: string;
+  selectedElementClasses: string;
+  selectedElementId: string | null;
+  selectedElementTextPreview: string;
+  selectedElementTag: string;
+  selectedElementSelector: string;
+  beforeSrc?: string;
+  afterSrc?: string;
+  markdownSummary: string;
+}
+
+export interface InsertResult {
+  mode: "insert";
+  htmlBefore: string;
+  elementBefore: HTMLElement | null;
+  htmlAfter: string;
+  elementAfter: HTMLElement | null;
+  elementBeforeHtml: string | null;
+  elementAfterHtml: string | null;
+  htmlWithMarker: string;
+  srcBefore?: string;
+  srcAfter?: string;
+  routeIdBefore?: string;
+  routeIdAfter?: string;
+  routeFileBefore?: string;
+  routeFileAfter?: string;
+  elementBeforeClasses: string | null;
+  elementBeforeId: string | null;
+  elementBeforeTextPreview: string | null;
+  elementBeforeTag: string | null;
+  elementBeforeSelector: string | null;
+  elementAfterClasses: string | null;
+  elementAfterId: string | null;
+  elementAfterTextPreview: string | null;
+  elementAfterTag: string | null;
+  elementAfterSelector: string | null;
+  markdownSummary: string;
+}
+
+export type SelectionResult = SelectResult | InsertResult;
+
 export interface ElementSelectorProps {
   onElementSelected: (elements: ElementInfo[]) => void;
   onCancel: () => void;
@@ -140,6 +193,18 @@ export interface LaunchSelectorOptions {
   retainSelectionHighlights?: boolean;
   /** Enable verbose console diagnostics. */
   debug?: boolean;
+  /**
+   * Truncate element HTML snippets (selected element and neighbors).
+   * true (default) trims to ~2kB with a snip marker; false disables snipping;
+   * a number trims to that many bytes.
+   */
+  snipElementHtml?: number | boolean;
+  /**
+   * Truncate context HTML (beforeHtml / afterHtml).
+   * true (default) trims to ~2kB with a snip marker; false disables snipping;
+   * a number trims to that many bytes.
+   */
+  snipHtml?: number | boolean;
 }
 
 export interface ContextHtmlOptions {

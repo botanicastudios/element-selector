@@ -45,7 +45,7 @@
     "web-vitals": "^2.1.4"
   },
   "scripts": {
-    "dev": "react-scripts start",
+    "dev": "vite dev",
     "build": "vite build && tsc -p tsconfig.lib.json",
     "demo:build": "react-scripts build",
     "test": "react-scripts test",
@@ -69,5 +69,8 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
+  },
+  "dependencies": {
+    "ai-src": "^0.1.0"
   }
 }

@@ -111,22 +111,64 @@ async function selectMultipleElements() {
     const elements = await launchSelector({
       multiSelect: true, // Allow selecting multiple elements
       friendlySelectors: true, // Show human-readable tag names
+      snipElementHtml: true, // true (default) trims element html to ~2kB; false disables; number sets a custom limit
+      snipHtml: true, // applies to beforeHtml/afterHtml context
     });
     console.log("Selected elements:", elements);
-    // Each element object contains:
-    // - element: the DOM element reference
-    // - selector: CSS selector for the element
-    // - tag: lowercase tag name
-    // - id: element ID (if any)
-    // - classes: element class names
-    // - textPreview: first 50 characters of text content
-    // - src / routeId / routeFile: ai-src metadata from data-ai-* attributes (if present)
-    // - beforeSrc / beforeRouteId / beforeRouteFile: ai-src metadata from the element before the insertion gap (insert mode)
-    // - afterSrc / afterRouteId / afterRouteFile: ai-src metadata from the element after the insertion gap (insert mode)
-    // - mode: 'select' | 'insert'
-    // - insertionPosition / insertionAxis (insert mode only)
-    // - beforeHtml / elementHtml / afterHtml: safe context snippets around the target
-    // - insertionBeforeHtml / insertionAfterHtml: context that brackets the insertion gap
+    // Return shape (single select returns an object; multi-select returns an array of these):
+    // Select mode:
+    // {
+    //   mode: "select",
+    //   selectedElement: HTMLElement,
+    //   htmlBefore: string,
+    //   elementBefore: HTMLElement | null,
+    //   elementBeforeHtml: string | null,
+    //   htmlAfter: string,
+    //   elementAfter: HTMLElement | null,
+    //   elementAfterHtml: string | null,
+    //   selectedSrc?: string,
+    //   selectedRouteId?: string,
+    //   selectedRouteFile?: string,
+    //   selectedElementHtml: string,
+    //   selectedElementClasses: string,
+    //   selectedElementId: string | null,
+    //   selectedElementTextPreview: string,
+    //   selectedElementTag: string,
+    //   selectedElementSelector: string,
+    //   beforeSrc?: string,
+    //   afterSrc?: string,
+    //   markdownSummary: string,
+    // }
+    //
+    // Insert mode:
+    // {
+    //   mode: "insert",
+    //   htmlBefore: string,
+    //   elementBefore: HTMLElement | null,
+    //   elementBeforeHtml: string | null,
+    //   htmlAfter: string,
+    //   elementAfter: HTMLElement | null,
+    //   elementAfterHtml: string | null,
+    //   htmlWithMarker: `${elementBeforeHtml || ""}\n<!-- INSERTION POINT -->\n${elementAfterHtml || ""}`,
+    //   srcBefore?: string,
+    //   srcAfter?: string,
+    //   routeIdBefore?: string,
+    //   routeIdAfter?: string,
+    //   routeFileBefore?: string,
+    //   routeFileAfter?: string,
+    //   elementBeforeClasses: string | null,
+    //   elementBeforeId: string | null,
+    //   elementBeforeTextPreview: string | null,
+    //   elementBeforeTag: string | null,
+    //   elementBeforeSelector: string | null,
+    //   elementAfterClasses: string | null,
+    //   elementAfterId: string | null,
+    //   elementAfterTextPreview: string | null,
+    //   elementAfterTag: string | null,
+    //   elementAfterSelector: string | null,
+    //   markdownSummary: string,
+    // }
+    // Note: html snippets are truncated to ~2kB with a marker if very large.
   } catch (error) {
     console.log("Selection cancelled");
   }

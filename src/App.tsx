@@ -2,9 +2,9 @@ import React, { useEffect, useState } from "react";
 import "./App.css";
 import { launchSelector, resetSelectionHighlights } from "./element-selector";
 import type {
-  ElementInfo,
   ElementSelectorMode,
   ElementSelectorTheme,
+  SelectionResult,
 } from "./element-selector";
 import { ShadowHitTestPage } from "./ShadowHitTestPage";
 
@@ -96,7 +96,7 @@ declare global {
 
 function DemoApp() {
   const [selectedElements, setSelectedElements] = useState<
-    ElementInfo[] | null
+    SelectionResult[] | null
   >(null);
   const [error, setError] = useState<string | null>(null);
   const [isSelecting, setIsSelecting] = useState(false);
@@ -436,140 +436,145 @@ function DemoApp() {
                   borderRadius: "4px",
                 }}
               >
-                <strong>&lt;{el.tag}&gt;</strong>
-                {el.id && <span> #{el.id}</span>}
-                {el.classes && <span> .{el.classes.split(" ").join(".")}</span>}
-                <br />
-                <small style={{ color: "#999" }}>Selector: {el.selector}</small>
-                {el.mode === "insert" && el.insertionPosition && (
+                {el.mode === "select" ? (
                   <>
+                    <strong>&lt;{el.selectedElementTag}&gt;</strong>
+                    {el.selectedElementId && <span> #{el.selectedElementId}</span>}
+                    {el.selectedElementClasses && (
+                      <span> .{el.selectedElementClasses.split(" ").join(".")}</span>
+                    )}
                     <br />
-                    <small style={{ color: "#ddd" }}>
-                      Insert {el.insertionPosition}
-                      {el.insertionAxis ? ` (${el.insertionAxis})` : ""}
+                    <small style={{ color: "#999" }}>
+                      Selector: {el.selectedElementSelector}
                     </small>
-                  </>
-                )}
-                {el.textPreview && (
-                  <>
-                    <br />
-                    <small style={{ color: "#bbb" }}>
-                      Text: "{el.textPreview}"
-                    </small>
-                  </>
-                )}
-                {(el.src || el.routeId || el.routeFile) && (
-                  <>
-                    <br />
-                    <small style={{ color: "#7dd3fc" }}>
-                      ai-src: {el.src || "—"}
-                    </small>
-                    {el.routeId && (
+                    {el.selectedElementTextPreview && (
                       <>
                         <br />
-                        <small style={{ color: "#7dd3fc" }}>
-                          routeId: {el.routeId}
+                        <small style={{ color: "#bbb" }}>
+                          Text: "{el.selectedElementTextPreview}"
                         </small>
                       </>
                     )}
-                    {el.routeFile && (
+                    {(el.selectedSrc || el.selectedRouteId || el.selectedRouteFile) && (
                       <>
                         <br />
                         <small style={{ color: "#7dd3fc" }}>
-                          routeFile: {el.routeFile}
+                          ai-src: {el.selectedSrc || "—"}
                         </small>
+                        {el.selectedRouteId && (
+                          <>
+                            <br />
+                            <small style={{ color: "#7dd3fc" }}>
+                              routeId: {el.selectedRouteId}
+                            </small>
+                          </>
+                        )}
+                        {el.selectedRouteFile && (
+                          <>
+                            <br />
+                            <small style={{ color: "#7dd3fc" }}>
+                              routeFile: {el.selectedRouteFile}
+                            </small>
+                          </>
+                        )}
                       </>
                     )}
-                  </>
-                )}
-                <details style={{ marginTop: "10px" }}>
-                  <summary style={{ cursor: "pointer" }}>HTML context</summary>
-                  <div
-                    style={{
-                      marginTop: "8px",
-                      display: "grid",
-                      gap: "8px",
-                      fontFamily:
-                        "ui-monospace, SFMono-Regular, Menlo, monospace",
-                      fontSize: "12px",
-                      backgroundColor: "rgba(17, 24, 39, 0.6)",
-                      padding: "10px",
-                      borderRadius: "6px",
-                    }}
-                  >
-                    <div>
-                      <strong style={{ color: "#60a5fa" }}>Before</strong>
-                      <pre style={{ whiteSpace: "pre-wrap", margin: 0 }}>
-                        {el.beforeHtml || "(none)"}
-                      </pre>
-                    </div>
-                    <div>
-                      <strong style={{ color: "#34d399" }}>Element</strong>
-                      <pre style={{ whiteSpace: "pre-wrap", margin: 0 }}>
-                        {el.elementHtml || "(none)"}
-                      </pre>
-                    </div>
-                    <div>
-                      <strong style={{ color: "#fbbf24" }}>After</strong>
-                      <pre style={{ whiteSpace: "pre-wrap", margin: 0 }}>
-                        {el.afterHtml || "(none)"}
-                      </pre>
-                    </div>
-                    {el.mode === "insert" && (
-                      <div>
-                        <strong style={{ color: "#f472b6" }}>
-                          Insertion Gap
-                        </strong>
-                        <div
-                          style={{
-                            display: "grid",
-                            gap: "4px",
-                            marginTop: "4px",
-                          }}
-                        >
-                          <div>
-                            <em style={{ color: "#c4b5fd" }}>Before gap</em>
-                            <pre style={{ whiteSpace: "pre-wrap", margin: 0 }}>
-                              {el.insertionBeforeHtml || "(none)"}
-                            </pre>
-                            {(el.beforeSrc ||
-                              el.beforeRouteId ||
-                              el.beforeRouteFile) && (
-                              <div style={{ color: "#a5b4fc" }}>
-                                ai-src: {el.beforeSrc || "—"}
-                                {el.beforeRouteId
-                                  ? ` | routeId: ${el.beforeRouteId}`
-                                  : ""}
-                                {el.beforeRouteFile
-                                  ? ` | routeFile: ${el.beforeRouteFile}`
-                                  : ""}
-                              </div>
-                            )}
-                          </div>
-                          <div>
-                            <em style={{ color: "#c4b5fd" }}>After gap</em>
-                            <pre style={{ whiteSpace: "pre-wrap", margin: 0 }}>
-                              {el.insertionAfterHtml || "(none)"}
-                            </pre>
-                            {(el.afterSrc ||
-                              el.afterRouteId ||
-                              el.afterRouteFile) && (
-                              <div style={{ color: "#a5b4fc" }}>
-                                ai-src: {el.afterSrc || "—"}
-                                {el.afterRouteId
-                                  ? ` | routeId: ${el.afterRouteId}`
-                                  : ""}
-                                {el.afterRouteFile
-                                  ? ` | routeFile: ${el.afterRouteFile}`
-                                  : ""}
-                              </div>
-                            )}
-                          </div>
+                    <details style={{ marginTop: "10px" }}>
+                      <summary style={{ cursor: "pointer" }}>HTML context</summary>
+                      <div
+                        style={{
+                          marginTop: "8px",
+                          display: "grid",
+                          gap: "8px",
+                          fontFamily:
+                            "ui-monospace, SFMono-Regular, Menlo, monospace",
+                          fontSize: "12px",
+                          backgroundColor: "rgba(17, 24, 39, 0.6)",
+                          padding: "10px",
+                          borderRadius: "6px",
+                        }}
+                      >
+                        <div>
+                          <strong style={{ color: "#60a5fa" }}>Before</strong>
+                          <pre style={{ whiteSpace: "pre-wrap", margin: 0 }}>
+                            {el.htmlBefore || "(none)"}
+                          </pre>
+                        </div>
+                        <div>
+                          <strong style={{ color: "#34d399" }}>Element</strong>
+                          <pre style={{ whiteSpace: "pre-wrap", margin: 0 }}>
+                            {el.selectedElementHtml || "(none)"}
+                          </pre>
+                        </div>
+                        <div>
+                          <strong style={{ color: "#fbbf24" }}>After</strong>
+                          <pre style={{ whiteSpace: "pre-wrap", margin: 0 }}>
+                            {el.htmlAfter || "(none)"}
+                          </pre>
                         </div>
                       </div>
-                    )}
-                  </div>
-                </details>
+                    </details>
+                  </>
+                ) : (
+                  <>
+                    <strong>Insert context</strong>
+                    <details style={{ marginTop: "10px" }}>
+                      <summary style={{ cursor: "pointer" }}>HTML gap</summary>
+                      <div
+                        style={{
+                          marginTop: "8px",
+                          display: "grid",
+                          gap: "8px",
+                          fontFamily:
+                            "ui-monospace, SFMono-Regular, Menlo, monospace",
+                          fontSize: "12px",
+                          backgroundColor: "rgba(17, 24, 39, 0.6)",
+                          padding: "10px",
+                          borderRadius: "6px",
+                        }}
+                      >
+                        <div>
+                          <strong style={{ color: "#60a5fa" }}>Before</strong>
+                          <pre style={{ whiteSpace: "pre-wrap", margin: 0 }}>
+                            {el.htmlBefore || "(none)"}
+                          </pre>
+                        </div>
+                        <div>
+                          <strong style={{ color: "#fbbf24" }}>After</strong>
+                          <pre style={{ whiteSpace: "pre-wrap", margin: 0 }}>
+                            {el.htmlAfter || "(none)"}
+                          </pre>
+                        </div>
+                        <div>
+                          <strong style={{ color: "#f472b6" }}>With marker</strong>
+                          <pre style={{ whiteSpace: "pre-wrap", margin: 0 }}>
+                            {el.htmlWithMarker || "(none)"}
+                          </pre>
+                        </div>
+                      </div>
+                    </details>
+                    <div style={{ marginTop: "10px", color: "#a5b4fc" }}>
+                      <div>
+                        <strong>Before element</strong>
+                        <div>
+                          {el.elementBeforeSelector || "(none)"}
+                        </div>
+                        {el.srcBefore && <div>ai-src: {el.srcBefore}</div>}
+                        {el.routeIdBefore && <div>routeId: {el.routeIdBefore}</div>}
+                        {el.routeFileBefore && <div>routeFile: {el.routeFileBefore}</div>}
+                      </div>
+                      <div style={{ marginTop: "8px" }}>
+                        <strong>After element</strong>
+                        <div>
+                          {el.elementAfterSelector || "(none)"}
+                        </div>
+                        {el.srcAfter && <div>ai-src: {el.srcAfter}</div>}
+                        {el.routeIdAfter && <div>routeId: {el.routeIdAfter}</div>}
+                        {el.routeFileAfter && <div>routeFile: {el.routeFileAfter}</div>}
+                      </div>
+                    </div>
+                  </>
+                )}
               </div>
             ))}
           </div>
