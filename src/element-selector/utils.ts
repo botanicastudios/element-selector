@@ -331,6 +331,29 @@ function unionRects(rects: DOMRectReadOnly[]): DOMRectReadOnly {
 }
 
 /**
+ * Clone an element, replacing each <slot> with its assigned nodes to reflect
+ * the composed tree (what the user sees) rather than the shadow DOM placeholder.
+ */
+function cloneWithAssignedSlots(element: Element): Element {
+  const clone = element.cloneNode(true) as Element;
+  const originalSlots = Array.from(element.querySelectorAll("slot"));
+  const cloneSlots = Array.from(clone.querySelectorAll("slot"));
+
+  cloneSlots.forEach((slotClone, index) => {
+    const originalSlot = originalSlots[index];
+    if (!(originalSlot instanceof HTMLSlotElement)) return;
+
+    const assigned = originalSlot.assignedNodes({ flatten: true });
+    if (!assigned.length) return; // keep fallback content if nothing assigned
+
+    const assignedClones = assigned.map((node) => node.cloneNode(true));
+    slotClone.replaceWith(...assignedClones);
+  });
+
+  return clone;
+}
+
+/**
  * Compute a renderable box for an element without climbing out of its root.
  * Handles display: contents and slots by unioning descendant/assigned rects.
  */
@@ -402,7 +425,10 @@ export function balancedContextHtml(
 
   const serializeSingleNode = (target: Node): string => {
     if (target.nodeType === Node.ELEMENT_NODE) {
-      return (target as Element).outerHTML;
+      const element = target as Element;
+      // Serialize the composed tree by pulling assigned slot content into place
+      const serializedElement = cloneWithAssignedSlots(element);
+      return serializedElement.outerHTML;
     }
     if (target.nodeType === Node.TEXT_NODE) {
       return (target.textContent ?? "").toString();

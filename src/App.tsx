@@ -8,85 +8,172 @@ import type {
 } from "./element-selector";
 import { ShadowHitTestPage } from "./ShadowHitTestPage";
 
-// Register a simple shadow-DOM custom element for debugging selection in shadow trees.
-const registerShadowCard = () => {
-  if (customElements.get("shadow-card")) return;
-
-  class ShadowCard extends HTMLElement {
-    constructor() {
-      super();
-      const root = this.attachShadow({ mode: "open" });
-      root.innerHTML = `
-        <style>
-          :host {
-            display: block;
-            border-radius: 10px;
-            overflow: hidden;
-            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
-            background: linear-gradient(135deg, #0f172a, #1f2937);
-            color: #e5e7eb;
-            font-family: 'Inter', system-ui, sans-serif;
-          }
-          .header {
-            padding: 16px 18px;
-            border-bottom: 1px solid rgba(255,255,255,0.08);
-            display: flex;
-            align-items: center;
-            gap: 10px;
-          }
-          .pill {
-            padding: 4px 10px;
-            border-radius: 999px;
-            background: rgba(59,130,246,0.12);
-            color: #93c5fd;
-            font-size: 12px;
-            letter-spacing: 0.02em;
-          }
-          .body {
-            padding: 18px;
-            display: grid;
-            gap: 12px;
-          }
-          button {
-            background: #3b82f6;
-            color: white;
-            border: none;
-            border-radius: 8px;
-            padding: 10px 14px;
-            font-weight: 600;
-            cursor: pointer;
-            box-shadow: 0 6px 16px rgba(59,130,246,0.3);
-          }
-          button:active {
-            transform: translateY(1px);
-          }
-        </style>
-        <div class="header">
-          <div class="pill">Shadow DOM</div>
-          <div>
-            <div style="font-weight:700">Analytics Panel</div>
-            <div style="opacity:0.8;font-size:13px">Custom element w/ shadow root</div>
+// Register nested shadow-DOM custom elements that project children through slots.
+const registerNestedCustomElements = () => {
+  if (!customElements.get("analytics-shell")) {
+    class AnalyticsShell extends HTMLElement {
+      constructor() {
+        super();
+        const root = this.attachShadow({ mode: "open" });
+        root.innerHTML = `
+          <style>
+            :host {
+              display: block;
+              border-radius: 14px;
+              overflow: hidden;
+              background: radial-gradient(circle at 10% 20%, rgba(59,130,246,0.3), rgba(59,130,246,0) 35%),
+                radial-gradient(circle at 90% 10%, rgba(236,72,153,0.28), rgba(236,72,153,0) 34%),
+                linear-gradient(135deg, #0f172a, #0b1324 65%, #0a0f1f);
+              color: #e5e7eb;
+              box-shadow: 0 14px 40px rgba(0, 0, 0, 0.28);
+              font-family: 'Inter', system-ui, sans-serif;
+              border: 1px solid rgba(255, 255, 255, 0.06);
+            }
+            .shell {
+              display: grid;
+              gap: 14px;
+              padding: 18px 20px 20px;
+            }
+            .header {
+              display: flex;
+              align-items: center;
+              gap: 12px;
+              padding-bottom: 8px;
+              border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+            }
+            .badge {
+              padding: 6px 10px;
+              border-radius: 999px;
+              background: rgba(34,197,94,0.14);
+              color: #6ee7b7;
+              font-size: 12px;
+              letter-spacing: 0.02em;
+            }
+            .title { font-weight: 700; font-size: 17px; }
+            .subtitle { opacity: 0.78; font-size: 13px; }
+            .grid {
+              display: grid;
+              grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+              gap: 12px;
+            }
+          </style>
+          <div class="shell">
+            <div class="header">
+              <div class="badge"><slot name="badge">Nested DOM</slot></div>
+              <div>
+                <div class="title"><slot name="title">Analytics shell</slot></div>
+                <div class="subtitle"><slot name="subtitle">Slot projection across hosts</slot></div>
+              </div>
+            </div>
+            <div class="grid">
+              <slot></slot>
+            </div>
           </div>
-        </div>
-        <div class="body">
-          <div class="metric" aria-label="metric">
-            <div style="font-size:13px; opacity:0.8">Conversion</div>
-            <div style="font-size:24px; font-weight:700">12.4%</div>
-          </div>
-          <button type="button">Shadow CTA</button>
-          <slot></slot>
-        </div>
-      `;
+        `;
+      }
     }
+
+    customElements.define("analytics-shell", AnalyticsShell);
   }
 
-  customElements.define("shadow-card", ShadowCard);
+  if (!customElements.get("metric-card")) {
+    class MetricCard extends HTMLElement {
+      constructor() {
+        super();
+        const root = this.attachShadow({ mode: "open" });
+        root.innerHTML = `
+          <style>
+            :host {
+              display: block;
+            }
+            .card {
+              background: rgba(255, 255, 255, 0.06);
+              border: 1px solid rgba(255, 255, 255, 0.08);
+              border-radius: 12px;
+              padding: 14px 16px;
+              display: grid;
+              gap: 8px;
+              box-shadow: inset 0 1px 0 rgba(255,255,255,0.04);
+            }
+            .label { font-size: 12px; opacity: 0.82; letter-spacing: 0.02em; }
+            .value { font-size: 26px; font-weight: 700; }
+            .footer { font-size: 12px; opacity: 0.7; display: flex; gap: 6px; align-items: center; }
+            .input { display: grid; gap: 4px; }
+            ::slotted(input), ::slotted(select), ::slotted(textarea) {
+              padding: 10px 12px;
+              border-radius: 8px;
+              border: 1px solid rgba(255,255,255,0.16);
+              background: rgba(15,23,42,0.65);
+              color: #e5e7eb;
+              font-weight: 600;
+            }
+          </style>
+          <div class="card">
+            <div class="label"><slot name="label">Metric</slot></div>
+            <div class="value"><slot>—</slot></div>
+            <div class="input"><slot name="input"></slot></div>
+            <div class="footer"><slot name="footer"></slot></div>
+          </div>
+        `;
+      }
+    }
+
+    customElements.define("metric-card", MetricCard);
+  }
+};
+
+// Register slot-only paragraph elements to mirror Polaris-style slot markup.
+const registerParagraphElements = () => {
+  const defineParagraph = (tag: string) => {
+    if (customElements.get(tag)) return;
+
+    class SlotParagraph extends HTMLElement {
+      constructor() {
+        super();
+        const root = this.attachShadow({ mode: "open" });
+        root.innerHTML = `
+          <style>
+            :host {
+              display: block;
+            }
+            p.paragraph {
+              margin: 0;
+              line-height: 1.55;
+              color: #e5e7eb;
+              font-size: 16px;
+              padding: 4px 0;
+            }
+          </style>
+          <p class="paragraph color-base tone-auto font-variant-numeric-auto">
+            <slot></slot>
+          </p>
+        `;
+      }
+    }
+
+    customElements.define(tag, SlotParagraph);
+  };
+
+  defineParagraph("custom-paragraph");
+  defineParagraph("s-paragraph");
 };
 
 declare global {
   namespace JSX {
     interface IntrinsicElements {
-      "shadow-card": React.DetailedHTMLProps<
+      "analytics-shell": React.DetailedHTMLProps<
+        React.HTMLAttributes<HTMLElement>,
+        HTMLElement
+      >;
+      "metric-card": React.DetailedHTMLProps<
+        React.HTMLAttributes<HTMLElement>,
+        HTMLElement
+      >;
+      "custom-paragraph": React.DetailedHTMLProps<
+        React.HTMLAttributes<HTMLElement>,
+        HTMLElement
+      >;
+      "s-paragraph": React.DetailedHTMLProps<
         React.HTMLAttributes<HTMLElement>,
         HTMLElement
       >;
@@ -113,7 +200,8 @@ function DemoApp() {
   };
 
   useEffect(() => {
-    registerShadowCard();
+    registerNestedCustomElements();
+    registerParagraphElements();
   }, []);
 
   useEffect(() => {
@@ -635,29 +723,88 @@ function DemoApp() {
         </div>
 
         <div style={{ marginTop: "32px", display: "grid", gap: "12px" }}>
-          <h3>Shadow DOM custom element</h3>
-          <p style={{ maxWidth: 640 }}>
-            The element below is a custom element with its own shadow root. Use
-            it to verify hover/selection works inside shadow DOM hosts.
+          <h3>Nested custom elements with slots</h3>
+          <p style={{ maxWidth: 720 }}>
+            The block below nests two shadow-hosting custom elements. The outer
+            shell projects badge/title slots, while each inner metric card has
+            its own default, named, and input slots to exercise slotting across
+            multiple shadow boundaries.
           </p>
-          <shadow-card id="shadow-demo" data-test-shadow>
-            <div style={{ display: "grid", gap: "6px" }}>
-              <label style={{ fontSize: 13, opacity: 0.85 }}>
-                Shadow input
-              </label>
+
+          <analytics-shell id="shadow-demo" data-test-shadow>
+            <span slot="badge">Shadow DOM</span>
+            <span slot="title">Weekly product signals</span>
+            <span slot="subtitle">Slots propagate through nested hosts</span>
+
+            <metric-card>
+              <span slot="label">Signups</span>
+              <span>1,204</span>
+              <small slot="footer">+12% vs last week</small>
+            </metric-card>
+
+            <metric-card>
+              <span slot="label">Conversion</span>
+              <span>3.8%</span>
+              <div slot="footer" style={{ display: "flex", gap: "6px" }}>
+                <span>CTA:</span>
+                <button style={{ padding: "6px 10px" }} type="button">
+                  Shadow CTA
+                </button>
+              </div>
+            </metric-card>
+
+            <metric-card>
+              <span slot="label">Feedback</span>
+              <span>42 notes</span>
               <input
+                slot="input"
                 type="text"
-                placeholder="Type inside shadow root"
-                style={{
-                  padding: "10px 12px",
-                  borderRadius: "6px",
-                  border: "1px solid rgba(255,255,255,0.18)",
-                  background: "rgba(255,255,255,0.06)",
-                  color: "#e5e7eb",
-                }}
+                placeholder="Add note inside inner shadow root"
+                aria-label="feedback-note"
               />
-            </div>
-          </shadow-card>
+              <small slot="footer">Input is slotted into inner host</small>
+            </metric-card>
+          </analytics-shell>
+        </div>
+
+        <div style={{ marginTop: "32px", display: "grid", gap: "10px" }}>
+          <h3>Slot-only custom paragraphs</h3>
+          <p style={{ maxWidth: 720 }}>
+            These mimic the Polaris markup you shared: the shadow DOM contains
+            only a slot. Copying <code>outerHTML</code> of the inner paragraph will
+            return the slot placeholder even though text below is visible.
+          </p>
+          <div style={{ display: "grid", gap: "12px" }}>
+            <custom-paragraph data-test-slot-paragraph>
+              Plain light-DOM text projected into a slot.
+            </custom-paragraph>
+
+            <custom-paragraph data-test-slot-paragraph>
+              <span style={{ color: "#7dd3fc" }}>Span child</span> mixed with
+              text for assignment testing.
+            </custom-paragraph>
+
+            <custom-paragraph data-test-slot-paragraph>
+              <strong>Bold start</strong> and <em style={{ color: "#c4b5fd" }}>
+                emphasis
+              </em>{" "}
+              to show multiple assigned nodes.
+            </custom-paragraph>
+
+            <custom-paragraph data-test-slot-paragraph>
+              <a href="#" style={{ color: "#f472b6" }}>Link</a> plus trailing
+              text and <code>&lt;span&gt;</code> to mirror mixed content.
+            </custom-paragraph>
+
+            <s-paragraph data-test-slot-paragraph>
+              Shopify-style host name; inspect its shadow root then copy the
+              inner <code>&lt;p&gt;</code> to see <code>&lt;slot&gt;</code> preserved.
+            </s-paragraph>
+
+            <s-paragraph data-test-slot-paragraph>
+              <em>Second</em> example with inline formatting for assigned nodes.
+            </s-paragraph>
+          </div>
         </div>
 
         <ul style={{ marginTop: "30px", textAlign: "left" }}>
