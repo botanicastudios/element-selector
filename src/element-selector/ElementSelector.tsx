@@ -258,6 +258,16 @@ function targetFromComposedPath(event: MouseEvent): HTMLElement | null {
   return null;
 }
 
+function composedParent(element: HTMLElement | null): HTMLElement | null {
+  if (!element) return null;
+  if (element.parentElement) return element.parentElement;
+  const root = element.getRootNode();
+  if (root instanceof ShadowRoot) {
+    return root.host as HTMLElement;
+  }
+  return null;
+}
+
 export function ElementSelector({
   onElementSelected,
   onCancel,
@@ -265,12 +275,16 @@ export function ElementSelector({
   friendlySelectors = false,
   initialMode = "select",
   allowModeToggle = true,
+  lasso = false,
   optionsPanelPosition,
   selectionBarText,
   theme = "dark",
   debug = false,
 }: ElementSelectorProps) {
-  const [mode, setMode] = useState<ElementSelectorMode>(initialMode);
+  const resolvedInitialMode =
+    initialMode === "lasso" && !lasso ? "select" : initialMode;
+
+  const [mode, setMode] = useState<ElementSelectorMode>(resolvedInitialMode);
   const effectiveMultiSelect = mode === "select" && multiSelect;
   const themeTokens = resolveThemeTokens(theme);
   const [currentHover, setCurrentHover] = useState<HTMLElement | null>(null);
@@ -281,6 +295,11 @@ export function ElementSelector({
   const [pendingInsert, setPendingInsert] = useState<InsertionCandidate | null>(
     null
   );
+  const [lassoBox, setLassoBox] = useState<{
+    start: MousePosition;
+    current: MousePosition;
+  } | null>(null);
+  const [lassoElements, setLassoElements] = useState<HTMLElement[]>([]);
   const [isMobileViewport, setIsMobileViewport] = useState(() => {
     if (typeof window === "undefined") return false;
     return window.matchMedia("(max-width: 640px)").matches;
@@ -298,8 +317,11 @@ export function ElementSelector({
     pickedElements.forEach((el) => {
       if (!list.includes(el)) list.push(el);
     });
+    lassoElements.forEach((el) => {
+      if (!list.includes(el)) list.push(el);
+    });
     return list;
-  }, [currentHover, insertionCandidate, pickedElements]);
+  }, [currentHover, insertionCandidate, pickedElements, lassoElements]);
 
   const rectMap = useElementRectMap(trackedElements, {
     debug,
@@ -329,6 +351,10 @@ export function ElementSelector({
   const previousInsertionRef = useRef<InsertionCandidate | null>(null);
   const lastPointerTargetRef = useRef<HTMLElement | null>(null);
   const lastPathTargetRef = useRef<HTMLElement | null>(null);
+  const lassoTargetsRef = useRef<HTMLElement[]>([]);
+  const lassoActiveRef = useRef(false);
+  const lassoStartRef = useRef<MousePosition | null>(null);
+  const suppressClickRef = useRef(false);
 
   const toElementInfo = useCallback(
     (element: HTMLElement, extra: Partial<ElementInfo> = {}): ElementInfo => {
@@ -409,8 +435,53 @@ export function ElementSelector({
     []
   );
 
+  const computeLassoTargets = useCallback(
+    (bounds: { left: number; right: number; top: number; bottom: number }) => {
+      const candidates: HTMLElement[] = [];
+
+      const all = Array.from(document.body.querySelectorAll("*")) as HTMLElement[];
+      for (const el of all) {
+        if (isSelectorArtifact(el)) continue;
+        if (el.closest('[data-element-selector-ui="true"]')) continue;
+        if (isDocumentRootElement(el)) continue;
+
+        const measurable = getRenderableBox(el);
+        const rect = measurable?.rect;
+        const targetElement = measurable?.element ?? el;
+        if (!rect || rect.width === 0 || rect.height === 0) continue;
+
+        const fullyContained =
+          rect.left >= bounds.left &&
+          rect.right <= bounds.right &&
+          rect.top >= bounds.top &&
+          rect.bottom <= bounds.bottom;
+
+        if (fullyContained) {
+          candidates.push(targetElement);
+        }
+      }
+
+      const candidateSet = new Set(candidates);
+      const filtered = candidates.filter((el) => {
+        let parent = composedParent(el);
+        while (parent) {
+          if (candidateSet.has(parent)) return false;
+          parent = composedParent(parent);
+        }
+        return true;
+      });
+
+      return filtered;
+    },
+    []
+  );
+
   // Update hover element based on current mouse position
   const updateHoverElement = useCallback(() => {
+    if (mode === "lasso") {
+      return;
+    }
+
     const pointTarget = findElementAtCoordinates(
       mousePositionRef.current.x,
       mousePositionRef.current.y
@@ -518,6 +589,24 @@ export function ElementSelector({
         return;
       }
 
+      if (lassoActiveRef.current && lassoStartRef.current && mode === "lasso") {
+        const nextPoint = { x: event.clientX, y: event.clientY };
+        setLassoBox({ start: lassoStartRef.current, current: nextPoint });
+
+        const left = Math.min(lassoStartRef.current.x, nextPoint.x);
+        const right = Math.max(lassoStartRef.current.x, nextPoint.x);
+        const top = Math.min(lassoStartRef.current.y, nextPoint.y);
+        const bottom = Math.max(lassoStartRef.current.y, nextPoint.y);
+
+        if (Math.abs(right - left) > 2 && Math.abs(bottom - top) > 2) {
+          const matches = computeLassoTargets({ left, right, top, bottom });
+          lassoTargetsRef.current = matches;
+          setLassoElements(matches);
+          setCanAddElement(true);
+        }
+        return;
+      }
+
       const pointTarget = findElementAtCoordinates(event.clientX, event.clientY);
       lastPathTargetRef.current = pathTarget;
       lastPointerTargetRef.current = preferDeepTarget(pathTarget, pointTarget);
@@ -534,8 +623,81 @@ export function ElementSelector({
       updateTimerRef.current = setTimeout(() => {
         updateHoverElement();
       }, 50);
+
+      if (mode === "lasso") {
+        setCurrentHover(null);
+        setInsertionCandidate(null);
+        setCanAddElement(true);
+      }
     },
-    [updateHoverElement]
+    [updateHoverElement, computeLassoTargets, mode]
+  );
+
+  const cancelLasso = useCallback(() => {
+    lassoActiveRef.current = false;
+    lassoStartRef.current = null;
+    lassoTargetsRef.current = [];
+    setLassoBox(null);
+    setLassoElements([]);
+  }, []);
+
+  const finalizeLassoSelection = useCallback(() => {
+    if (!lassoActiveRef.current) return;
+
+    const selections = lassoTargetsRef.current;
+    cancelLasso();
+
+    suppressClickRef.current = true;
+    setTimeout(() => {
+      suppressClickRef.current = false;
+    }, 0);
+
+    if (selections.length) {
+      const infos = selections.map((element) =>
+        toElementInfo(element, { mode: "select" })
+      );
+      onElementSelected(infos);
+    }
+  }, [cancelLasso, onElementSelected, toElementInfo]);
+
+  const handleMouseDown = useCallback(
+    (event: MouseEvent) => {
+      if (!lasso || mode !== "lasso") return;
+      if (event.button !== 0) return;
+
+      const target = event.target as HTMLElement | null;
+      if (
+        target?.closest('[data-element-selector-ui="true"]') ||
+        target?.closest('[data-selected-element="true"]')
+      ) {
+        return;
+      }
+
+      event.preventDefault();
+      event.stopPropagation();
+
+      const startPoint = { x: event.clientX, y: event.clientY };
+      lassoActiveRef.current = true;
+      lassoStartRef.current = startPoint;
+      lassoTargetsRef.current = [];
+      setLassoElements([]);
+      setLassoBox({ start: startPoint, current: startPoint });
+      setCurrentHover(null);
+      setInsertionCandidate(null);
+      setCanAddElement(true);
+    },
+    [lasso, mode]
+  );
+
+  const handleMouseUp = useCallback(
+    (event: MouseEvent) => {
+      if (!lassoActiveRef.current || mode !== "lasso") return;
+
+      event.preventDefault();
+      event.stopPropagation();
+      finalizeLassoSelection();
+    },
+    [mode, finalizeLassoSelection]
   );
 
   // Reset hover on mouse leave
@@ -551,10 +713,14 @@ export function ElementSelector({
     setCanAddElement(false);
     lastPointerTargetRef.current = null;
     lastPathTargetRef.current = null;
-  }, []);
+    if (lassoActiveRef.current) {
+      cancelLasso();
+    }
+  }, [cancelLasso]);
 
   const handleModeToggle = useCallback(
     (nextMode: ElementSelectorMode) => {
+      if (nextMode === "lasso" && !lasso) return;
       if (nextMode === mode) {
         return;
       }
@@ -566,15 +732,33 @@ export function ElementSelector({
       setCurrentHover(null);
       previousHoverRef.current = null;
       previousInsertionRef.current = null;
-      setCanAddElement(false);
+      setCanAddElement(nextMode === "lasso" ? true : false);
+      setLassoBox(null);
+      setLassoElements([]);
+      lassoTargetsRef.current = [];
+      lassoActiveRef.current = false;
+      lassoStartRef.current = null;
     },
-    [mode, logDebug]
+    [mode, logDebug, lasso]
   );
 
   // Handle element selection
   const handleClick = useCallback(
     (event: MouseEvent) => {
       const shouldDeferConfirm = isMobileViewport && !effectiveMultiSelect;
+      if (suppressClickRef.current) {
+        suppressClickRef.current = false;
+        event.preventDefault();
+        event.stopPropagation();
+        return;
+      }
+
+      if (mode === "lasso") {
+        event.preventDefault();
+        event.stopPropagation();
+        return;
+      }
+
       const target = event.target as HTMLElement;
       if (
         target.closest('[data-selected-element="true"]') ||
@@ -687,6 +871,8 @@ export function ElementSelector({
     document.addEventListener("mousemove", handleMouseMove, true);
     document.addEventListener("mouseleave", handleMouseLeave, true);
     document.addEventListener("click", handleClick, true);
+    document.addEventListener("mousedown", handleMouseDown, true);
+    document.addEventListener("mouseup", handleMouseUp, true);
 
     logDebug("selector mounted", {
       viewport: {
@@ -700,6 +886,8 @@ export function ElementSelector({
       document.removeEventListener("mousemove", handleMouseMove, true);
       document.removeEventListener("mouseleave", handleMouseLeave, true);
       document.removeEventListener("click", handleClick, true);
+      document.removeEventListener("mousedown", handleMouseDown, true);
+      document.removeEventListener("mouseup", handleMouseUp, true);
       if (updateTimerRef.current) {
         clearTimeout(updateTimerRef.current);
       }
@@ -709,6 +897,8 @@ export function ElementSelector({
     handleMouseMove,
     handleMouseLeave,
     handleClick,
+    handleMouseDown,
+    handleMouseUp,
     trackedElements.length,
     logDebug,
   ]);
@@ -721,6 +911,9 @@ export function ElementSelector({
           onCancel();
           break;
         case "Enter":
+          if (mode === "lasso") {
+            return;
+          }
           if (mode === "insert" && insertionCandidate) {
             onElementSelected([
               toElementInfo(insertionCandidate.element, {
@@ -767,6 +960,7 @@ export function ElementSelector({
   const resolvedText = {
     selectLabel: selectionBarText?.selectLabel ?? "Select",
     insertLabel: selectionBarText?.insertLabel ?? "Insert",
+    lassoLabel: selectionBarText?.lassoLabel ?? "Lasso",
     instructionSelectSingle:
       selectionBarText?.instructionSelectSingle ?? "Click an element to select",
     instructionSelectMulti:
@@ -774,11 +968,18 @@ export function ElementSelector({
     instructionInsert:
       selectionBarText?.instructionInsert ??
       "Click to choose where to insert new content",
+    instructionLasso:
+      selectionBarText?.instructionLasso ??
+      "Click and drag to select everything inside the box",
     confirmLabel: selectionBarText?.confirmLabel ?? "✓",
     cancelLabel: selectionBarText?.cancelLabel ?? "✕",
   };
 
   const instructionText = (() => {
+    if (mode === "lasso") {
+      return resolvedText.instructionLasso;
+    }
+
     if (mode === "insert") {
       return resolvedText.instructionInsert;
     }
@@ -788,7 +989,11 @@ export function ElementSelector({
       : resolvedText.instructionSelectSingle;
   })();
 
+  const isLassoMode = mode === "lasso";
+
   const confirmSelection = useCallback(() => {
+    if (isLassoMode) return;
+
     const shouldDeferConfirm = isMobileViewport && !effectiveMultiSelect;
 
     if (effectiveMultiSelect && pickedElements.length > 0) {
@@ -825,10 +1030,14 @@ export function ElementSelector({
     pendingInsert,
     pickedElements,
     toElementInfo,
+    isLassoMode,
   ]);
 
-  const shouldDeferConfirm = isMobileViewport && !effectiveMultiSelect;
-  const canConfirm = effectiveMultiSelect
+  const shouldDeferConfirm =
+    !isLassoMode && isMobileViewport && !effectiveMultiSelect;
+  const canConfirm = isLassoMode
+    ? false
+    : effectiveMultiSelect
     ? pickedElements.length > 0
     : shouldDeferConfirm
     ? mode === "select"
@@ -836,7 +1045,19 @@ export function ElementSelector({
       : Boolean(pendingInsert)
     : false;
 
-  const showConfirmButton = effectiveMultiSelect || shouldDeferConfirm;
+  const showConfirmButton =
+    !isLassoMode && (effectiveMultiSelect || shouldDeferConfirm);
+
+  const lassoBounds = useMemo(() => {
+    if (!lassoBox) return null;
+    const { start, current } = lassoBox;
+    return {
+      left: Math.min(start.x, current.x),
+      top: Math.min(start.y, current.y),
+      width: Math.abs(current.x - start.x),
+      height: Math.abs(current.y - start.y),
+    };
+  }, [lassoBox]);
 
   const resolvedPanelPosition = {
     vertical: optionsPanelPosition?.vertical ?? "top",
@@ -1005,7 +1226,9 @@ export function ElementSelector({
                         : theme === "light"
                         ? "1px solid rgba(0, 0, 0, 0.24)"
                         : "1px solid rgba(255, 255, 255, 0.32)",
-                    borderRadius: "0 999px 999px 0",
+                    borderRadius: lasso
+                      ? "0"
+                      : "0 999px 999px 0",
                     padding: isMobileViewport ? "10px 12px" : "6px 14px",
                     minHeight: isMobileViewport ? "44px" : undefined,
                     cursor: "pointer",
@@ -1020,20 +1243,68 @@ export function ElementSelector({
                         : "transparent",
                     color:
                       mode === "insert"
-                        ? themeTokens.toggleSelectedText
-                        : themeTokens.toggleIdleText,
+                      ? themeTokens.toggleSelectedText
+                      : themeTokens.toggleIdleText,
                     "--es-toggle-bg": "transparent",
                     "--es-toggle-bg-hover": "transparent",
                     "--es-toggle-color": "inherit",
                     "--es-toggle-color-hover":
                       mode === "insert"
-                        ? themeTokens.toggleSelectedText
-                        : themeTokens.toggleIdleTextHover,
+                      ? themeTokens.toggleSelectedText
+                      : themeTokens.toggleIdleTextHover,
                   } as React.CSSProperties
                 }
               >
                 {resolvedText.insertLabel}
               </button>
+
+              {lasso && (
+                <button
+                  type="button"
+                  className="element-selector-toggle"
+                  onClick={(event) => {
+                    event.preventDefault();
+                    event.stopPropagation();
+                    handleModeToggle("lasso");
+                  }}
+                  style={
+                    {
+                      border:
+                        mode === "lasso"
+                          ? "1px solid " + themeTokens.toggleSelectedBg
+                          : theme === "light"
+                          ? "1px solid rgba(0, 0, 0, 0.24)"
+                          : "1px solid rgba(255, 255, 255, 0.32)",
+                      borderRadius: "0 999px 999px 0",
+                      padding: isMobileViewport ? "10px 12px" : "6px 14px",
+                      minHeight: isMobileViewport ? "44px" : undefined,
+                      cursor: "pointer",
+                      fontWeight: mode === "lasso" ? 600 : 500,
+                      transition: "background-color 120ms ease, color 120ms ease",
+                      boxShadow: "none",
+                      transform: "none",
+                      flex: isMobileViewport ? 1 : undefined,
+                      background:
+                        mode === "lasso"
+                          ? themeTokens.toggleSelectedBg
+                          : "transparent",
+                      color:
+                        mode === "lasso"
+                          ? themeTokens.toggleSelectedText
+                          : themeTokens.toggleIdleText,
+                      "--es-toggle-bg": "transparent",
+                      "--es-toggle-bg-hover": "transparent",
+                      "--es-toggle-color": "inherit",
+                      "--es-toggle-color-hover":
+                        mode === "lasso"
+                          ? themeTokens.toggleSelectedText
+                          : themeTokens.toggleIdleTextHover,
+                    } as React.CSSProperties
+                  }
+                >
+                  {resolvedText.lassoLabel}
+                </button>
+              )}
             </div>
           </div>
         )}
@@ -1137,6 +1408,35 @@ export function ElementSelector({
           </button>
         </div>
       </div>
+
+      {isLassoMode && lassoBounds && (
+        <div
+          style={{
+            position: "fixed",
+            pointerEvents: "none",
+            zIndex: 100002,
+            left: `${lassoBounds.left}px`,
+            top: `${lassoBounds.top}px`,
+            width: `${lassoBounds.width}px`,
+            height: `${lassoBounds.height}px`,
+            border: "2px dashed #38bdf8",
+            background: "rgba(56, 189, 248, 0.12)",
+            borderRadius: "10px",
+            boxShadow: "0 0 18px rgba(56, 189, 248, 0.35)",
+          }}
+        />
+      )}
+
+      {isLassoMode &&
+        lassoElements.map((element, index) => (
+          <SelectedItem
+            key={`lasso-${index}`}
+            targetElement={element}
+            onDeselect={() => {}}
+            variant="passive"
+            rect={rectMap.get(element) ?? null}
+          />
+        ))}
 
       {mode === "select" &&
         currentHover &&

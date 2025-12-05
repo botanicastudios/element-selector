@@ -10,6 +10,7 @@ export function SelectedItem({ targetElement, onDeselect, variant = 'interactive
   const highlightRef = useRef<HTMLButtonElement>(null);
   const [isHovered, setIsHovered] = useState(false);
   const isInteractive = variant === 'interactive';
+  const zIndex = isInteractive ? 100000 : 99990;
   
   // Update position to track element
   useEffect(() => {
@@ -43,22 +44,28 @@ export function SelectedItem({ targetElement, onDeselect, variant = 'interactive
       onMouseLeave={() => isInteractive && setIsHovered(false)}
       style={{
         position: 'fixed',
-        zIndex: 100000,
+        zIndex,
         opacity: 0,
         transition: 'border-color 200ms ease-out, background-color 200ms ease-out, box-shadow 200ms ease-out',
         boxSizing: 'border-box',
-    border: isHovered 
-      ? '3px solid #dc2626'
-      : '3px solid #f59e0b',
+        border: isInteractive
+          ? isHovered
+            ? '3px solid #dc2626'
+            : '3px solid #f59e0b'
+          : '2px solid rgba(56, 189, 248, 0.8)',
         padding: 0,
-    background: isHovered 
-      ? 'rgba(220, 38, 38, 0.14)' 
-      : 'rgba(245, 158, 11, 0.16)',
+        background: isInteractive
+          ? isHovered
+            ? 'rgba(220, 38, 38, 0.14)'
+            : 'rgba(245, 158, 11, 0.16)'
+          : 'rgba(56, 189, 248, 0.08)',
         borderRadius: '8px',
-        cursor: isHovered ? 'pointer' : 'default',
-    boxShadow: isHovered 
-      ? '0 0 18px rgba(220, 38, 38, 0.45), inset 0 0 16px rgba(220, 38, 38, 0.18)' 
-      : '0 0 18px rgba(245, 158, 11, 0.45), inset 0 0 16px rgba(245, 158, 11, 0.18)',
+        cursor: isInteractive && isHovered ? 'pointer' : 'default',
+        boxShadow: isInteractive
+          ? isHovered
+            ? '0 0 18px rgba(220, 38, 38, 0.45), inset 0 0 16px rgba(220, 38, 38, 0.18)'
+            : '0 0 18px rgba(245, 158, 11, 0.45), inset 0 0 16px rgba(245, 158, 11, 0.18)'
+          : '0 0 12px rgba(56, 189, 248, 0.25)',
         pointerEvents: isInteractive ? 'auto' : 'none'
       }}
     >
@@ -84,29 +91,31 @@ export function SelectedItem({ targetElement, onDeselect, variant = 'interactive
           Deselect
         </div>
       )}
-      
+
       {/* Selection badge */}
-      <div
-        style={{
-          position: 'absolute',
-          top: '-12px',
-          right: '-12px',
-          width: '24px',
-          height: '24px',
-          borderRadius: '50%',
-          background: isHovered ? '#dc2626' : '#f59e0b',
-          color: 'white',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          fontSize: '16px',
-          fontWeight: 'bold',
-          boxShadow: '0 2px 8px rgba(0, 0, 0, 0.3)',
-          pointerEvents: 'none'
-        }}
-      >
-        ✓
-      </div>
+      {isInteractive && (
+        <div
+          style={{
+            position: 'absolute',
+            top: '-12px',
+            right: '-12px',
+            width: '24px',
+            height: '24px',
+            borderRadius: '50%',
+            background: isHovered ? '#dc2626' : '#f59e0b',
+            color: 'white',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            fontSize: '16px',
+            fontWeight: 'bold',
+            boxShadow: '0 2px 8px rgba(0, 0, 0, 0.3)',
+            pointerEvents: 'none'
+          }}
+        >
+          ✓
+        </div>
+      )}
     </button>
   );
 }

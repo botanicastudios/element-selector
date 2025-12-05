@@ -2,7 +2,7 @@
  * Type definitions for the element selector component
  */
 
-export type ElementSelectorMode = "select" | "insert";
+export type ElementSelectorMode = "select" | "insert" | "lasso";
 export type ElementSelectorTheme = "light" | "dark";
 
 export type PanelVerticalPosition = "top" | "bottom";
@@ -18,12 +18,16 @@ export interface SelectionBarText {
   selectLabel?: string;
   /** Label for the insert-mode toggle button */
   insertLabel?: string;
+  /** Label for the lasso-mode toggle button */
+  lassoLabel?: string;
   /** Instruction copy shown in select mode when only one element can be picked */
   instructionSelectSingle?: string;
   /** Instruction copy shown in select mode when multi-select is enabled */
   instructionSelectMulti?: string;
   /** Instruction copy shown in insert mode */
   instructionInsert?: string;
+  /** Instruction copy shown in lasso mode */
+  instructionLasso?: string;
   /**
    * @deprecated The selection count chip has been removed from the selection bar.
    * This value is currently ignored.
@@ -130,6 +134,8 @@ export interface ElementSelectorProps {
    * Visual theme for the floating options panel
    */
   theme?: ElementSelectorTheme;
+  /** Enable rectangular lasso mode for multi-element selection */
+  lasso?: boolean;
   /**
    * When true, emit verbose console diagnostics for hover / measurement
    * lifecycle. Useful for debugging iframe or layout issues.
@@ -181,6 +187,8 @@ export interface LaunchSelectorOptions {
   allowModeToggle?: boolean;
   optionsPanelPosition?: OptionsPanelPosition;
   selectionBarText?: SelectionBarText;
+  /** Enable rectangular lasso selection mode */
+  lasso?: boolean;
   /**
    * Switch between light and dark styling for the options panel UI
    */

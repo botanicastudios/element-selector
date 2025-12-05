@@ -379,6 +379,7 @@ export function launchSelector(
     friendlySelectors = false,
     mode = "select",
     allowModeToggle = true,
+    lasso = false,
     retainSelectionHighlights = false,
     optionsPanelPosition,
     selectionBarText,
@@ -423,17 +424,18 @@ export function launchSelector(
         renderPersistentHighlights(selectedElements, friendlySelectors);
       }
 
-    const results = selectedElements.map((info) =>
-      mapElementInfoToResult(info, truncation)
-    );
+      const results = selectedElements.map((info) =>
+        mapElementInfoToResult(info, truncation)
+      );
 
       cleanup();
-      // For single select, return just the first element
-      if (!multiSelect && results.length > 0) {
+
+      if (!multiSelect && results.length === 1) {
         resolve(results[0]);
-      } else {
-        resolve(results);
+        return;
       }
+
+      resolve(results);
     };
 
     // Handle cancellation
@@ -452,6 +454,7 @@ export function launchSelector(
           friendlySelectors={friendlySelectors}
           initialMode={mode}
           allowModeToggle={allowModeToggle}
+          lasso={lasso}
           optionsPanelPosition={optionsPanelPosition}
           selectionBarText={selectionBarText}
           theme={theme}

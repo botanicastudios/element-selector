@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Element Selector – Standalone</title>
+  <style>
+    body {
+      font-family: system-ui, -apple-system, sans-serif;
+      background: #0f172a;
+      color: #e2e8f0;
+      display: grid;
+      place-items: center;
+      min-height: 100vh;
+      padding: 32px;
+      gap: 16px;
+    }
+    button {
+      padding: 12px 18px;
+      font-size: 16px;
+      border-radius: 10px;
+      border: 1px solid #334155;
+      background: #e2e8f0;
+      color: #0f172a;
+      cursor: pointer;
+      font-weight: 700;
+      min-width: 220px;
+    }
+    pre {
+      background: #0b1120;
+      border: 1px solid #1e293b;
+      padding: 12px;
+      border-radius: 12px;
+      max-width: 600px;
+      overflow: auto;
+      white-space: pre-wrap;
+    }
+  </style>
+</head>
+<body>
+  <h1>Standalone element selector</h1>
+  <p>This version bundles its own renderer, so it works even if the host page has no React or uses any React version.</p>
+
+  <button id="launch-btn">Launch selector</button>
+  <pre id="result">Result will appear here</pre>
+
+  <script type="module">
+    import { launchSelector, resetSelectionHighlights } from "../dist/element-selector.standalone.js";
+
+    const button = document.getElementById("launch-btn");
+    const output = document.getElementById("result");
+
+    button.addEventListener("click", async () => {
+      output.textContent = "Selecting...";
+      try {
+        resetSelectionHighlights();
+        const selection = await launchSelector({ friendlySelectors: true, retainSelectionHighlights: true });
+        output.textContent = JSON.stringify(selection, null, 2);
+      } catch (err) {
+        output.textContent = `Selection cancelled or failed: ${err instanceof Error ? err.message : String(err)}`;
+      }
+    });
+  </script>
+</body>
+</html>

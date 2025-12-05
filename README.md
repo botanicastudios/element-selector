@@ -21,11 +21,21 @@ A DOM element picker that provides a visual interface for selecting elements on 
 npm install @botanicastudios/element-selector
 ```
 
-**Note**: This package requires React and ReactDOM as peer dependencies. If you're using it outside a React project, you'll need to install them:
+**Note**: This package now targets **React 18 and 19**. React and ReactDOM are peer dependencies for the main build, so if you're using it outside a React project you'll need to install matching versions:
 
 ```bash
-npm install react react-dom
+npm install react@^18.2.0 react-dom@^18.2.0
 ```
+
+If you don't want any React peer requirement (for example, you can't control the host's React version), use the **standalone** build. It bundles its own renderer and isolates UI in a shadow root, so it works even in non-React pages:
+
+```ts
+import { launchSelector } from "@botanicastudios/element-selector/standalone";
+
+const result = await launchSelector();
+```
+
+See `examples/standalone.html` for a minimal drop-in page that uses the bundled renderer without installing React.
 
 ## Usage
 

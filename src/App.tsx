@@ -7,6 +7,7 @@ import type {
   SelectionResult,
 } from "./element-selector";
 import { ShadowHitTestPage } from "./ShadowHitTestPage";
+import { StandaloneDemo } from "./StandaloneDemo";
 
 // Register nested shadow-DOM custom elements that project children through slots.
 const registerNestedCustomElements = () => {
@@ -193,6 +194,7 @@ function DemoApp() {
   const [retainHighlights, setRetainHighlights] = useState(false);
   const [panelTheme, setPanelTheme] = useState<ElementSelectorTheme>("dark");
   const [allowModeToggle, setAllowModeToggle] = useState(true);
+  const [lassoEnabled, setLassoEnabled] = useState(true);
 
   const handleResetHighlights = () => {
     resetSelectionHighlights();
@@ -210,6 +212,12 @@ function DemoApp() {
     }
   }, [mode, multiSelect]);
 
+  useEffect(() => {
+    if (!lassoEnabled && mode === "lasso") {
+      setMode("select");
+    }
+  }, [lassoEnabled, mode]);
+
   const handleLaunchSelector = async () => {
     setError(null);
     setIsSelecting(true);
@@ -220,6 +228,7 @@ function DemoApp() {
         friendlySelectors,
         mode,
         allowModeToggle,
+        lasso: lassoEnabled,
         retainSelectionHighlights: retainHighlights,
         theme: panelTheme,
         debug: true,
@@ -234,6 +243,17 @@ function DemoApp() {
       setIsSelecting(false);
     }
   };
+
+  const modeOptions: Array<{ label: string; value: ElementSelectorMode }> = [
+    { label: "Select", value: "select" },
+    { label: "Insert", value: "insert" },
+  ];
+
+  if (lassoEnabled) {
+    modeOptions.push({ label: "Lasso", value: "lasso" });
+  }
+
+  const totalModes = modeOptions.length;
 
   return (
     <div className="App">
@@ -332,7 +352,28 @@ function DemoApp() {
                 cursor: "pointer",
               }}
             />
-            <span>Show select/insert toggle in bar</span>
+            <span>Show mode toggle in bar</span>
+          </label>
+
+          <label
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: "8px",
+              cursor: "pointer",
+            }}
+          >
+            <input
+              type="checkbox"
+              checked={lassoEnabled}
+              onChange={(e) => setLassoEnabled(e.target.checked)}
+              style={{
+                width: "18px",
+                height: "18px",
+                cursor: "pointer",
+              }}
+            />
+            <span>Enable lasso selection</span>
           </label>
         </div>
 
@@ -404,38 +445,37 @@ function DemoApp() {
               padding: "4px",
             }}
           >
-            <button
-              type="button"
-              onClick={() => setMode("select")}
-              disabled={mode === "select"}
-              style={{
-                border: "none",
-                borderRadius: "999px",
-                padding: "6px 16px",
-                cursor: mode === "select" ? "default" : "pointer",
-                backgroundColor: mode === "select" ? "#f0f0f0" : "transparent",
-                color: mode === "select" ? "#1a1a1a" : "#f0f0f0",
-                fontWeight: mode === "select" ? 700 : 500,
-              }}
-            >
-              Select
-            </button>
-            <button
-              type="button"
-              onClick={() => setMode("insert")}
-              disabled={mode === "insert"}
-              style={{
-                border: "none",
-                borderRadius: "999px",
-                padding: "6px 16px",
-                cursor: mode === "insert" ? "default" : "pointer",
-                backgroundColor: mode === "insert" ? "#f0f0f0" : "transparent",
-                color: mode === "insert" ? "#1a1a1a" : "#f0f0f0",
-                fontWeight: mode === "insert" ? 700 : 500,
-              }}
-            >
-              Insert
-            </button>
+            {modeOptions.map((option, index) => {
+              const isActive = mode === option.value;
+              const borderRadius =
+                totalModes === 1
+                  ? "999px"
+                  : index === 0
+                  ? "999px 0 0 999px"
+                  : index === totalModes - 1
+                  ? "0 999px 999px 0"
+                  : "0";
+
+              return (
+                <button
+                  key={option.value}
+                  type="button"
+                  onClick={() => setMode(option.value)}
+                  disabled={isActive}
+                  style={{
+                    border: "none",
+                    borderRadius,
+                    padding: "6px 16px",
+                    cursor: isActive ? "default" : "pointer",
+                    backgroundColor: isActive ? "#f0f0f0" : "transparent",
+                    color: isActive ? "#1a1a1a" : "#f0f0f0",
+                    fontWeight: isActive ? 700 : 500,
+                  }}
+                >
+                  {option.label}
+                </button>
+              );
+            })}
           </div>
         </div>
 
@@ -823,6 +863,9 @@ export default function App() {
     window.location.pathname === "/shadow-hit-test"
   ) {
     return <ShadowHitTestPage />;
+  }
+  if (typeof window !== "undefined" && window.location.pathname === "/standalone-demo") {
+    return <StandaloneDemo />;
   }
   return <DemoApp />;
 }

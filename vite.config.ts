@@ -5,6 +5,7 @@ import { resolve } from 'path'
 
 export default defineConfig(({ mode }) => {
   const isDev = mode === 'development'
+  const isStandalone = mode === 'standalone'
 
   return {
     plugins: [reactAiSrcPlugin(), react()],
@@ -14,18 +15,20 @@ export default defineConfig(({ mode }) => {
       lib: {
         entry: resolve(__dirname, 'src/element-selector/index.tsx'),
         name: 'ElementSelector',
-        fileName: 'element-selector',
+        fileName: isStandalone ? 'element-selector.standalone' : 'element-selector',
         formats: ['es']
       },
       rollupOptions: {
-        external: ['react', 'react-dom', 'react-dom/client'],
-        output: {
-          globals: {
-            react: 'React',
-            'react-dom': 'ReactDOM',
-            'react-dom/client': 'ReactDOM'
-          }
-        }
+        external: isStandalone ? [] : ['react', 'react-dom', 'react-dom/client'],
+        output: isStandalone
+          ? undefined
+          : {
+              globals: {
+                react: 'React',
+                'react-dom': 'ReactDOM',
+                'react-dom/client': 'ReactDOM'
+              }
+            }
       }
     }
   }
